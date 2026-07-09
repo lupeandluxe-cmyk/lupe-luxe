@@ -1,0 +1,17 @@
+{
+  "name": "lupe-and-luxe",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Lupe & Luxe - Premium Thrift & Custom Clothing",
+  "scripts": {
+    "server": "cd server && node server.js",
+    "client": "cd client && npm run dev",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "install-all": "cmd /c \"cd server && npm install\" && cmd /c \"cd client && npm install\"",
+    "seed": "cd server && node seed.js",
+    "build": "cd client && npm run build"
+  },
+  "dependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
