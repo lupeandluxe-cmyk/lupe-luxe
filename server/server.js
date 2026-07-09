@@ -35,16 +35,14 @@ app.use('/api/reports', require('./routes/reports'));
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
 
 const clientDist = path.resolve(__dirname, '..', 'client', 'dist');
-if (process.env.NODE_ENV === 'production' && fs.existsSync(clientDist)) {
+if (fs.existsSync(path.join(clientDist, 'index.html'))) {
+  console.log('🌐 Serving React frontend from client/dist');
   app.use(express.static(clientDist));
   app.get('*', (req, res) =>
     res.sendFile(path.join(clientDist, 'index.html'))
   );
-} else if (process.env.NODE_ENV === 'production') {
-  console.warn('⚠ client/dist not found. Frontend will not be served.');
-}
-
-if (process.env.NODE_ENV !== 'production') {
+} else {
+  console.log('📡 client/dist not found — API-only mode');
   app.get('/', (req, res) => res.send('🌊 Lupe & Luxe API is sailing...'));
 }
 
