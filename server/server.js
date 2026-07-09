@@ -15,6 +15,8 @@ app.use('/api/products', require('./routes/products'));
 app.use('/api/orders', require('./routes/orders'));
 app.use('/api/payment', require('./routes/payment'));
 
+app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
+
 const __dirname1 = path.resolve();
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname1, '/client/dist')));
