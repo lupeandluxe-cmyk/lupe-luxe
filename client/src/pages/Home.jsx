@@ -60,15 +60,15 @@ export default function Home() {
             </Link>
           )}
         </div>
-        <div className="hero-scroll">
-          <span className="scroll-text">Scroll to explore</span>
-          <div className="scroll-arrow">↓</div>
+        <div className="hero-features">
+          {[{ icon: '✦', label: 'Hand-Selected' }, { icon: '🌿', label: 'Sustainable' }, { icon: '🎨', label: 'Custom Art' }].map((f, i) => (
+            <div key={i} className="hero-feature"><span className="feature-icon">{f.icon}</span><span className="feature-label">{f.label}</span></div>
+          ))}
         </div>
       </div>
-      <div className="hero-features">
-        {[{ icon: '✦', label: 'Hand-Selected' }, { icon: '🌿', label: 'Sustainable' }, { icon: '🎨', label: 'Custom Art' }].map((f, i) => (
-          <div key={i} className="hero-feature"><span className="feature-icon">{f.icon}</span><span className="feature-label">{f.label}</span></div>
-        ))}
+      <div className="hero-scroll">
+        <span className="scroll-text">Scroll to explore</span>
+        <div className="scroll-arrow">↓</div>
       </div>
     </section>
   );
