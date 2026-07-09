@@ -1,4 +1,4 @@
-require('dotenv').config();
+require('dotenv').config({ path: require('path').resolve(__dirname, '.env') });
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
@@ -17,11 +17,11 @@ app.use('/api/payment', require('./routes/payment'));
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
 
-const __dirname1 = path.resolve();
+const rootDir = path.resolve(__dirname, '..');
 if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname1, '/client/dist')));
+  app.use(express.static(path.join(rootDir, 'client', 'dist')));
   app.get('*', (req, res) =>
-    res.sendFile(path.resolve(__dirname1, 'client', 'dist', 'index.html'))
+    res.sendFile(path.join(rootDir, 'client', 'dist', 'index.html'))
   );
 } else {
   app.get('/', (req, res) => res.send('🌊 Lupe & Luxe API is sailing...'));
