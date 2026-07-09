@@ -3,6 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
+const { execSync } = require('child_process');
 const connectDB = require('./config/db');
 
 connectDB();
@@ -34,7 +35,22 @@ app.use('/api/reports', require('./routes/reports'));
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
 
-const clientDist = path.resolve(__dirname, '..', 'client', 'dist');
+const clientDir = path.resolve(__dirname, '..', 'client');
+const clientDist = path.join(clientDir, 'dist');
+
+if (!fs.existsSync(path.join(clientDist, 'index.html'))) {
+  console.log('🔨 Building React frontend...');
+  try {
+    if (!fs.existsSync(path.join(clientDir, 'node_modules'))) {
+      execSync('npm install', { cwd: clientDir, stdio: 'pipe' });
+    }
+    execSync('npm run build', { cwd: clientDir, stdio: 'pipe' });
+    console.log('✅ React frontend built successfully');
+  } catch (err) {
+    console.error('❌ Failed to build frontend:', err.message);
+  }
+}
+
 if (fs.existsSync(path.join(clientDist, 'index.html'))) {
   console.log('🌐 Serving React frontend from client/dist');
   app.use(express.static(clientDist));
