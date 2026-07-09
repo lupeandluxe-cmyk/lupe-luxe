@@ -1,124 +1,105 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../../api/axios';
-import Loader from '../../components/Loader';
-import Message from '../../components/Message';
 
 export default function EditProduct() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const isNew = !id || id === 'new';
+  const isNew = !id;
 
   const [form, setForm] = useState({
-    name: '', description: '', price: '', images: '',
-    category: '', tags: '', size: '', countInStock: '', featured: false,
+    name: '', description: '', price: '', salePrice: '', category: '',
+    countInStock: '', sku: '', featured: false, bestSeller: false, visible: true,
+    tags: '', size: '', images: [],
   });
   const [loading, setLoading] = useState(!isNew);
-  const [error, setError] = useState('');
-  const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     if (!isNew) {
-      api.get(`/products/${id}`)
-        .then(({ data }) => setForm({
-          name: data.name,
-          description: data.description,
-          price: data.price.toString(),
-          images: data.images?.join(', ') || '',
-          category: data.category,
-          tags: data.tags?.join(', ') || '',
-          size: data.size?.join(', ') || '',
-          countInStock: data.countInStock.toString(),
-          featured: data.featured || false,
-        }))
-        .catch(() => setError('Product not found'))
-        .finally(() => setLoading(false));
+      api.get(`/products/${id}`).then(res => {
+        const p = res.data;
+        setForm({
+          name: p.name, description: p.description, price: p.price,
+          salePrice: p.salePrice || '', category: p.category,
+          countInStock: p.countInStock, sku: p.sku || '', featured: p.featured,
+          bestSeller: p.bestSeller, visible: p.visible !== false,
+          tags: p.tags?.join(', ') || '', size: p.size?.join(', ') || '',
+          images: p.images || [],
+        });
+        setLoading(false);
+      });
     }
-  }, [id, isNew]);
+  }, [id]);
 
-  const handleChange = (e) => {
-    const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
-    setForm({ ...form, [e.target.name]: value });
+  const handleChange = e => setForm({ ...form, [e.target.name]: e.target.value });
+
+  const uploadImage = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setUploading(true);
+    const fd = new FormData();
+    fd.append('file', file);
+    fd.append('folder', 'products');
+    const res = await api.post('/media', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+    setForm({ ...form, images: [...form.images, res.data.url] });
+    setUploading(false);
+  };
+
+  const removeImage = (idx) => {
+    setForm({ ...form, images: form.images.filter((_, i) => i !== idx) });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setSaving(true);
-    setError('');
-    try {
-      const payload = {
-        ...form,
-        price: Number(form.price),
-        countInStock: Number(form.countInStock),
-        images: form.images.split(',').map((s) => s.trim()).filter(Boolean),
-        tags: form.tags.split(',').map((s) => s.trim()).filter(Boolean),
-        size: form.size.split(',').map((s) => s.trim()).filter(Boolean),
-      };
-      if (isNew) await api.post('/products', payload);
-      else await api.put(`/products/${id}`, payload);
-      navigate('/admin/products');
-    } catch (err) {
-      setError(err.response?.data?.message || 'Save failed');
-    } finally {
-      setSaving(false);
+    const data = {
+      ...form,
+      price: Number(form.price),
+      salePrice: form.salePrice ? Number(form.salePrice) : undefined,
+      countInStock: Number(form.countInStock),
+      tags: form.tags.split(',').map(t => t.trim()).filter(Boolean),
+      size: form.size.split(',').map(s => s.trim()).filter(Boolean),
+    };
+    if (isNew) {
+      await api.post('/products', data);
+    } else {
+      await api.put(`/products/${id}`, data);
     }
+    navigate('/admin/products');
   };
 
-  if (loading) return <Loader />;
+  if (loading) return <div className="admin-loading">Loading...</div>;
 
   return (
-    <div className="admin-page">
-      <div className="container">
-        <h1 className="page-title">{isNew ? '✦ Add New Product' : '✎ Edit Product'}</h1>
-        {error && <Message variant="danger">{error}</Message>}
-        <form onSubmit={handleSubmit} className="admin-form">
-          <div className="form-group">
-            <label>Product Name</label>
-            <input name="name" value={form.name} onChange={handleChange} required />
+    <div className="admin-page-content">
+      <h1 className="admin-page-title">{isNew ? 'New Product' : 'Edit Product'}</h1>
+      <form onSubmit={handleSubmit} className="admin-form">
+        <div className="form-grid">
+          <div className="form-group"><label>Name</label><input name="name" value={form.name} onChange={handleChange} required /></div>
+          <div className="form-group"><label>Category</label><input name="category" value={form.category} onChange={handleChange} required /></div>
+          <div className="form-group"><label>Price (₹)</label><input name="price" type="number" step="0.01" value={form.price} onChange={handleChange} required /></div>
+          <div className="form-group"><label>Sale Price (₹)</label><input name="salePrice" type="number" step="0.01" value={form.salePrice} onChange={handleChange} /></div>
+          <div className="form-group"><label>Stock</label><input name="countInStock" type="number" value={form.countInStock} onChange={handleChange} required /></div>
+          <div className="form-group"><label>SKU</label><input name="sku" value={form.sku} onChange={handleChange} /></div>
+          <div className="form-group"><label>Tags (comma separated)</label><input name="tags" value={form.tags} onChange={handleChange} /></div>
+          <div className="form-group"><label>Sizes (comma separated)</label><input name="size" value={form.size} onChange={handleChange} /></div>
+        </div>
+        <div className="form-group"><label>Description</label><textarea name="description" rows="4" value={form.description} onChange={handleChange} required /></div>
+        <div className="form-row">
+          <label><input type="checkbox" checked={form.featured} onChange={e => setForm({ ...form, featured: e.target.checked })} /> Featured</label>
+          <label><input type="checkbox" checked={form.bestSeller} onChange={e => setForm({ ...form, bestSeller: e.target.checked })} /> Best Seller</label>
+          <label><input type="checkbox" checked={!form.visible} onChange={e => setForm({ ...form, visible: !e.target.checked })} /> Hidden</label>
+        </div>
+        <div className="form-group"><label>Images</label>
+          <div className="image-upload-area">
+            {form.images.map((img, i) => (
+              <div key={i} className="image-preview"><img src={img} alt="" /><button type="button" onClick={() => removeImage(i)} className="remove-img">×</button></div>
+            ))}
+            <label className="upload-btn">{uploading ? 'Uploading...' : '+ Upload'}<input type="file" onChange={uploadImage} hidden accept="image/*" /></label>
           </div>
-          <div className="form-group">
-            <label>Description</label>
-            <textarea name="description" value={form.description} onChange={handleChange} rows={4} required />
-          </div>
-          <div className="form-row">
-            <div className="form-group">
-              <label>Price ($)</label>
-              <input name="price" type="number" step="0.01" value={form.price} onChange={handleChange} required />
-            </div>
-            <div className="form-group">
-              <label>Stock</label>
-              <input name="countInStock" type="number" value={form.countInStock} onChange={handleChange} required />
-            </div>
-          </div>
-          <div className="form-group">
-            <label>Image URLs (comma separated)</label>
-            <input name="images" value={form.images} onChange={handleChange} placeholder="https://..." />
-          </div>
-          <div className="form-row">
-            <div className="form-group">
-              <label>Category</label>
-              <input name="category" value={form.category} onChange={handleChange} required />
-            </div>
-            <div className="form-group">
-              <label>Tags (comma separated)</label>
-              <input name="tags" value={form.tags} onChange={handleChange} placeholder="luffy, premium, custom" />
-            </div>
-          </div>
-          <div className="form-group">
-            <label>Sizes (comma separated, e.g. S, M, L)</label>
-            <input name="size" value={form.size} onChange={handleChange} placeholder="S, M, L, XL" />
-          </div>
-          <div className="form-group checkbox-group">
-            <label>
-              <input type="checkbox" name="featured" checked={form.featured} onChange={handleChange} />
-              <span>Featured product</span>
-            </label>
-          </div>
-          <button type="submit" className="btn btn-primary btn-lg" disabled={saving}>
-            {saving ? 'Saving...' : isNew ? 'Create Product' : 'Update Product'}
-          </button>
-        </form>
-      </div>
+        </div>
+        <button type="submit" className="btn btn-primary">{isNew ? 'Create Product' : 'Save Changes'}</button>
+      </form>
     </div>
   );
 }

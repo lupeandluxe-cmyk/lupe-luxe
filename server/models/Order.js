@@ -32,8 +32,12 @@ const orderSchema = new mongoose.Schema({
     orderId: { type: String },
     status: { type: String },
   },
+  orderStatus: { type: String, enum: ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled', 'returned'], default: 'pending' },
+  trackingNumber: { type: String },
   isDelivered: { type: Boolean, default: false },
   deliveredAt: { type: Date },
+  upiTransactionId: { type: String },
+  upiPaymentStatus: { type: String, enum: ['pending', 'verified', 'rejected'], default: 'pending' },
 }, { timestamps: true });
 
 module.exports = mongoose.model('Order', orderSchema);

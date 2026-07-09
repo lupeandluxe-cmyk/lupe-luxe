@@ -1,78 +1,63 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../../api/axios';
-import Loader from '../../components/Loader';
-import Message from '../../components/Message';
 
 export default function AdminProducts() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-
-  const fetchProducts = async () => {
-    try {
-      const { data } = await api.get('/products');
-      setProducts(data.products);
-    } catch (err) { setError('Failed to load'); }
-    finally { setLoading(false); }
-  };
 
   useEffect(() => { fetchProducts(); }, []);
 
-  const handleDelete = async (id, name) => {
-    if (!window.confirm(`Delete "${name}"? This cannot be undone.`)) return;
-    try {
-      await api.delete(`/products/${id}`);
-      setProducts(products.filter((p) => p._id !== id));
-    } catch (err) {
-      setError(err.response?.data?.message || 'Delete failed');
-    }
+  const fetchProducts = async () => {
+    try { const res = await api.get('/products/all'); setProducts(res.data); } catch (e) { console.error(e); }
+    finally { setLoading(false); }
   };
 
-  if (loading) return <Loader />;
+  const toggleVisibility = async (id, visible) => {
+    await api.put(`/products/${id}`, { visible: !visible });
+    fetchProducts();
+  };
+
+  const deleteProduct = async (id) => {
+    if (!window.confirm('Delete this product?')) return;
+    await api.delete(`/products/${id}`);
+    fetchProducts();
+  };
+
+  if (loading) return <div className="admin-loading">Loading...</div>;
 
   return (
-    <div className="admin-page">
-      <div className="container">
-        <div className="admin-header">
-          <h1 className="page-title">📦 Manage Products</h1>
-          <Link to="/admin/products/new" className="btn btn-primary">+ Add Product</Link>
-        </div>
-        {error && <Message variant="danger">{error}</Message>}
-        <div className="admin-table-wrap">
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th>Product</th>
-                <th>Price</th>
-                <th>Category</th>
-                <th>Stock</th>
-                <th>Actions</th>
+    <div className="admin-page-content">
+      <div className="page-header">
+        <h1 className="admin-page-title">Products ({products.length})</h1>
+        <Link to="/admin/products/new" className="btn btn-primary">+ Add Product</Link>
+      </div>
+      <div className="admin-card">
+        <table className="admin-table">
+          <thead>
+            <tr><th>Image</th><th>Name</th><th>Price</th><th>Stock</th><th>Category</th><th>Status</th><th>Actions</th></tr>
+          </thead>
+          <tbody>
+            {products.map(p => (
+              <tr key={p._id}>
+                <td><img src={p.images?.[0] || '/placeholder.png'} alt="" className="table-thumb" /></td>
+                <td>{p.name}</td>
+                <td>₹{p.salePrice || p.price}</td>
+                <td><span className={p.countInStock <= 5 ? 'text-danger' : ''}>{p.countInStock}</span></td>
+                <td>{p.category}</td>
+                <td>
+                  <span className={`badge ${p.visible ? 'active' : 'inactive'}`} onClick={() => toggleVisibility(p._id, p.visible)} style={{ cursor: 'pointer' }}>
+                    {p.visible ? 'Visible' : 'Hidden'}
+                  </span>
+                </td>
+                <td className="action-cell">
+                  <Link to={`/admin/products/${p._id}/edit`} className="btn-sm">✏️</Link>
+                  <button onClick={() => deleteProduct(p._id)} className="btn-sm danger">🗑️</button>
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {products.map((p) => (
-                <tr key={p._id}>
-                  <td className="product-cell">
-                    <img src={p.images?.[0] || ''} alt="" className="admin-thumb" />
-                    <span className="admin-product-name">{p.name}</span>
-                  </td>
-                  <td>₹{p.price.toFixed(2)}</td>
-                  <td><span className="badge-cat">{p.category}</span></td>
-                  <td>
-                    <span className={p.countInStock > 0 ? 'text-success' : 'text-danger'}>
-                      {p.countInStock}
-                    </span>
-                  </td>
-                  <td className="actions-cell">
-                    <Link to={`/admin/products/${p._id}/edit`} className="btn btn-sm btn-edit">Edit</Link>
-                    <button className="btn btn-sm btn-danger" onClick={() => handleDelete(p._id, p.name)}>Delete</button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );

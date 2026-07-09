@@ -5,11 +5,14 @@ const { protect, admin } = require('../middleware/auth');
 const router = express.Router();
 
 router.post('/', protect, async (req, res) => {
-  const { items, shippingAddress, paymentMethod, itemsPrice, shippingPrice, taxPrice, totalPrice } = req.body;
+  const { items, shippingAddress, paymentMethod, itemsPrice, shippingPrice, taxPrice, totalPrice, upiTransactionId } = req.body;
   if (items?.length === 0) return res.status(400).json({ message: 'No order items' });
   const order = await Order.create({
     user: req.user._id, items, shippingAddress, paymentMethod,
     itemsPrice, shippingPrice, taxPrice, totalPrice,
+    upiTransactionId: upiTransactionId || undefined,
+    upiPaymentStatus: paymentMethod === 'upi' ? 'pending' : 'pending',
+    orderStatus: paymentMethod === 'cod' ? 'confirmed' : 'pending',
   });
   res.status(201).json(order);
 });
@@ -47,6 +50,44 @@ router.put('/:id/deliver', protect, admin, async (req, res) => {
   if (order) {
     order.isDelivered = true;
     order.deliveredAt = Date.now();
+    const updated = await order.save();
+    res.json(updated);
+  } else {
+    res.status(404).json({ message: 'Order not found' });
+  }
+});
+
+router.put('/:id/status', protect, admin, async (req, res) => {
+  const order = await Order.findById(req.params.id);
+  if (order) {
+    order.orderStatus = req.body.orderStatus;
+    if (req.body.trackingNumber) order.trackingNumber = req.body.trackingNumber;
+    if (req.body.orderStatus === 'delivered') {
+      order.isDelivered = true;
+      order.deliveredAt = Date.now();
+    }
+    if (req.body.orderStatus === 'cancelled' || req.body.orderStatus === 'returned') {
+      order.isPaid = false;
+    }
+    const updated = await order.save();
+    res.json(updated);
+  } else {
+    res.status(404).json({ message: 'Order not found' });
+  }
+});
+
+router.put('/:id/upi-verify', protect, admin, async (req, res) => {
+  const order = await Order.findById(req.params.id);
+  if (order) {
+    order.upiPaymentStatus = req.body.status;
+    if (req.body.status === 'verified') {
+      order.isPaid = true;
+      order.paidAt = Date.now();
+      order.orderStatus = 'confirmed';
+    }
+    if (req.body.status === 'rejected') {
+      order.isPaid = false;
+    }
     const updated = await order.save();
     res.json(updated);
   } else {

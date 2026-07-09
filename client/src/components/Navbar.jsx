@@ -2,13 +2,23 @@ import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
+import api from '../api/axios';
 
 export default function Navbar() {
   const { user, logout } = useAuth();
   const { items } = useCart();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [announcement, setAnnouncement] = useState('✦ Free shipping on orders over ₹3,999 ✦');
+  const [announcementActive, setAnnouncementActive] = useState(true);
   const location = useLocation();
+
+  useEffect(() => {
+    api.get('/settings/public').then(res => {
+      if (res.data.announcementText) setAnnouncement(res.data.announcementText);
+      if (res.data.announcementActive === 'false') setAnnouncementActive(false);
+    }).catch(() => {});
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
@@ -20,9 +30,9 @@ export default function Navbar() {
 
   return (
     <>
-      <div className="top-bar">
-        <span className="top-bar-text">✦ Free shipping on orders over ₹3,999 ✦</span>
-      </div>
+      {announcementActive && <div className="top-bar">
+        <span className="top-bar-text">{announcement}</span>
+      </div>}
       <nav className={`navbar ${scrolled ? 'scrolled' : ''}`}>
         <div className="nav-container">
           <button className="hamburger" onClick={() => setMenuOpen(!menuOpen)} aria-label="Menu">

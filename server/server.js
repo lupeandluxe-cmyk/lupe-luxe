@@ -8,12 +8,22 @@ connectDB();
 
 const app = express();
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '50mb' }));
+
+app.use('/uploads', express.static(path.resolve(__dirname, '..', 'uploads')));
 
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/products', require('./routes/products'));
 app.use('/api/orders', require('./routes/orders'));
 app.use('/api/payment', require('./routes/payment'));
+app.use('/api/media', require('./routes/media'));
+app.use('/api/settings', require('./routes/settings'));
+app.use('/api/homepage', require('./routes/homepage'));
+app.use('/api/categories', require('./routes/categories'));
+app.use('/api/coupons', require('./routes/coupons'));
+app.use('/api/pages', require('./routes/pages'));
+app.use('/api/customers', require('./routes/customers'));
+app.use('/api/reports', require('./routes/reports'));
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
 

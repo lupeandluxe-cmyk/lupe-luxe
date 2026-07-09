@@ -6,6 +6,11 @@ const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   isAdmin: { type: Boolean, default: false },
+  blocked: { type: Boolean, default: false },
+  loginHistory: [{
+    ip: String,
+    date: { type: Date, default: Date.now },
+  }],
 }, { timestamps: true });
 
 userSchema.pre('save', async function (next) {

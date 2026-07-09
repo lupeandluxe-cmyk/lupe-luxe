@@ -11,8 +11,9 @@ router.get('/', async (req, res) => {
     ? { name: { $regex: req.query.keyword, $options: 'i' } }
     : {};
   const category = req.query.category ? { category: req.query.category } : {};
-  const count = await Product.countDocuments({ ...keyword, ...category });
-  const products = await Product.find({ ...keyword, ...category })
+  const visible = { visible: true };
+  const count = await Product.countDocuments({ ...keyword, ...category, ...visible });
+  const products = await Product.find({ ...keyword, ...category, ...visible })
     .sort({ createdAt: -1 })
     .limit(pageSize)
     .skip(pageSize * (page - 1));
@@ -25,27 +26,39 @@ router.get('/categories', async (req, res) => {
 });
 
 router.get('/featured', async (req, res) => {
-  const products = await Product.find({ featured: true }).limit(8);
+  const products = await Product.find({ featured: true, visible: true }).limit(8);
+  res.json(products);
+});
+
+router.get('/best-sellers', async (req, res) => {
+  const products = await Product.find({ bestSeller: true, visible: true }).limit(8);
   res.json(products);
 });
 
 router.get('/latest', async (req, res) => {
-  const products = await Product.find({}).sort({ createdAt: -1 }).limit(8);
+  const products = await Product.find({ visible: true }).sort({ createdAt: -1 }).limit(8);
+  res.json(products);
+});
+
+router.get('/all', protect, admin, async (req, res) => {
+  const products = await Product.find({}).sort({ createdAt: -1 });
   res.json(products);
 });
 
 router.get('/:id', async (req, res) => {
   const product = await Product.findById(req.params.id);
-  if (product) res.json(product);
+  if (product && product.visible) res.json(product);
+  else if (product) res.json(product);
   else res.status(404).json({ message: 'Product not found' });
 });
 
 router.post('/', protect, admin, async (req, res) => {
-  const { name, description, price, images, category, tags, size, countInStock, featured } = req.body;
+  const { name, description, price, salePrice, images, category, tags, size, countInStock, sku, featured, bestSeller, visible } = req.body;
   const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
   const product = await Product.create({
-    name, slug, description, price, images, category, tags, size,
-    countInStock, featured: featured || false,
+    name, slug, description, price, salePrice, images, category, tags, size,
+    countInStock, sku, featured: featured || false, bestSeller: bestSeller || false,
+    visible: visible !== false,
   });
   res.status(201).json(product);
 });

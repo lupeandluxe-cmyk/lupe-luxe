@@ -1,6 +1,14 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import api from '../api/axios';
 
 export default function Footer() {
+  const [settings, setSettings] = useState({});
+
+  useEffect(() => {
+    api.get('/settings/public').then(res => setSettings(res.data)).catch(() => {});
+  }, []);
+
   return (
     <footer className="footer">
       <div className="footer-waves">
@@ -12,11 +20,8 @@ export default function Footer() {
       <div className="footer-content">
         <div className="footer-grid">
           <div className="footer-brand">
-            <h3 className="footer-logo">☠ Lupe &amp; Luxe</h3>
-            <p className="footer-tagline">
-              Premium thrift &amp; custom clothing for those who sail the Grand Line.
-              Every piece tells a story.
-            </p>
+            <h3 className="footer-logo">☠ {settings.siteName || 'Lupe & Luxe'}</h3>
+            <p className="footer-tagline">{settings.siteDescription || 'Premium thrift & custom clothing for those who sail the Grand Line. Every piece tells a story.'}</p>
           </div>
           <div className="footer-links">
             <h4>Navigate</h4>
@@ -28,17 +33,19 @@ export default function Footer() {
           </div>
           <div className="footer-links">
             <h4>Support</h4>
-            <a href="#">Size Guide</a>
-            <a href="#">Shipping &amp; Returns</a>
-            <a href="#">Contact Us</a>
-            <a href="#">FAQ</a>
+            <Link to="/page/shipping-policy">Shipping &amp; Returns</Link>
+            <Link to="/page/contact">Contact Us</Link>
+            <Link to="/page/faq">FAQ</Link>
+            <Link to="/page/about">About Us</Link>
           </div>
           <div className="footer-newsletter">
             <h4>Get in Touch</h4>
             <p>Reach out to us anytime!</p>
             <div className="footer-contact">
-              <p className="contact-item">📧 lupeandluxe@gmail.com</p>
-              <p className="contact-item">📞 +91 9654023351</p>
+              {settings.contactEmail && <p className="contact-item">📧 {settings.contactEmail}</p>}
+              {settings.contactPhone && <p className="contact-item">📞 {settings.contactPhone}</p>}
+              {settings.instagram && <a href={settings.instagram} target="_blank" rel="noopener noreferrer" className="contact-item">📸 Instagram</a>}
+              {settings.facebook && <a href={settings.facebook} target="_blank" rel="noopener noreferrer" className="contact-item">👍 Facebook</a>}
             </div>
             <div className="newsletter-form">
               <input type="email" placeholder="your@email.com" />
@@ -47,7 +54,7 @@ export default function Footer() {
           </div>
         </div>
         <div className="footer-bottom">
-          <p>&copy; {new Date().getFullYear()} Lupe &amp; Luxe. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} {settings.siteName || 'Lupe & Luxe'}. All rights reserved.</p>
           <p className="footer-quote">"The one who inherits the will of all those who've sailed the seas..."</p>
         </div>
       </div>
