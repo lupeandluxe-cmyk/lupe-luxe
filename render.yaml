@@ -2,15 +2,13 @@ services:
   - type: web
     name: lupe-and-luxe-api
     env: node
-    rootDir: .
-    buildCommand: npm run install-all && npm run build
-    startCommand: npm start
+    rootDir: server
+    buildCommand: cd ../client && npm install && npm run build && cd ../server && npm install
+    startCommand: node server.js
     healthCheckPath: /api/health
     envVars:
       - key: NODE_ENV
         value: production
-      - key: PORT
-        value: 5000
       - key: MONGO_URI
         sync: false
       - key: JWT_SECRET

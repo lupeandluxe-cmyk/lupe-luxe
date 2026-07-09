@@ -2,6 +2,7 @@ require('dotenv').config({ path: require('path').resolve(__dirname, '.env') });
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
 const connectDB = require('./config/db');
 
 connectDB();
@@ -10,7 +11,13 @@ const app = express();
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 
-app.use('/uploads', express.static(path.resolve(__dirname, '..', 'uploads')));
+const uploadsDir = path.resolve(__dirname, '..', 'uploads');
+['', 'products', 'settings', 'general'].forEach(dir => {
+  const p = path.join(uploadsDir, dir);
+  if (!fs.existsSync(p)) fs.mkdirSync(p, { recursive: true });
+});
+
+app.use('/uploads', express.static(uploadsDir));
 
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/products', require('./routes/products'));
@@ -27,13 +34,17 @@ app.use('/api/reports', require('./routes/reports'));
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
 
-const rootDir = path.resolve(__dirname, '..');
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(rootDir, 'client', 'dist')));
+const clientDist = path.resolve(__dirname, '..', 'client', 'dist');
+if (process.env.NODE_ENV === 'production' && fs.existsSync(clientDist)) {
+  app.use(express.static(clientDist));
   app.get('*', (req, res) =>
-    res.sendFile(path.join(rootDir, 'client', 'dist', 'index.html'))
+    res.sendFile(path.join(clientDist, 'index.html'))
   );
-} else {
+} else if (process.env.NODE_ENV === 'production') {
+  console.warn('⚠ client/dist not found. Frontend will not be served.');
+}
+
+if (process.env.NODE_ENV !== 'production') {
   app.get('/', (req, res) => res.send('🌊 Lupe & Luxe API is sailing...'));
 }
 
