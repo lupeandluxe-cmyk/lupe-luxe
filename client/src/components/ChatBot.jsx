@@ -121,13 +121,38 @@ export default function ChatBot() {
 
   return (
     <>
-      <button className={`chatbot-toggle ${open ? 'active' : ''}`} onClick={() => setOpen(!open)} aria-label="Chat">
-        {open ? (
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-        ) : (
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-        )}
-      </button>
+      <div className={`chatbot-toggle ${open ? 'active' : ''}`} onClick={() => setOpen(!open)} role="button" tabIndex={0} onKeyDown={(e) => e.key === 'Enter' && setOpen(!open)} aria-label="Chat">
+        {!open && <div className="chatbot-speech-bubble">Need help? <span className="chatbot-speech-tail" /></div>}
+        <div className="chatbot-mascot">
+          <svg viewBox="0 0 120 140" fill="none" xmlns="http://www.w3.org/2000/svg" className="chatbot-mascot-svg">
+            {/* Hat */}
+            <rect x="32" y="18" width="56" height="8" rx="3" className="mascot-hat-band" />
+            <path d="M30 26 L60 8 L90 26 Z" className="mascot-hat-top" />
+            <circle cx="72" cy="24" r="4" className="mascot-hat-skull" />
+            {/* Head */}
+            <circle cx="60" cy="58" r="30" className="mascot-head" />
+            {/* Eyes */}
+            <ellipse cx="46" cy="52" rx="5" ry="6" className="mascot-eye" />
+            <ellipse cx="74" cy="52" rx="5" ry="6" className="mascot-eye" />
+            <circle cx="46" cy="52" r="2.5" className="mascot-pupil" />
+            <circle cx="74" cy="52" r="2.5" className="mascot-pupil" />
+            {/* Blush */}
+            <ellipse cx="38" cy="62" rx="5" ry="3" className="mascot-blush" opacity="0.4" />
+            <ellipse cx="82" cy="62" rx="5" ry="3" className="mascot-blush" opacity="0.4" />
+            {/* Smile */}
+            <path d="M48 67 Q60 76 72 67" className="mascot-smile" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+            {/* Body */}
+            <rect x="44" y="86" width="32" height="22" rx="8" className="mascot-body" />
+            {/* Collar */}
+            <path d="M44 94 L52 88 L60 94 L68 88 L76 94" className="mascot-collar" strokeWidth="2" strokeLinecap="round" fill="none" />
+            {/* Arms */}
+            <rect x="28" y="92" width="16" height="8" rx="5" className="mascot-arm" />
+            <rect x="76" y="92" width="16" height="8" rx="5" className="mascot-arm" />
+            {/* Wave hand */}
+            <rect x="90" y="88" width="10" height="10" rx="5" className="mascot-hand mascot-wave" />
+          </svg>
+        </div>
+      </div>
 
       <div className={`chatbot-panel ${open ? 'open' : ''}`}>
         <div className="chatbot-header">
