@@ -3,6 +3,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import ChatBot from './components/ChatBot';
 import AdminLayout from './components/AdminLayout';
 import Home from './pages/Home';
 import ProductList from './pages/ProductList';
@@ -76,6 +77,7 @@ function AppRoutes() {
         </Routes>
       </main>
       <Footer />
+      <ChatBot />
     </div>
   );
 }
