@@ -2118,24 +2118,35 @@ input, textarea, select { font-family: var(--font-body); }
   50% { transform: translateY(-10px); }
 }
 
-.chatbot-mascot { width: 68px; height: 80px; position: relative; }
+.chatbot-mascot { width: 70px; height: 88px; position: relative; }
 .chatbot-mascot-svg { width: 100%; height: 100%; overflow: visible; }
-.chatbot-mascot-svg .mascot-head { fill: #FFE0BD; }
-.chatbot-mascot-svg .mascot-hat-top { fill: #1a1a2e; }
+.chatbot-mascot-svg .mascot-head { fill: #FFEACE; }
+.chatbot-mascot-svg .mascot-hair { stroke: #2C1810; }
+.chatbot-mascot-svg .mascot-hat-top { fill: #1C1C2E; }
 .chatbot-mascot-svg .mascot-hat-band { fill: var(--gold); }
-.chatbot-mascot-svg .mascot-hat-skull { fill: #f5f5f5; }
-.chatbot-mascot-svg .mascot-eye { fill: #1a1a2e; }
-.chatbot-mascot-svg .mascot-pupil { fill: #fff; }
-.chatbot-mascot-svg .mascot-blush { fill: #FF8A8A; }
-.chatbot-mascot-svg .mascot-smile { stroke: #1a1a2e; }
-.chatbot-mascot-svg .mascot-body { fill: #14141F; stroke: var(--glass-border); stroke-width: 1; }
-.chatbot-mascot-svg .mascot-collar { stroke: var(--gold); }
-.chatbot-mascot-svg .mascot-arm { fill: #14141F; stroke: var(--glass-border); stroke-width: 0.5; }
-.chatbot-mascot-svg .mascot-hand { fill: #FFE0BD; }
+.chatbot-mascot-svg .mascot-hat-skull { fill: #F5F0EB; }
+.chatbot-mascot-svg .mascot-hat-skull-inner { fill: #1C1C2E; }
+.chatbot-mascot-svg .mascot-eye { fill: #F5F0EB; }
+.chatbot-mascot-svg .mascot-catchlight { fill: #fff; }
+.chatbot-mascot-svg .mascot-catchlight-star { fill: #fff; }
+.chatbot-mascot-svg .mascot-blush { fill: #FF9E9E; }
+.chatbot-mascot-svg .mascot-mouth { stroke: #2C1810; }
+.chatbot-mascot-svg .mascot-nose { fill: #2C1810; }
+.chatbot-mascot-svg .mascot-body { fill: #14141F; }
+.chatbot-mascot-svg .mascot-coat { fill: #1A1A2E; stroke: var(--glass-border); stroke-width: 0.5; }
+.chatbot-mascot-svg .mascot-collar { fill: none; stroke: var(--gold); stroke-width: 2; stroke-linejoin: round; }
+.chatbot-mascot-svg .mascot-collar-knot { fill: var(--gold); }
+.chatbot-mascot-svg .mascot-arm { fill: #1A1A2E; stroke: var(--glass-border); stroke-width: 0.5; }
+.chatbot-mascot-svg .mascot-hand { fill: #FFEACE; }
 
-.mascot-wave {
-  transform-origin: center;
-  animation: waveHand 1.5s ease-in-out infinite;
+.mascot-wave-group {
+  transform-origin: 87px 92px;
+  animation: waveHand 1.8s ease-in-out infinite;
+}
+@keyframes waveHand {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-18deg); }
+  75% { transform: rotate(12deg); }
 }
 @keyframes waveHand {
   0%, 100% { transform: rotate(0deg); }

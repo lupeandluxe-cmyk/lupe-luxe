@@ -124,32 +124,58 @@ export default function ChatBot() {
       <div className={`chatbot-toggle ${open ? 'active' : ''}`} onClick={() => setOpen(!open)} role="button" tabIndex={0} onKeyDown={(e) => e.key === 'Enter' && setOpen(!open)} aria-label="Chat">
         {!open && <div className="chatbot-speech-bubble">Need help? <span className="chatbot-speech-tail" /></div>}
         <div className="chatbot-mascot">
-          <svg viewBox="0 0 120 140" fill="none" xmlns="http://www.w3.org/2000/svg" className="chatbot-mascot-svg">
-            {/* Hat */}
-            <rect x="32" y="18" width="56" height="8" rx="3" className="mascot-hat-band" />
-            <path d="M30 26 L60 8 L90 26 Z" className="mascot-hat-top" />
-            <circle cx="72" cy="24" r="4" className="mascot-hat-skull" />
-            {/* Head */}
-            <circle cx="60" cy="58" r="30" className="mascot-head" />
-            {/* Eyes */}
-            <ellipse cx="46" cy="52" rx="5" ry="6" className="mascot-eye" />
-            <ellipse cx="74" cy="52" rx="5" ry="6" className="mascot-eye" />
-            <circle cx="46" cy="52" r="2.5" className="mascot-pupil" />
-            <circle cx="74" cy="52" r="2.5" className="mascot-pupil" />
-            {/* Blush */}
-            <ellipse cx="38" cy="62" rx="5" ry="3" className="mascot-blush" opacity="0.4" />
-            <ellipse cx="82" cy="62" rx="5" ry="3" className="mascot-blush" opacity="0.4" />
-            {/* Smile */}
-            <path d="M48 67 Q60 76 72 67" className="mascot-smile" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+          <svg viewBox="0 0 120 150" xmlns="http://www.w3.org/2000/svg" className="chatbot-mascot-svg">
+            <defs>
+              <radialGradient id="eyeGrad" cx="40%" cy="35%" r="60%">
+                <stop offset="0%" stopColor="#2a1a3a" />
+                <stop offset="100%" stopColor="#0d0d1a" />
+              </radialGradient>
+            </defs>
             {/* Body */}
-            <rect x="44" y="86" width="32" height="22" rx="8" className="mascot-body" />
+            <rect x="42" y="88" width="36" height="30" rx="12" className="mascot-body" />
+            <path d="M38 94 L50 88 L70 88 L82 94 L76 118 L60 112 L44 118 Z" className="mascot-coat" />
+            {/* Head */}
+            <circle cx="60" cy="54" r="34" className="mascot-head" />
+            {/* Hair fringe */}
+            <path d="M30 48 Q40 28 60 22 Q80 28 90 48" className="mascot-hair" fill="none" strokeWidth="3" strokeLinecap="round" />
+            <path d="M35 42 Q45 25 60 20 Q75 25 85 42" className="mascot-hair" fill="none" strokeWidth="2.5" strokeLinecap="round" opacity="0.5" />
+            {/* Hat */}
+            <path d="M22 38 Q60 10 98 38 Q92 30 78 28 Q60 32 42 28 Q28 30 22 38 Z" className="mascot-hat-top" />
+            <ellipse cx="60" cy="38" rx="40" ry="5" className="mascot-hat-band" />
+            <circle cx="86" cy="28" r="5.5" className="mascot-hat-skull" />
+            <circle cx="87" cy="28" r="2.5" className="mascot-hat-skull-inner" />
+            {/* Eyes - huge sparkly */}
+            <ellipse cx="43" cy="50" rx="10" ry="12" className="mascot-eye" />
+            <ellipse cx="77" cy="50" rx="10" ry="12" className="mascot-eye" />
+            <ellipse cx="43" cy="50" rx="6" ry="8" fill="url(#eyeGrad)" />
+            <ellipse cx="77" cy="50" rx="6" ry="8" fill="url(#eyeGrad)" />
+            {/* Primary catchlights */}
+            <circle cx="39" cy="45" r="4" className="mascot-catchlight" />
+            <circle cx="73" cy="45" r="4" className="mascot-catchlight" />
+            {/* Secondary catchlights */}
+            <circle cx="46" cy="54" r="2" className="mascot-catchlight" />
+            <circle cx="80" cy="54" r="2" className="mascot-catchlight" />
+            {/* Star catchlights */}
+            <path d="M39 48 h2 l-1.6 1.2 l0.6 -2 l0.6 2 Z" className="mascot-catchlight-star" />
+            <path d="M73 48 h2 l-1.6 1.2 l0.6 -2 l0.6 2 Z" className="mascot-catchlight-star" />
+            {/* Blush */}
+            <ellipse cx="30" cy="62" rx="7" ry="4" className="mascot-blush" opacity="0.35" />
+            <ellipse cx="90" cy="62" rx="7" ry="4" className="mascot-blush" opacity="0.35" />
+            {/* Mouth - tiny cute "w" */}
+            <path d="M55 66 q2 3 5 0 q3 3 5 0" className="mascot-mouth" strokeWidth="2.2" strokeLinecap="round" fill="none" />
+            {/* Nose - tiny dot */}
+            <circle cx="60" cy="59" r="1.5" className="mascot-nose" opacity="0.5" />
             {/* Collar */}
-            <path d="M44 94 L52 88 L60 94 L68 88 L76 94" className="mascot-collar" strokeWidth="2" strokeLinecap="round" fill="none" />
-            {/* Arms */}
-            <rect x="28" y="92" width="16" height="8" rx="5" className="mascot-arm" />
-            <rect x="76" y="92" width="16" height="8" rx="5" className="mascot-arm" />
-            {/* Wave hand */}
-            <rect x="90" y="88" width="10" height="10" rx="5" className="mascot-hand mascot-wave" />
+            <path d="M46 84 L60 92 L74 84 L60 98 Z" className="mascot-collar" />
+            <circle cx="60" cy="96" r="3.5" className="mascot-collar-knot" />
+            {/* Left arm */}
+            <rect x="24" y="94" width="18" height="8" rx="4" className="mascot-arm" />
+            <circle cx="24" cy="98" r="5.5" className="mascot-hand" />
+            {/* Right arm waving */}
+            <g className="mascot-wave-group">
+              <rect x="78" y="88" width="18" height="8" rx="4" className="mascot-arm" />
+              <circle cx="96" cy="86" r="5.5" className="mascot-hand" />
+            </g>
           </svg>
         </div>
       </div>
