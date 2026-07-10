@@ -26,6 +26,10 @@ export default function AdminLayout({ children }) {
 
   return (
     <div className="admin-layout">
+      <button className="admin-toggle" onClick={() => setSidebarOpen(!sidebarOpen)} aria-label="Toggle admin menu">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 12h18"/><path d="M3 6h18"/><path d="M3 18h18"/></svg>
+      </button>
+
       <aside className={`admin-sidebar ${sidebarOpen ? 'open' : ''}`}>
         <div className="sidebar-header">
           <Link to="/admin" className="sidebar-logo">☠ Lupe & Luxe</Link>
@@ -42,18 +46,14 @@ export default function AdminLayout({ children }) {
               {item.label}
             </Link>
           ))}
+          <Link to="/" className="sidebar-link" onClick={() => setSidebarOpen(false)}>← Back to Site</Link>
+          <button onClick={handleLogout} className="sidebar-link logout-btn" style={{ color: '#c0392b', cursor: 'pointer', width: '100%', textAlign: 'left', background: 'none', border: 'none', padding: '0.7rem 1.25rem', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>🚪 Logout</button>
         </nav>
-        <div className="sidebar-footer">
-          <Link to="/" className="sidebar-link">← Back to Site</Link>
-          <button onClick={handleLogout} className="sidebar-link logout-btn">🚪 Logout</button>
-        </div>
       </aside>
 
       <div className="admin-main">
         <header className="admin-header">
-          <button className="admin-menu-btn" onClick={() => setSidebarOpen(!sidebarOpen)}>
-            <span className="hamburger-line"></span>
-          </button>
+          <h1 className="admin-title">Admin Panel</h1>
           <div className="admin-header-right">
             <span className="admin-user">👤 {user?.name}</span>
           </div>
@@ -63,7 +63,7 @@ export default function AdminLayout({ children }) {
         </div>
       </div>
 
-      {sidebarOpen && <div className="sidebar-overlay" onClick={() => setSidebarOpen(false)} />}
+      {sidebarOpen && <div className="admin-overlay" onClick={() => setSidebarOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 99 }} />}
     </div>
   );
 }

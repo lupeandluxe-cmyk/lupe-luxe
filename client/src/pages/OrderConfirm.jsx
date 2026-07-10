@@ -28,7 +28,7 @@ export default function OrderConfirm() {
       try {
         const { data } = await api.get(`/orders/${id}`);
         setOrder(data);
-        if (searchParams.get('pay') === '1') {
+        if (searchParams.get('pay') === '1' && data.paymentMethod === 'razorpay' && !data.isPaid) {
           setTimeout(() => handlePay(data), 500);
         }
       } catch (err) { console.error(err); }
@@ -73,20 +73,14 @@ export default function OrderConfirm() {
           }
           setPaying(false);
         },
-        modal: {
-          ondismiss: () => setPaying(false),
-        },
-        prefill: {
-          name: o.shippingAddress?.fullName,
-          email: '',
-          contact: o.shippingAddress?.phone || '',
-        },
+        modal: { ondismiss: () => setPaying(false) },
+        prefill: { name: o.shippingAddress?.fullName, contact: o.shippingAddress?.phone || '' },
         theme: { color: '#d4af37' },
       };
       const rzp = new window.Razorpay(options);
       rzp.open();
     } catch (err) {
-      setPayError(err.response?.data?.message || 'Payment failed. Please try again.');
+      setPayError(err.response?.data?.message || 'Payment failed');
       setPaying(false);
     }
   };
@@ -111,12 +105,8 @@ export default function OrderConfirm() {
         {order.paymentMethod === 'razorpay' && !order.isPaid && (
           <div className="pay-now-banner">
             <p>💳 Complete your payment to confirm the order</p>
-            <button
-              className="btn btn-primary btn-lg"
-              onClick={() => handlePay()}
-              disabled={paying}
-            >
-              {paying ? 'Opening Payment...' : `Pay ₹${order.totalPrice.toFixed(2)} Now`}
+            <button className="btn btn-primary btn-lg" onClick={() => handlePay()} disabled={paying}>
+              {paying ? 'Opening Payment...' : `Pay ₹${order.totalPrice.toFixed(0)} Now`}
             </button>
           </div>
         )}
@@ -134,18 +124,9 @@ export default function OrderConfirm() {
 
             <div className="order-card">
               <h3>💳 Payment</h3>
-              <p>
-                {order.paymentMethod === 'razorpay' ? 'Online Payment (Razorpay)' : 'Cash on Delivery'}
-              </p>
-              <p>
-                Status:{' '}
-                <span className={order.isPaid ? 'text-success' : 'text-muted'}>
-                  {order.isPaid ? `Paid on ${new Date(order.paidAt).toLocaleDateString()}` : 'Pending'}
-                </span>
-              </p>
-              {order.isPaid && order.paymentResult?.id && (
-                <p className="payment-id">Payment ID: {order.paymentResult.id}</p>
-              )}
+              <p>{order.paymentMethod === 'razorpay' ? 'Online (Razorpay)' : order.paymentMethod === 'upi' ? 'UPI' : 'Cash on Delivery'}</p>
+              <p>Status: <span className={order.isPaid ? 'text-success' : 'text-muted'}>{order.isPaid ? `Paid on ${new Date(order.paidAt).toLocaleDateString()}` : 'Pending'}</span></p>
+              {order.isPaid && order.paymentResult?.id && <p className="payment-id">ID: {order.paymentResult.id}</p>}
             </div>
 
             <div className="order-card">
@@ -156,7 +137,7 @@ export default function OrderConfirm() {
                   <div>
                     <Link to={`/products/${item.product}`}>{item.name}</Link>
                     {item.size && <p className="item-size">Size: {item.size}</p>}
-                    <p className="item-sub">×{item.qty} — ₹{(item.qty * item.price).toFixed(2)}</p>
+                    <p className="item-sub">×{item.qty} — ₹{(item.qty * item.price).toFixed(0)}</p>
                   </div>
                 </div>
               ))}
@@ -166,15 +147,16 @@ export default function OrderConfirm() {
           <div className="order-sidebar">
             <div className="summary-card">
               <h3>Summary</h3>
-              <div className="summary-row"><span>Items</span><span>₹{order.itemsPrice.toFixed(2)}</span></div>
-              <div className="summary-row"><span>Shipping</span><span>₹{order.shippingPrice.toFixed(2)}</span></div>
-              <div className="summary-row"><span>Tax</span><span>₹{order.taxPrice.toFixed(2)}</span></div>
-              <div className="summary-divider"></div>
-              <div className="summary-row total"><span>Total</span><span>₹{order.totalPrice.toFixed(2)}</span></div>
+              <div className="summary-row"><span>Items</span><span>₹{order.itemsPrice.toFixed(0)}</span></div>
+              {order.discount > 0 && (
+                <div className="summary-row discount-row"><span>Discount ({order.couponCode})</span><span>-₹{order.discount.toFixed(0)}</span></div>
+              )}
+              <div className="summary-row"><span>Shipping</span><span>{order.shippingPrice === 0 ? 'FREE' : `₹${order.shippingPrice.toFixed(0)}`}</span></div>
+              <div className="summary-row"><span>Tax</span><span>₹{order.taxPrice.toFixed(0)}</span></div>
+              <div className="summary-divider" />
+              <div className="summary-row total"><span>Total</span><span>₹{order.totalPrice.toFixed(0)}</span></div>
             </div>
-            <Link to="/products" className="btn btn-outline btn-block">
-              Continue Exploring →
-            </Link>
+            <Link to="/products" className="btn btn-outline btn-block">Continue Exploring →</Link>
           </div>
         </div>
       </div>

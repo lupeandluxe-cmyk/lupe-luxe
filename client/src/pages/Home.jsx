@@ -6,7 +6,6 @@ import Loader from '../components/Loader';
 
 export default function Home() {
   const [sections, setSections] = useState([]);
-  const [settings, setSettings] = useState({});
   const [featured, setFeatured] = useState([]);
   const [latest, setLatest] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -16,15 +15,13 @@ export default function Home() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [secRes, setRes, featRes, latRes, catRes] = await Promise.all([
+        const [secRes, featRes, latRes, catRes] = await Promise.all([
           api.get('/homepage'),
-          api.get('/settings/public'),
           api.get('/products/featured'),
           api.get('/products/latest'),
           api.get('/products/categories'),
         ]);
         setSections(secRes.data);
-        setSettings(setRes.data);
         setFeatured(featRes.data);
         setLatest(latRes.data);
         setCategories(catRes.data);
@@ -34,19 +31,12 @@ export default function Home() {
     fetchData();
   }, []);
 
-  const announcement = settings.announcementText || '✦ Free shipping on orders over ₹3,999 ✦';
-  const announcementActive = settings.announcementActive !== 'false';
-
   const renderHero = (sec) => (
     <section className="hero-section" ref={heroRef} key={sec._id}>
-      {sec.image && <div className="hero-parallax" style={{ backgroundImage: `url(${sec.image})` }} />}
-      <div className="hero-particles">
-        {[...Array(20)].map((_, i) => (
-          <div key={i} className="particle" style={{ '--x': `${Math.random() * 100}%`, '--y': `${Math.random() * 100}%`, '--delay': `${Math.random() * 5}s`, '--size': `${Math.random() * 6 + 2}px` }} />
-        ))}
-      </div>
+      {sec.image && <div className="hero-bg" style={{ backgroundImage: `url(${sec.image})` }} />}
+      <div className="hero-overlay" />
       <div className="hero-content">
-        {sec.subtitle && <div className="hero-badge">{sec.subtitle}</div>}
+        <div className="hero-badge">{sec.subtitle}</div>
         {sec.title && (
           <h1 className="hero-title">
             {sec.title.split('\n').map((line, i) => <span key={i} className="hero-line">{line}</span>)}
@@ -56,19 +46,11 @@ export default function Home() {
         <div className="hero-actions">
           {sec.buttonText && sec.buttonLink && (
             <Link to={sec.buttonLink} className="btn btn-primary btn-lg">
-              {sec.buttonText} <span className="btn-arrow">→</span>
+              {sec.buttonText}
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
             </Link>
           )}
         </div>
-        <div className="hero-features">
-          {[{ icon: '✦', label: 'Hand-Selected' }, { icon: '🌿', label: 'Sustainable' }, { icon: '🎨', label: 'Custom Art' }].map((f, i) => (
-            <div key={i} className="hero-feature"><span className="feature-icon">{f.icon}</span><span className="feature-label">{f.label}</span></div>
-          ))}
-        </div>
-      </div>
-      <div className="hero-scroll">
-        <span className="scroll-text">Scroll to explore</span>
-        <div className="scroll-arrow">↓</div>
       </div>
     </section>
   );
@@ -116,7 +98,6 @@ export default function Home() {
                     <Link key={cat} to={`/products?category=${encodeURIComponent(cat)}`} className="category-card" style={{ '--delay': `${i * 0.1}s` }}>
                       <span className="category-icon">{icons[cat] || '✦'}</span>
                       <span className="category-name">{cat}</span>
-                      <span className="category-arrow">→</span>
                     </Link>
                   );
                 })}
@@ -146,14 +127,6 @@ export default function Home() {
             </div>
           </section>
         );
-      case 'announcement':
-        return (
-          <section key={sec._id} className="announcement-bar">
-            <div className="container">
-              <p>{sec.text || sec.title}</p>
-            </div>
-          </section>
-        );
       case 'newsletter':
         return (
           <section key={sec._id} className="newsletter-section">
@@ -174,10 +147,6 @@ export default function Home() {
 
   return (
     <div className="home-page">
-      {announcementActive && (
-        <div className="top-bar"><span className="top-bar-text">{announcement}</span></div>
-      )}
-
       {sections.map(s => renderSection(s))}
 
       {sections.filter(s => s.type === 'featured').length === 0 && (

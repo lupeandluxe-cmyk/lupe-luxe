@@ -1,15 +1,35 @@
 const express = require('express');
 const Order = require('../models/Order');
+const Product = require('../models/Product');
+const Coupon = require('../models/Coupon');
 const { protect, admin } = require('../middleware/auth');
 
 const router = express.Router();
 
 router.post('/', protect, async (req, res) => {
-  const { items, shippingAddress, paymentMethod, itemsPrice, shippingPrice, taxPrice, totalPrice, upiTransactionId } = req.body;
+  const { items, shippingAddress, paymentMethod, itemsPrice, discount, couponCode, shippingPrice, taxPrice, totalPrice, upiTransactionId } = req.body;
   if (items?.length === 0) return res.status(400).json({ message: 'No order items' });
+
+  if (couponCode) {
+    const coupon = await Coupon.findOne({ code: couponCode.toUpperCase(), active: true });
+    if (coupon) {
+      coupon.usedCount = (coupon.usedCount || 0) + 1;
+      await coupon.save();
+    }
+  }
+
+  for (const item of items) {
+    const product = await Product.findById(item.product);
+    if (product) {
+      product.countInStock = Math.max(0, product.countInStock - item.qty);
+      await product.save();
+    }
+  }
+
   const order = await Order.create({
     user: req.user._id, items, shippingAddress, paymentMethod,
-    itemsPrice, shippingPrice, taxPrice, totalPrice,
+    itemsPrice, discount: discount || 0, couponCode: couponCode || undefined,
+    shippingPrice, taxPrice, totalPrice,
     upiTransactionId: upiTransactionId || undefined,
     upiPaymentStatus: paymentMethod === 'upi' ? 'pending' : 'pending',
     orderStatus: paymentMethod === 'cod' ? 'confirmed' : 'pending',

@@ -19,8 +19,12 @@ const cartReducer = (state, action) => {
     }
     case 'REMOVE_ITEM':
       return { ...state, items: state.items.filter((i) => i.product !== action.payload) };
+    case 'APPLY_COUPON':
+      return { ...state, coupon: action.payload };
+    case 'REMOVE_COUPON':
+      return { ...state, coupon: null };
     case 'CLEAR':
-      return { ...state, items: [] };
+      return { ...state, items: [], coupon: null };
     default:
       return state;
   }
@@ -28,12 +32,19 @@ const cartReducer = (state, action) => {
 
 export const CartProvider = ({ children }) => {
   const saved = localStorage.getItem('ll_cart');
+  const savedCoupon = localStorage.getItem('ll_coupon');
   const [state, dispatch] = useReducer(
     cartReducer,
-    saved ? { items: JSON.parse(saved) } : { items: [] }
+    saved
+      ? { items: JSON.parse(saved), coupon: savedCoupon ? JSON.parse(savedCoupon) : null }
+      : { items: [], coupon: null }
   );
 
   const saveCart = (items) => localStorage.setItem('ll_cart', JSON.stringify(items));
+  const saveCoupon = (c) => {
+    if (c) localStorage.setItem('ll_coupon', JSON.stringify(c));
+    else localStorage.removeItem('ll_coupon');
+  };
 
   const addItem = (product, qty = 1, size = '') => {
     const item = {
@@ -60,16 +71,33 @@ export const CartProvider = ({ children }) => {
   const clearCart = () => {
     dispatch({ type: 'CLEAR' });
     localStorage.removeItem('ll_cart');
+    localStorage.removeItem('ll_coupon');
+  };
+
+  const applyCoupon = (coupon) => {
+    dispatch({ type: 'APPLY_COUPON', payload: coupon });
+    saveCoupon(coupon);
+  };
+
+  const removeCoupon = () => {
+    dispatch({ type: 'REMOVE_COUPON' });
+    saveCoupon(null);
   };
 
   const itemsPrice = state.items.reduce((acc, i) => acc + i.price * i.qty, 0);
-  const shippingPrice = itemsPrice > 3999 ? 0 : 199;
-  const taxPrice = Number((0.12 * itemsPrice).toFixed(2));
-  const totalPrice = Number((itemsPrice + shippingPrice + taxPrice).toFixed(2));
+  const discount = state.coupon ? state.coupon.discount : 0;
+  const discountedPrice = Math.max(0, itemsPrice - discount);
+  const shippingPrice = discountedPrice > 3999 ? 0 : 199;
+  const taxPrice = Number((0.12 * discountedPrice).toFixed(2));
+  const totalPrice = Number((discountedPrice + shippingPrice + taxPrice).toFixed(2));
 
   return (
     <CartContext.Provider
-      value={{ items: state.items, addItem, removeItem, clearCart, itemsPrice, shippingPrice, taxPrice, totalPrice }}
+      value={{
+        items: state.items, addItem, removeItem, clearCart,
+        itemsPrice, discount, discountCode: state.coupon?.code || null,
+        shippingPrice, taxPrice, totalPrice, applyCoupon, removeCoupon,
+      }}
     >
       {children}
     </CartContext.Provider>

@@ -4,6 +4,7 @@ import api from '../api/axios';
 import { useCart } from '../context/CartContext';
 import Loader from '../components/Loader';
 import Message from '../components/Message';
+import ProductCard from '../components/ProductCard';
 
 export default function ProductDetail() {
   const { id } = useParams();
@@ -14,6 +15,8 @@ export default function ProductDetail() {
   const [qty, setQty] = useState(1);
   const [size, setSize] = useState('');
   const [added, setAdded] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(0);
+  const [related, setRelated] = useState([]);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -21,13 +24,18 @@ export default function ProductDetail() {
         const { data } = await api.get(`/products/${id}`);
         setProduct(data);
         if (data.size?.[0]) setSize(data.size[0]);
+        document.title = `${data.name} — Lupe & Luxe`;
+
+        const catRes = await api.get('/products', { params: { category: data.category, page: 1 } });
+        setRelated(catRes.data.products.filter((p) => p._id !== data._id).slice(0, 4));
       } catch (err) {
-        setError('Treasure not found');
+        setError('Product not found');
       } finally {
         setLoading(false);
       }
     };
     fetchProduct();
+    window.scrollTo(0, 0);
   }, [id]);
 
   const handleAdd = () => {
@@ -40,16 +48,42 @@ export default function ProductDetail() {
   if (error) return <div className="container"><Message variant="danger">{error}</Message></div>;
   if (!product) return null;
 
+  const images = product.images?.length > 0 ? product.images : ['https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=600'];
+  const hasSale = product.salePrice && product.salePrice < product.price;
+  const inStock = product.countInStock > 0;
+
   return (
     <div className="product-detail-page">
       <div className="container">
-        <Link to="/products" className="breadcrumb">← Back to Shop</Link>
+        <div className="breadcrumbs">
+          <Link to="/">Home</Link>
+          <span className="breadcrumb-sep">/</span>
+          <Link to="/products">Shop</Link>
+          <span className="breadcrumb-sep">/</span>
+          <span className="breadcrumb-current">{product.name}</span>
+        </div>
 
-        <div className="product-detail">
+        <div className="product-detail-layout">
           <div className="detail-gallery">
             <div className="detail-image-main">
-              <img src={product.images?.[0]} alt={product.name} />
+              <img src={images[selectedImage]} alt={product.name} className="detail-main-img" />
+              <div className="detail-img-zoom">
+                <img src={images[selectedImage]} alt="" />
+              </div>
             </div>
+            {images.length > 1 && (
+              <div className="detail-thumbnails">
+                {images.map((img, i) => (
+                  <button
+                    key={i}
+                    className={`thumb-btn ${i === selectedImage ? 'active' : ''}`}
+                    onClick={() => setSelectedImage(i)}
+                  >
+                    <img src={img} alt={`${product.name} ${i + 1}`} />
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="detail-info">
@@ -63,25 +97,31 @@ export default function ProductDetail() {
               <span className="review-count">({product.numReviews} reviews)</span>
             </div>
 
-            <p className="detail-price">₹{product.price.toFixed(2)}</p>
-            <p className="detail-desc">{product.description}</p>
-
-            <div className="detail-tags">
-              {product.tags?.map((tag) => (
-                <span key={tag} className="tag">#{tag}</span>
-              ))}
-            </div>
-
-            <div className="detail-stock">
-              <span className={`stock-indicator ${product.countInStock > 0 ? 'in-stock' : 'out-of-stock'}`}>
-                {product.countInStock > 0 ? 'In Stock' : 'Out of Stock'}
-              </span>
-              {product.countInStock <= 5 && product.countInStock > 0 && (
-                <span className="stock-warning">Only {product.countInStock} left</span>
+            <div className="detail-price-row">
+              {hasSale ? (
+                <>
+                  <span className="detail-sale-price">₹{product.salePrice.toFixed(0)}</span>
+                  <span className="detail-original-price">₹{product.price.toFixed(0)}</span>
+                  <span className="detail-sale-badge">Save ₹{(product.price - product.salePrice).toFixed(0)}</span>
+                </>
+              ) : (
+                <span className="detail-price">₹{product.price.toFixed(0)}</span>
               )}
             </div>
 
-            {product.countInStock > 0 && (
+            <p className="detail-desc">{product.description}</p>
+
+            <div className="detail-stock-row">
+              <span className={`stock-badge ${inStock ? 'in-stock' : 'out-of-stock'}`}>
+                {inStock ? 'In Stock' : 'Out of Stock'}
+              </span>
+              {inStock && product.countInStock <= 5 && (
+                <span className="stock-warning">Only {product.countInStock} left</span>
+              )}
+              <span className="delivery-estimate">🚚 Est. delivery: 5-7 business days</span>
+            </div>
+
+            {inStock && (
               <div className="detail-actions">
                 {product.size?.[0] && product.size[0] !== 'One Size' && (
                   <div className="size-selector">
@@ -100,29 +140,46 @@ export default function ProductDetail() {
                   </div>
                 )}
 
-                <div className="qty-add">
+                <div className="qty-add-row">
                   <div className="qty-selector">
                     <label>Qty</label>
-                    <select value={qty} onChange={(e) => setQty(Number(e.target.value))}>
-                      {[...Array(Math.min(product.countInStock, 10)).keys()].map((x) => (
-                        <option key={x + 1} value={x + 1}>{x + 1}</option>
-                      ))}
-                    </select>
+                    <div className="qty-controls">
+                      <button className="qty-btn" onClick={() => setQty(Math.max(1, qty - 1))} disabled={qty <= 1}>−</button>
+                      <span className="qty-value">{qty}</span>
+                      <button className="qty-btn" onClick={() => setQty(Math.min(product.countInStock, qty + 1))} disabled={qty >= product.countInStock}>+</button>
+                    </div>
                   </div>
 
-                  <button className="btn btn-primary btn-lg add-btn" onClick={handleAdd}>
-                    {added ? '✦ Added to Cart!' : 'Add to Cart'}
+                  <button className="btn btn-primary btn-lg add-to-cart-btn" onClick={handleAdd}>
+                    {added ? (
+                      <>✦ Added!</>
+                    ) : (
+                      <>Add to Cart — ₹{((hasSale ? product.salePrice : product.price) * qty).toFixed(0)}</>
+                    )}
                   </button>
                 </div>
               </div>
             )}
 
-            <div className="detail-shipping">
-              <span>🚚 Free shipping on orders over ₹3,999</span>
-              <span>🔄 Easy returns within 30 days</span>
+            <div className="detail-tags">
+              {product.tags?.map((tag) => (
+                <span key={tag} className="tag">#{tag}</span>
+              ))}
             </div>
           </div>
         </div>
+
+        {related.length > 0 && (
+          <section className="related-section">
+            <div className="section-header">
+              <span className="section-subtitle">You May Also Like</span>
+              <h2 className="section-title">Related Products</h2>
+            </div>
+            <div className="products-grid">
+              {related.map((p, i) => <ProductCard key={p._id} product={p} index={i} />)}
+            </div>
+          </section>
+        )}
       </div>
     </div>
   );
