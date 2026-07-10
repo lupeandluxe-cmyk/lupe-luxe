@@ -113,16 +113,6 @@ export default function Cart() {
                     <span>-₹{discount.toFixed(0)}</span>
                   </div>
                 )}
-                <div className="summary-row">
-                  <span>Shipping</span>
-                  <span className={shippingPrice === 0 ? 'free' : ''}>
-                    {shippingPrice === 0 ? 'FREE' : `₹${shippingPrice.toFixed(0)}`}
-                  </span>
-                </div>
-                <div className="summary-row">
-                  <span>Tax (12%)</span>
-                  <span>₹{taxPrice.toFixed(0)}</span>
-                </div>
                 <div className="summary-divider" />
                 <div className="summary-row total">
                   <span>Total</span>

@@ -5,6 +5,7 @@ const SiteSetting = require('../models/SiteSetting');
 const HomepageSection = require('../models/HomepageSection');
 const Category = require('../models/Category');
 const Page = require('../models/Page');
+const Coupon = require('../models/Coupon');
 
 const router = express.Router();
 
@@ -66,6 +67,13 @@ const defaultPages = [
   { slug: 'terms', title: 'Terms of Service', content: '<h2>Terms of Service</h2><p>By using Lupe & Luxe, you agree to our terms. All products are subject to availability. Prices may change without notice.</p>', published: true },
 ];
 
+const defaultCoupons = [
+  { code: 'WELCOME20', discount: 20, type: 'percentage', minOrder: 999, maxUses: 100, active: true },
+  { code: 'SAVE500', discount: 500, type: 'fixed', minOrder: 2499, maxUses: 50, active: true },
+  { code: 'FREESHIP', discount: 199, type: 'fixed', minOrder: 0, maxUses: 200, active: true },
+  { code: 'LUXE10', discount: 10, type: 'percentage', minOrder: 1499, maxUses: 100, active: true },
+];
+
 const defaultHomepageSections = [
   { section: 'Hero Banner', type: 'hero', title: 'Sail the\nGrand Line\nin Style', subtitle: 'New Collection', text: 'Premium thrift & custom clothing — each piece carries the spirit of adventure.', buttonText: 'Explore Collection', buttonLink: '/products', order: 1, active: true },
   { section: 'Collections', type: 'collection', title: 'Shop by Category', subtitle: 'Collections', text: 'Find your next treasure', order: 2, active: true },
@@ -119,6 +127,14 @@ async function seedAll() {
       await HomepageSection.findOneAndUpdate({ section: h.section }, h, { upsert: true });
     }
     seeded.homepageSections = defaultHomepageSections.length;
+  }
+
+  const couponCount = await Coupon.countDocuments({});
+  if (couponCount === 0) {
+    for (const c of defaultCoupons) {
+      await Coupon.findOneAndUpdate({ code: c.code }, c, { upsert: true });
+    }
+    seeded.coupons = defaultCoupons.length;
   }
 
   return seeded;

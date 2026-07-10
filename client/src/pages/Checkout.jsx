@@ -211,8 +211,6 @@ export default function Checkout() {
                     <span>-₹{discount.toFixed(0)}</span>
                   </div>
                 )}
-                <div className="summary-row"><span>Shipping</span><span>{shippingPrice === 0 ? 'FREE' : `₹${shippingPrice.toFixed(0)}`}</span></div>
-                <div className="summary-row"><span>Tax</span><span>₹{taxPrice.toFixed(0)}</span></div>
                 <div className="summary-divider" />
                 <div className="summary-row total"><span>Total</span><span>₹{totalPrice.toFixed(0)}</span></div>
               </div>

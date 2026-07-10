@@ -151,8 +151,6 @@ export default function OrderConfirm() {
               {order.discount > 0 && (
                 <div className="summary-row discount-row"><span>Discount ({order.couponCode})</span><span>-₹{order.discount.toFixed(0)}</span></div>
               )}
-              <div className="summary-row"><span>Shipping</span><span>{order.shippingPrice === 0 ? 'FREE' : `₹${order.shippingPrice.toFixed(0)}`}</span></div>
-              <div className="summary-row"><span>Tax</span><span>₹{order.taxPrice.toFixed(0)}</span></div>
               <div className="summary-divider" />
               <div className="summary-row total"><span>Total</span><span>₹{order.totalPrice.toFixed(0)}</span></div>
             </div>
