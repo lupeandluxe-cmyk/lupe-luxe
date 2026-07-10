@@ -2031,9 +2031,12 @@ input, textarea, select { font-family: var(--font-body); }
   :root { --nav-height: 60px; }
   .nav-center { display: none; }
   .hamburger { display: flex; }
-  .nav-container { padding: 0 0.75rem; }
-  .logo-text { display: none; }
-  .logo-mark { font-size: 1.6rem; }
+  .nav-container { padding: 0 0.6rem; gap: 0; }
+  .logo { gap: 0.35rem; }
+  .logo-text { font-size: 1rem; }
+  .logo-mark { font-size: 1.35rem; }
+  .nav-right { gap: 0; }
+  .icon-btn { width: 38px; height: 38px; }
   .btn-nav-cta { display: none; }
   .user-dropdown-wrap { display: none; }
   .mobile-user-btn { display: flex; }
