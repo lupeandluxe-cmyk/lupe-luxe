@@ -15,7 +15,7 @@ export default function Footer() {
         <div className="container">
           <div className="footer-grid">
             <div className="footer-brand">
-              <img src="/logo.jpeg" alt="Lupe & Luxe" className="footer-logo-img" />
+              <h3 className="footer-logo">☠ {settings.siteName || 'Lupe & Luxe'}</h3>
               <p className="footer-tagline">{settings.siteDescription || 'Premium thrift & custom clothing for those who sail the Grand Line.'}</p>
               <div className="footer-social">
                 {settings.instagram && <a href={settings.instagram} target="_blank" rel="noopener noreferrer" className="social-link" aria-label="Instagram">📸</a>}
