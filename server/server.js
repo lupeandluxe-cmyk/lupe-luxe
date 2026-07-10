@@ -33,6 +33,7 @@ async function start() {
   app.use('/api/customers', require('./routes/customers'));
   app.use('/api/reports', require('./routes/reports'));
   app.use('/api/seed', require('./routes/seed').router);
+  app.use('/api/upload', require('./routes/upload'));
 
   app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
 

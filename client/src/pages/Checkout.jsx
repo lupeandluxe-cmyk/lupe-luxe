@@ -79,14 +79,14 @@ export default function Checkout() {
   const handleScreenshotUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    setError('');
     const fd = new FormData();
     fd.append('file', file);
-    fd.append('folder', 'upi');
     try {
-      const { data } = await api.post('/media', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+      const { data } = await api.post('/upload/upi', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
       setUpiScreenshot(data.url);
-    } catch {
-      setError('Screenshot upload failed');
+    } catch (err) {
+      setError(err.response?.data?.message || 'Screenshot upload failed');
     }
   };
 
