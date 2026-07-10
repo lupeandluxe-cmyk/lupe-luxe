@@ -18,11 +18,9 @@ const uploadToCloudinary = (buffer, mimetype, folder) => {
   });
 };
 
-const deleteFromCloudinary = async (url) => {
+const deleteFromCloudinary = async (publicId) => {
+  if (!publicId) return;
   try {
-    const parts = url.split('/');
-    const publicIdWithExt = parts.slice(-2).join('/').split('.')[0];
-    const publicId = `lupe-luxe/${publicIdWithExt}`;
     await cloudinary.uploader.destroy(publicId);
   } catch {
     // Silently fail if delete fails

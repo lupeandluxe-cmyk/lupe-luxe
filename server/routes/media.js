@@ -36,7 +36,7 @@ router.get('/', protect, admin, async (req, res) => {
 router.delete('/:id', protect, admin, async (req, res) => {
   const media = await Media.findById(req.params.id);
   if (media) {
-    if (media.publicId) await deleteFromCloudinary(media.url);
+    if (media.publicId) await deleteFromCloudinary(media.publicId);
     await media.deleteOne();
     res.json({ message: 'File deleted' });
   } else {
