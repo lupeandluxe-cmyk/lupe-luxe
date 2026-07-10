@@ -83,7 +83,7 @@ export default function Checkout() {
     const fd = new FormData();
     fd.append('file', file);
     try {
-      const { data } = await api.post('/upload/upi', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+      const { data } = await api.post('/upload/upi', fd);
       setUpiScreenshot(data.url);
     } catch (err) {
       setError(err.response?.data?.message || 'Screenshot upload failed');

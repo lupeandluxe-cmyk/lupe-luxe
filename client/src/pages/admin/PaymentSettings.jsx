@@ -36,7 +36,7 @@ export default function PaymentSettings() {
     fd.append('file', file);
     fd.append('folder', 'settings');
     try {
-      const { data } = await api.post('/media', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+      const { data } = await api.post('/media', fd);
       update('upiQrImage', data.url);
     } catch {
       setError('Upload failed');

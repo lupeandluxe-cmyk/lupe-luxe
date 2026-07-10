@@ -19,7 +19,7 @@ export default function AdminMedia() {
     const fd = new FormData();
     fd.append('file', file);
     fd.append('folder', 'general');
-    await api.post('/media', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+    await api.post('/media', fd);
     setUploading(false);
     fetchFiles();
   };

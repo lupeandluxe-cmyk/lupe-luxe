@@ -41,7 +41,7 @@ export default function EditProduct() {
     const fd = new FormData();
     fd.append('file', file);
     fd.append('folder', 'products');
-    const res = await api.post('/media', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+    const res = await api.post('/media', fd);
     setForm({ ...form, images: [...form.images, res.data.url] });
     setUploading(false);
   };

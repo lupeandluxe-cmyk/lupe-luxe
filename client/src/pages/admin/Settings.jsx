@@ -99,7 +99,7 @@ export default function AdminSettings() {
     const fd = new FormData();
     fd.append('file', file);
     fd.append('folder', 'settings');
-    const res = await api.post('/media', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+    const res = await api.post('/media', fd);
     updateSetting(key, res.data.url);
   };
 
