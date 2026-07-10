@@ -88,4 +88,51 @@ async function sendOrderEmail(order) {
   }
 }
 
-module.exports = { sendOrderEmail };
+async function sendOtpEmail(toEmail, otp) {
+  try {
+    const settings = await SiteSetting.find({});
+    const map = {};
+    settings.forEach(s => { map[s.key] = s.value; });
+    const emailUser = map.emailUser || '';
+    const emailPass = map.emailPass || '';
+
+    if (!emailUser || !emailPass) {
+      console.log('📧 OTP email not sent: email not configured');
+      return;
+    }
+
+    const t = nodemailer.createTransport({
+      service: 'gmail',
+      auth: { user: emailUser, pass: emailPass },
+    });
+
+    await t.sendMail({
+      from: emailUser,
+      to: toEmail,
+      subject: 'Your OTP for Lupe & Luxe',
+      html: `
+        <div style="font-family:sans-serif;max-width:400px;margin:0 auto;">
+          <div style="background:#1a1a2e;padding:20px;text-align:center;border-radius:8px 8px 0 0;">
+            <h1 style="color:#d4af37;margin:0;">☠ Lupe & Luxe</h1>
+            <p style="color:#8888a0;margin:5px 0 0;">OTP Verification</p>
+          </div>
+          <div style="padding:20px;background:#fff;color:#333;border:1px solid #eee;">
+            <p style="margin:0 0 15px;font-size:0.95rem;color:#555;">Your one-time code:</p>
+            <p style="font-size:2rem;font-weight:700;color:#1a1a2e;text-align:center;letter-spacing:8px;margin:10px 0;font-family:monospace;">${otp}</p>
+            <p style="color:#888;font-size:0.8rem;text-align:center;">Expires in 5 minutes</p>
+            <hr style="border:none;border-top:1px solid #eee;margin:15px 0;" />
+            <p style="color:#aaa;font-size:0.7rem;text-align:center;">If you didn't request this, ignore this email.</p>
+          </div>
+          <div style="background:#1a1a2e;padding:10px;text-align:center;border-radius:0 0 8px 8px;">
+            <p style="color:#666;font-size:0.65rem;margin:0;">Lupe & Luxe — Premium Thrift & Custom Clothing</p>
+          </div>
+        </div>
+      `,
+    });
+    console.log('📧 OTP email sent to', toEmail);
+  } catch (err) {
+    console.error('📧 OTP email failed:', err.message);
+  }
+}
+
+module.exports = { sendOrderEmail, sendOtpEmail };

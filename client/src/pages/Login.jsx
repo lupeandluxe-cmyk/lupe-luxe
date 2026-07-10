@@ -42,6 +42,9 @@ export default function Login() {
             </div>
             <button type="submit" className="btn btn-primary btn-block btn-lg">Set Sail →</button>
           </form>
+          <p style={{ textAlign: 'center', marginTop: '12px' }}>
+            <Link to="/otp-login" style={{ fontSize: '0.85rem', color: '#888' }}>Login with OTP</Link>
+          </p>
           <p className="auth-footer">
             New to the crew? <Link to="/register">Join Now</Link>
           </p>
