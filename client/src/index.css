@@ -235,6 +235,8 @@ input, textarea, select { font-family: var(--font-body); }
 }
 .btn-nav-cta:hover { background: var(--gold); color: var(--black); box-shadow: 0 0 20px var(--gold-glow); }
 
+.mobile-user-btn { display: none; }
+
 /* --- Hamburger --- */
 .hamburger {
   display: none;
@@ -2029,7 +2031,12 @@ input, textarea, select { font-family: var(--font-body); }
   :root { --nav-height: 60px; }
   .nav-center { display: none; }
   .hamburger { display: flex; }
+  .nav-container { padding: 0 0.75rem; }
+  .logo-text { display: none; }
+  .logo-mark { font-size: 1.6rem; }
+  .btn-nav-cta { display: none; }
   .user-dropdown-wrap { display: none; }
+  .mobile-user-btn { display: flex; }
   .hero-glass { padding: 2rem 1.5rem; }
   .hero-section { min-height: 80vh; }
   .hero-content { padding: 1.5rem; gap: 1.25rem; }

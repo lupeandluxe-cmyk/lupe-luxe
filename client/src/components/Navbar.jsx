@@ -79,6 +79,10 @@ export default function Navbar() {
               {totalItems > 0 && <span className="cart-badge">{totalItems > 99 ? '99+' : totalItems}</span>}
             </Link>
 
+            <Link to={user ? '/profile' : '/login'} className="icon-btn mobile-user-btn" aria-label="Account">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </Link>
+
             {user ? (
               <div className="user-dropdown-wrap" onMouseEnter={() => setDropdownOpen(true)} onMouseLeave={() => setDropdownOpen(false)}>
                 <button className="icon-btn avatar-btn" aria-label="Account">
