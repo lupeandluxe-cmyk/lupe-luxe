@@ -33,7 +33,7 @@ export default function AdminLayout({ children }) {
 
       <aside className={`admin-sidebar ${sidebarOpen ? 'open' : ''}`}>
         <div className="sidebar-header">
-          <Link to="/admin" className="sidebar-logo">☠ Lupe & Luxe</Link>
+          <Link to="/admin" className="sidebar-logo"><img src="/logo.jpeg" alt="Lupe & Luxe" className="sidebar-logo-img" /></Link>
         </div>
         <nav className="sidebar-nav">
           {menuItems.map(item => (

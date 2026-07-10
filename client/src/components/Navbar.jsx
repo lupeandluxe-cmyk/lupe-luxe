@@ -43,10 +43,7 @@ export default function Navbar() {
           </button>
 
           <Link to="/" className="logo">
-            <span className="logo-mark">☠</span>
-            <span className="logo-text">
-              Lupe <span className="logo-em">&amp;</span> Luxe
-            </span>
+            <img src="/logo.jpeg" alt="Lupe & Luxe" className="logo-img" />
           </Link>
 
           <div className="nav-center">
@@ -107,7 +104,7 @@ export default function Navbar() {
 
       <div className={`mobile-menu ${menuOpen ? 'open' : ''}`}>
         <div className="mobile-menu-header">
-          <span className="mobile-menu-logo">☠ Lupe & Luxe</span>
+          <img src="/logo.jpeg" alt="Lupe & Luxe" className="mobile-menu-logo-img" />
           <button className="icon-btn close-btn" onClick={() => setMenuOpen(false)} aria-label="Close menu">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
           </button>

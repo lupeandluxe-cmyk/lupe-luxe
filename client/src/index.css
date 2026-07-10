@@ -120,6 +120,10 @@ input, textarea, select { font-family: inherit; }
   background-clip: text;
 }
 .logo-em { font-style: italic; -webkit-text-fill-color: var(--gold-light); }
+.logo-img { height: 42px; width: auto; display: block; }
+.mobile-menu-logo-img { height: 36px; width: auto; display: block; }
+.footer-logo-img { height: 48px; width: auto; display: block; }
+.sidebar-logo-img { height: 36px; width: auto; display: block; }
 
 .nav-center { display: flex; gap: 2rem; align-items: center; }
 .nav-link {

@@ -60,7 +60,7 @@ export default function OrderConfirm() {
         currency: orderRes.data.currency,
         name: 'Lupe & Luxe',
         description: `Order #${o._id.slice(-10).toUpperCase()}`,
-        image: '/favicon.svg',
+        image: '/logo.jpeg',
         order_id: orderRes.data.id,
         handler: async (response) => {
           try {
