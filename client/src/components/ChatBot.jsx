@@ -66,6 +66,7 @@ export default function ChatBot() {
       const s = io(SOCKET_URL);
       s.emit('chat:join', { chatId: id });
       s.on('message:new', (msg) => {
+        if (msg.sender === 'user') return;
         setMessages((prev) => [...prev, { id: Date.now(), text: msg.text, sender: 'agent' }]);
       });
       s.on('agent:joined', () => setAgentActive(true));
