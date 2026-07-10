@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import api from '../api/axios';
 import ProductCard from '../components/ProductCard';
 import Loader from '../components/Loader';
+import HeroBackground from '../components/HeroBackground';
 
 const TESTIMONIALS = [
   { name: 'Roronoa Zoro', text: '"The quality of this hoodie is insane. Lost my way finding the store, but totally worth it."', stars: 5 },
@@ -49,13 +50,7 @@ export default function Home() {
   const renderHero = (sec) => (
     <section className="hero-section" ref={heroRef} key={sec._id}>
       <div className="hero-glare" />
-      {sec.video ? (
-        <video autoPlay muted loop playsInline className="hero-video-bg" poster={sec.image}>
-          <source src={sec.video} type="video/mp4" />
-        </video>
-      ) : sec.image ? (
-        <img src={sec.image} alt="" className="hero-video-bg" />
-      ) : null}
+      <HeroBackground poster={sec.image} />
       <div className="hero-overlay" />
       <div className="hero-content">
         <div className="hero-glass">

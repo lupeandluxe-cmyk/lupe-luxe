@@ -425,6 +425,21 @@ input, textarea, select { font-family: var(--font-body); }
   object-fit: cover;
   opacity: 0.35;
 }
+.hero-canvas-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.hero-canvas-fallback {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.5;
+}
 .hero-overlay {
   position: absolute;
   inset: 0;
