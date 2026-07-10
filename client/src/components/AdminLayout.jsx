@@ -14,6 +14,7 @@ const menuItems = [
   { path: '/admin/media', label: 'Media Library', icon: '🖼️' },
   { path: '/admin/settings', label: 'Settings', icon: '⚙️' },
   { path: '/admin/pages', label: 'Pages', icon: '📄' },
+  { path: '/admin/live-chat', label: 'Live Chat', icon: '💬' },
   { path: '/admin/reports', label: 'Reports', icon: '📈' },
 ];
 

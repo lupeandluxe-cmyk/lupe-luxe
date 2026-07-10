@@ -28,6 +28,7 @@ import AdminSettings from './pages/admin/Settings';
 import AdminPaymentSettings from './pages/admin/PaymentSettings';
 import AdminPages from './pages/admin/Pages';
 import AdminReports from './pages/admin/Reports';
+import AdminLiveChat from './pages/admin/LiveChat';
 
 function PrivateRoute({ children }) {
   const { user, loading } = useAuth();
@@ -74,6 +75,7 @@ function AppRoutes() {
           <Route path="/admin/payment-settings" element={<AdminRoute><AdminPage Component={AdminPaymentSettings} /></AdminRoute>} />
           <Route path="/admin/pages" element={<AdminRoute><AdminPage Component={AdminPages} /></AdminRoute>} />
           <Route path="/admin/reports" element={<AdminRoute><AdminPage Component={AdminReports} /></AdminRoute>} />
+          <Route path="/admin/live-chat" element={<AdminRoute><AdminPage Component={AdminLiveChat} /></AdminRoute>} />
         </Routes>
       </main>
       <Footer />

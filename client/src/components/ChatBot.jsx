@@ -1,4 +1,10 @@
 import { useState, useRef, useEffect } from 'react';
+import { useAuth } from '../context/AuthContext';
+import api from '../api/axios';
+
+const SOCKET_URL = import.meta.env.VITE_API_URL
+  ? import.meta.env.VITE_API_URL.replace('/api', '')
+  : window.location.origin;
 
 const FAQ = [
   { q: ['shipping', 'delivery', 'how long', 'ship', 'arrive'], a: 'Orders are processed within 1-2 business days. Domestic shipping takes 3-7 days, international 7-14 days. You\'ll receive a tracking link once shipped.' },
@@ -11,31 +17,34 @@ const FAQ = [
   { q: ['discount', 'coupon', 'promo', 'offer', 'sale'], a: 'Apply coupon codes at checkout. Follow us on Instagram for exclusive drops and limited-time offers. New crew members get welcome discounts!' },
   { q: ['premium', 'featured', 'limited', 'drop'], a: 'Limited Drops are our most exclusive pieces — each numbered and released in small batches. Check the Limited Drops category for current availability.' },
   { q: ['hello', 'hi', 'hey', 'help', 'start'], a: 'Ahoy, Captain! ⚓ Welcome to Lupe & Luxe. I can help with orders, shipping, sizing, payments, or anything else. Just ask!' },
+  { q: ['human', 'agent', 'real person', 'talk to', 'support'], a: 'AGENT_REQUEST' },
 ];
 
 function findAnswer(input) {
   const text = input.toLowerCase().trim();
-  if (!text) return FAQ[FAQ.length - 1].a;
-  let best = { score: 0, answer: FAQ[FAQ.length - 1].a };
+  if (!text) return FAQ[FAQ.length - 2].a;
   for (const item of FAQ) {
-    let score = 0;
     for (const kw of item.q) {
-      if (text.includes(kw)) score++;
-    }
-    if (score > best.score) {
-      best = { score, answer: item.a };
+      if (text.includes(kw)) {
+        if (item.a === 'AGENT_REQUEST') return 'AGENT_REQUEST';
+        return item.a;
+      }
     }
   }
-  return best.answer;
+  return FAQ[FAQ.length - 2].a;
 }
 
 export default function ChatBot() {
+  const { user } = useAuth();
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState([
     { id: 0, text: 'Ahoy Captain! ⚓ Ask me anything about Lupe & Luxe.', sender: 'bot' },
   ]);
   const [input, setInput] = useState('');
   const [typing, setTyping] = useState(false);
+  const [chatId, setChatId] = useState(null);
+  const [agentActive, setAgentActive] = useState(false);
+  const [socket, setSocket] = useState(null);
   const endRef = useRef(null);
   const inputRef = useRef(null);
 
@@ -47,19 +56,68 @@ export default function ChatBot() {
     if (open) inputRef.current?.focus();
   }, [open]);
 
-  const handleSend = (text) => {
+  useEffect(() => {
+    if (!open) return;
+    if (chatId) connectSocket(chatId);
+  }, [chatId, open]);
+
+  const connectSocket = (id) => {
+    import('socket.io-client').then(({ io }) => {
+      const s = io(SOCKET_URL);
+      s.emit('chat:join', { chatId: id });
+      s.on('message:new', (msg) => {
+        setMessages((prev) => [...prev, { id: Date.now(), text: msg.text, sender: 'agent' }]);
+      });
+      s.on('agent:joined', () => setAgentActive(true));
+      setSocket(s);
+    });
+  };
+
+  const requestAgent = async () => {
+    if (!user) {
+      setMessages((prev) => [...prev, { id: Date.now(), text: 'Please sign in first to talk to a crew member. Click profile icon above!', sender: 'bot' }]);
+      return;
+    }
+    setTyping(true);
+    try {
+      const { data } = await api.post('/chats');
+      setChatId(data._id);
+      setMessages((prev) => [...prev, { id: Date.now(), text: 'Connecting you to a crew member...', sender: 'bot' }]);
+      setTimeout(() => {
+        setMessages((prev) => [...prev, { id: Date.now() + 1, text: 'You\'re now chatting with a real person! They\'ll respond shortly. ⚓', sender: 'agent' }]);
+        setAgentActive(true);
+        setTyping(false);
+      }, 1000);
+    } catch {
+      setMessages((prev) => [...prev, { id: Date.now(), text: 'Something went wrong. Try again later.', sender: 'bot' }]);
+      setTyping(false);
+    }
+  };
+
+  const handleSend = async (text) => {
     const msg = (text || input).trim();
     if (!msg || typing) return;
     setInput('');
-    setMessages(m => [...m, { id: Date.now(), text: msg, sender: 'user' }]);
-    setTyping(true);
-    setTimeout(() => {
-      setMessages(m => [...m, { id: Date.now() + 1, text: findAnswer(msg), sender: 'bot' }]);
-      setTyping(false);
-    }, 600 + Math.random() * 400);
+    setMessages((m) => [...m, { id: Date.now(), text: msg, sender: 'user' }]);
+    if (agentActive && chatId && socket) {
+      socket.emit('message:send', { chatId, text: msg, sender: 'user' });
+    } else {
+      setTyping(true);
+      setTimeout(() => {
+        const answer = findAnswer(msg);
+        if (answer === 'AGENT_REQUEST') {
+          requestAgent();
+        } else {
+          setMessages((m) => [...m, { id: Date.now() + 1, text: answer, sender: 'bot' }]);
+          setTyping(false);
+        }
+      }, 500 + Math.random() * 400);
+    }
   };
 
-  const quickReplies = ['Shipping info', 'Return policy', 'Sizing help', 'Payment options'];
+  const quickReplies = agentActive
+    ? []
+    : ['Shipping info', 'Return policy', 'Sizing help', 'Talk to Agent'];
 
   return (
     <>
@@ -74,10 +132,10 @@ export default function ChatBot() {
       <div className={`chatbot-panel ${open ? 'open' : ''}`}>
         <div className="chatbot-header">
           <div className="chatbot-header-info">
-            <span className="chatbot-avatar">☠</span>
+            <span className="chatbot-avatar">{agentActive ? '👤' : '☠'}</span>
             <div>
-              <p className="chatbot-name">Lupe & Luxe</p>
-              <p className="chatbot-status">Online • Ready to help</p>
+              <p className="chatbot-name">{agentActive ? 'Crew Member' : 'Lupe & Luxe'}</p>
+              <p className="chatbot-status">{agentActive ? '🟢 Online' : '🤖 Auto assistant'}</p>
             </div>
           </div>
           <button className="chatbot-close" onClick={() => setOpen(false)} aria-label="Close">
@@ -86,22 +144,20 @@ export default function ChatBot() {
         </div>
 
         <div className="chatbot-messages">
-          {messages.map(m => (
-            <div key={m.id} className={`chatbot-msg ${m.sender === 'user' ? 'user' : 'bot'}`}>
+          {messages.map((m) => (
+            <div key={m.id} className={`chatbot-msg ${m.sender === 'user' ? 'user' : m.sender === 'agent' ? 'agent' : 'bot'}`}>
               <div className="chatbot-bubble">{m.text}</div>
             </div>
           ))}
           {typing && (
             <div className="chatbot-msg bot">
-              <div className="chatbot-bubble typing">
-                <span /><span /><span />
-              </div>
+              <div className="chatbot-bubble typing"><span /><span /><span /></div>
             </div>
           )}
           <div ref={endRef} />
         </div>
 
-        {messages.length < 3 && (
+        {quickReplies.length > 0 && messages.length < 4 && (
           <div className="chatbot-quick">
             {quickReplies.map((qr, i) => (
               <button key={i} className="chatbot-quick-btn" onClick={() => handleSend(qr)}>
@@ -111,15 +167,19 @@ export default function ChatBot() {
           </div>
         )}
 
+        {agentActive && (
+          <div className="chatbot-agent-banner">You're chatting with a real crew member</div>
+        )}
+
         <div className="chatbot-input-wrap">
           <input
             ref={inputRef}
             type="text"
             className="chatbot-input"
-            placeholder="Type your question..."
+            placeholder={agentActive ? 'Type a message...' : 'Ask me anything...'}
             value={input}
-            onChange={e => setInput(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && handleSend()}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleSend()}
           />
           <button className="chatbot-send" onClick={() => handleSend()} disabled={!input.trim() || typing} aria-label="Send">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4Z"/></svg>
