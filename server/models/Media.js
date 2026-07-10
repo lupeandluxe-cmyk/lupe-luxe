@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 
 const mediaSchema = new mongoose.Schema({
   url: { type: String, required: true },
+  publicId: { type: String },
   filename: { type: String, required: true },
   mimetype: { type: String, required: true },
   size: { type: Number },

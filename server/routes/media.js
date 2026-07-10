@@ -1,23 +1,30 @@
 const express = require('express');
-const path = require('path');
-const fs = require('fs');
 const upload = require('../middleware/upload');
 const Media = require('../models/Media');
 const { protect, admin } = require('../middleware/auth');
+const { uploadToCloudinary, deleteFromCloudinary } = require('../services/upload');
 
 const router = express.Router();
 
 router.post('/', protect, admin, upload.single('file'), async (req, res) => {
   if (!req.file) return res.status(400).json({ message: 'No file uploaded' });
-  const media = await Media.create({
-    url: '/uploads/' + (req.body.folder || 'general') + '/' + req.file.filename,
-    filename: req.file.filename,
-    mimetype: req.file.mimetype,
-    size: req.file.size,
-    folder: req.body.folder || 'general',
-    uploadedBy: req.user._id,
-  });
-  res.status(201).json(media);
+  try {
+    const folder = req.body.folder || 'general';
+    const result = await uploadToCloudinary(req.file.buffer, req.file.mimetype, folder);
+    const media = await Media.create({
+      url: result.secure_url,
+      publicId: result.public_id,
+      filename: req.file.originalname,
+      mimetype: req.file.mimetype,
+      size: req.file.size,
+      folder,
+      uploadedBy: req.user._id,
+    });
+    res.status(201).json(media);
+  } catch (err) {
+    console.error('Upload error:', err);
+    res.status(500).json({ message: 'Upload failed' });
+  }
 });
 
 router.get('/', protect, admin, async (req, res) => {
@@ -29,8 +36,7 @@ router.get('/', protect, admin, async (req, res) => {
 router.delete('/:id', protect, admin, async (req, res) => {
   const media = await Media.findById(req.params.id);
   if (media) {
-    const filePath = path.resolve(__dirname, '..', media.url.replace(/^\//, ''));
-    if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+    if (media.publicId) await deleteFromCloudinary(media.url);
     await media.deleteOne();
     res.json({ message: 'File deleted' });
   } else {
