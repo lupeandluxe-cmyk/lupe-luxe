@@ -4,7 +4,9 @@ import { CartProvider } from './context/CartContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ChatBot from './components/ChatBot';
+import BottomNav from './components/BottomNav';
 import AdminLayout from './components/AdminLayout';
+import useStandalone from './hooks/useStandalone';
 import Home from './pages/Home';
 import ProductList from './pages/ProductList';
 import ProductDetail from './pages/ProductDetail';
@@ -45,9 +47,11 @@ function AdminRoute({ children }) {
 const AdminPage = ({ Component }) => <AdminLayout><Component /></AdminLayout>;
 
 function AppRoutes() {
+  const isApp = useStandalone();
+
   return (
-    <div className="app">
-      <Navbar />
+    <div className={`app ${isApp ? 'app-mode' : 'web-mode'}`}>
+      {!isApp && <Navbar />}
       <main className="main-content">
         <Routes>
           <Route path="/" element={<Home />} />
@@ -78,7 +82,8 @@ function AppRoutes() {
           <Route path="/admin/live-chat" element={<AdminRoute><AdminPage Component={AdminLiveChat} /></AdminRoute>} />
         </Routes>
       </main>
-      <Footer />
+      {!isApp && <Footer />}
+      {isApp && <BottomNav />}
       <ChatBot />
     </div>
   );
