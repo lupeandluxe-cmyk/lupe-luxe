@@ -169,6 +169,7 @@ export default function Checkout() {
                 {enabledMethods.map(m => (
                   <label key={m.value} className={`payment-option ${paymentMethod === m.value ? 'active' : ''}`}>
                     <input type="radio" name="payment" value={m.value} checked={paymentMethod === m.value} onChange={() => setPaymentMethod(m.value)} />
+                    <span className="payment-radio" />
                     <span className="payment-option-content">
                       <span className="payment-icon">{m.icon}</span>
                       <span><strong>{m.label}</strong><small>{m.sub}</small></span>

@@ -1,12 +1,12 @@
-export default function Loader() {
+export default function Loader({ text = 'Setting sail...' }) {
   return (
     <div className="loader-container">
       <div className="loader">
-        <div className="loader-ring"></div>
-        <div className="loader-ring"></div>
-        <div className="loader-ring"></div>
+        <div className="loader-ring" />
+        <div className="loader-ring" />
+        <div className="loader-ring" />
       </div>
-      <p className="loader-text">Setting sail...</p>
+      <p className="loader-text">{text}</p>
     </div>
   );
 }
