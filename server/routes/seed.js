@@ -44,6 +44,18 @@ const defaultSettings = [
   { key: 'codFee', value: '0', type: 'text' },
   { key: 'primaryColor', value: '#c8a87c', type: 'text' },
   { key: 'secondaryColor', value: '#1a1a2e', type: 'text' },
+  { key: 'upiEnabled', value: 'true', type: 'text' },
+  { key: 'upiId', value: 'lupeandluxe@upi', type: 'text' },
+  { key: 'upiHolderName', value: 'Lupe & Luxe', type: 'text' },
+  { key: 'upiQrImage', value: '', type: 'text' },
+  { key: 'razorpayEnabled', value: 'false', type: 'text' },
+  { key: 'razorpayKeyId', value: '', type: 'text' },
+  { key: 'razorpayKeySecret', value: '', type: 'text' },
+  { key: 'razorpayTestMode', value: 'true', type: 'text' },
+  { key: 'codEnabled', value: 'true', type: 'text' },
+  { key: 'emailNotifications', value: 'true', type: 'text' },
+  { key: 'emailUser', value: '', type: 'text' },
+  { key: 'emailPass', value: '', type: 'text' },
 ];
 
 const defaultCategories = [

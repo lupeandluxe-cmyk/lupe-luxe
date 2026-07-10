@@ -118,7 +118,7 @@ export default function ProductDetail() {
               {inStock && product.countInStock <= 5 && (
                 <span className="stock-warning">Only {product.countInStock} left</span>
               )}
-              <span className="delivery-estimate">🚚 Est. delivery: 5-7 business days</span>
+
             </div>
 
             {inStock && (

@@ -23,6 +23,7 @@ import AdminCoupons from './pages/admin/Coupons';
 import AdminHomepage from './pages/admin/Homepage';
 import AdminMedia from './pages/admin/Media';
 import AdminSettings from './pages/admin/Settings';
+import AdminPaymentSettings from './pages/admin/PaymentSettings';
 import AdminPages from './pages/admin/Pages';
 import AdminReports from './pages/admin/Reports';
 
@@ -67,6 +68,7 @@ function AppRoutes() {
           <Route path="/admin/homepage" element={<AdminRoute><AdminPage Component={AdminHomepage} /></AdminRoute>} />
           <Route path="/admin/media" element={<AdminRoute><AdminPage Component={AdminMedia} /></AdminRoute>} />
           <Route path="/admin/settings" element={<AdminRoute><AdminPage Component={AdminSettings} /></AdminRoute>} />
+          <Route path="/admin/payment-settings" element={<AdminRoute><AdminPage Component={AdminPaymentSettings} /></AdminRoute>} />
           <Route path="/admin/pages" element={<AdminRoute><AdminPage Component={AdminPages} /></AdminRoute>} />
           <Route path="/admin/reports" element={<AdminRoute><AdminPage Component={AdminReports} /></AdminRoute>} />
         </Routes>

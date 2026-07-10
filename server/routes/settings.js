@@ -14,7 +14,12 @@ router.get('/', async (req, res) => {
 router.get('/public', async (req, res) => {
   const settings = await SiteSetting.find({});
   const map = {};
-  settings.forEach(s => { map[s.key] = s.value; });
+  const sensitive = ['razorpayKeySecret', 'emailPass'];
+  settings.forEach(s => {
+    if (!sensitive.includes(s.key)) {
+      map[s.key] = s.value;
+    }
+  });
   res.json(map);
 });
 

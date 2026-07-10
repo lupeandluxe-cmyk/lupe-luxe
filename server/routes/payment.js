@@ -2,15 +2,24 @@ const express = require('express');
 const Razorpay = require('razorpay');
 const crypto = require('crypto');
 const Order = require('../models/Order');
+const SiteSetting = require('../models/SiteSetting');
 const { protect } = require('../middleware/auth');
 
 const router = express.Router();
 
-const getRazorpay = () => {
-  return new Razorpay({
-    key_id: process.env.RAZORPAY_KEY_ID,
-    key_secret: process.env.RAZORPAY_KEY_SECRET,
-  });
+async function getRazorpaySettings() {
+  const settings = await SiteSetting.find({});
+  const map = {};
+  settings.forEach(s => { map[s.key] = s.value; });
+  return {
+    key_id: map.razorpayKeyId || process.env.RAZORPAY_KEY_ID || '',
+    key_secret: map.razorpayKeySecret || process.env.RAZORPAY_KEY_SECRET || '',
+    testMode: map.razorpayTestMode !== 'false',
+  };
+}
+
+const getRazorpay = (key_id, key_secret) => {
+  return new Razorpay({ key_id, key_secret });
 };
 
 router.post('/razorpay', protect, async (req, res) => {
@@ -22,7 +31,11 @@ router.post('/razorpay', protect, async (req, res) => {
       return res.status(403).json({ message: 'Not authorized' });
     }
 
-    const razorpay = getRazorpay();
+    const rp = await getRazorpaySettings();
+    if (!rp.key_id || !rp.key_secret) {
+      return res.status(400).json({ message: 'Razorpay not configured' });
+    }
+    const razorpay = getRazorpay(rp.key_id, rp.key_secret);
     const amount = Math.round(order.totalPrice * 100);
     const options = {
       amount,
@@ -46,9 +59,13 @@ router.post('/razorpay', protect, async (req, res) => {
 router.post('/verify', protect, async (req, res) => {
   try {
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature, orderId } = req.body;
+    const rp = await getRazorpaySettings();
+    if (!rp.key_secret) {
+      return res.status(400).json({ message: 'Razorpay not configured' });
+    }
     const body = razorpay_order_id + '|' + razorpay_payment_id;
     const expectedSignature = crypto
-      .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
+      .createHmac('sha256', rp.key_secret)
       .update(body)
       .digest('hex');
 
@@ -60,6 +77,7 @@ router.post('/verify', protect, async (req, res) => {
     if (order) {
       order.isPaid = true;
       order.paidAt = Date.now();
+      order.orderStatus = 'confirmed';
       order.paymentResult = {
         id: razorpay_payment_id,
         orderId: razorpay_order_id,
@@ -76,8 +94,9 @@ router.post('/verify', protect, async (req, res) => {
   }
 });
 
-router.get('/key', (req, res) => {
-  res.json({ key: process.env.RAZORPAY_KEY_ID || '' });
+router.get('/key', async (req, res) => {
+  const rp = await getRazorpaySettings();
+  res.json({ key: rp.key_id || '' });
 });
 
 module.exports = router;

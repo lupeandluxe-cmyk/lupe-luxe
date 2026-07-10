@@ -86,17 +86,14 @@ export const CartProvider = ({ children }) => {
 
   const itemsPrice = state.items.reduce((acc, i) => acc + i.price * i.qty, 0);
   const discount = state.coupon ? state.coupon.discount : 0;
-  const discountedPrice = Math.max(0, itemsPrice - discount);
-  const shippingPrice = discountedPrice > 3999 ? 0 : 199;
-  const taxPrice = Number((0.12 * discountedPrice).toFixed(2));
-  const totalPrice = Number((discountedPrice + shippingPrice + taxPrice).toFixed(2));
+  const totalPrice = Math.max(0, itemsPrice - discount);
 
   return (
     <CartContext.Provider
       value={{
         items: state.items, addItem, removeItem, clearCart,
         itemsPrice, discount, discountCode: state.coupon?.code || null,
-        shippingPrice, taxPrice, totalPrice, applyCoupon, removeCoupon,
+        totalPrice, applyCoupon, removeCoupon,
       }}
     >
       {children}

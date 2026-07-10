@@ -4,15 +4,22 @@ import { useCart } from '../context/CartContext';
 import api from '../api/axios';
 import Message from '../components/Message';
 
+const PAYMENT_OPTIONS = [
+  { value: 'razorpay', label: 'Online Payment', sub: 'UPI, Card, Net Banking', icon: '💳', setting: 'razorpayEnabled' },
+  { value: 'upi', label: 'UPI QR', sub: 'GPay, PhonePe, PayTM', icon: '📱', setting: 'upiEnabled' },
+  { value: 'cod', label: 'Cash on Delivery', sub: 'Pay when delivered', icon: '💵', setting: 'codEnabled' },
+];
+
 export default function Checkout() {
-  const { items, clearCart, itemsPrice, discount, discountCode, shippingPrice, taxPrice, totalPrice } = useCart();
+  const { items, clearCart, itemsPrice, discount, discountCode, totalPrice } = useCart();
   const navigate = useNavigate();
 
   const [form, setForm] = useState({ fullName: '', address: '', city: '', postalCode: '', country: 'India', phone: '' });
   const [errors, setErrors] = useState({});
+  const [settings, setSettings] = useState({});
   const [paymentMethod, setPaymentMethod] = useState('cod');
   const [upiTxnId, setUpiTxnId] = useState('');
-  const [settings, setSettings] = useState({});
+  const [upiScreenshot, setUpiScreenshot] = useState(null);
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
   const [couponInput, setCouponInput] = useState('');
@@ -22,8 +29,16 @@ export default function Checkout() {
   const { applyCoupon, removeCoupon } = useCart();
 
   useEffect(() => {
-    api.get('/settings/public').then(res => setSettings(res.data)).catch(() => {});
+    api.get('/settings/public').then(({ data }) => {
+      setSettings(data);
+      const enabledOptions = PAYMENT_OPTIONS.filter(o => data[o.setting] !== 'false');
+      if (enabledOptions.length > 0 && !enabledOptions.find(o => o.value === paymentMethod)) {
+        setPaymentMethod(enabledOptions[0].value);
+      }
+    }).catch(() => {});
   }, []);
+
+  const enabledMethods = PAYMENT_OPTIONS.filter(o => settings[o.setting] !== 'false');
 
   const validate = () => {
     const e = {};
@@ -61,12 +76,26 @@ export default function Checkout() {
     }
   };
 
+  const handleScreenshotUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const fd = new FormData();
+    fd.append('file', file);
+    fd.append('folder', 'upi');
+    try {
+      const { data } = await api.post('/media', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+      setUpiScreenshot(data.url);
+    } catch {
+      setError('Screenshot upload failed');
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validate()) return;
-    if (paymentMethod === 'upi' && !upiTxnId.trim()) {
-      setError('Please enter the UPI Transaction ID');
-      return;
+    if (paymentMethod === 'upi') {
+      if (!upiTxnId.trim()) { setError('Please enter the UPI Transaction ID'); return; }
+      if (!upiScreenshot) { setError('Please upload the payment screenshot'); return; }
     }
     setSaving(true);
     try {
@@ -75,8 +104,8 @@ export default function Checkout() {
         shippingAddress: form,
         paymentMethod,
         itemsPrice, discount, couponCode: discountCode,
-        shippingPrice, taxPrice, totalPrice,
-        upiTransactionId: paymentMethod === 'upi' ? upiTxnId : undefined,
+        totalPrice,
+        ...(paymentMethod === 'upi' ? { upiTransactionId: upiTxnId.trim(), upiScreenshot } : {}),
       });
       clearCart();
       navigate(`/order/${data._id}${paymentMethod === 'razorpay' ? '?pay=1' : ''}`);
@@ -137,27 +166,18 @@ export default function Checkout() {
             <div className="checkout-section">
               <h2 className="checkout-section-title">Payment Method</h2>
               <div className="payment-methods">
-                <label className={`payment-option ${paymentMethod === 'razorpay' ? 'active' : ''}`}>
-                  <input type="radio" name="payment" value="razorpay" checked={paymentMethod === 'razorpay'} onChange={() => setPaymentMethod('razorpay')} />
-                  <span className="payment-option-content">
-                    <span className="payment-icon">💳</span>
-                    <span><strong>Online Payment</strong><small>UPI, Card, Net Banking</small></span>
-                  </span>
-                </label>
-                <label className={`payment-option ${paymentMethod === 'upi' ? 'active' : ''}`}>
-                  <input type="radio" name="payment" value="upi" checked={paymentMethod === 'upi'} onChange={() => setPaymentMethod('upi')} />
-                  <span className="payment-option-content">
-                    <span className="payment-icon">📱</span>
-                    <span><strong>UPI QR</strong><small>GPay, PhonePe, PayTM</small></span>
-                  </span>
-                </label>
-                <label className={`payment-option ${paymentMethod === 'cod' ? 'active' : ''}`}>
-                  <input type="radio" name="payment" value="cod" checked={paymentMethod === 'cod'} onChange={() => setPaymentMethod('cod')} />
-                  <span className="payment-option-content">
-                    <span className="payment-icon">💵</span>
-                    <span><strong>Cash on Delivery</strong><small>Pay when delivered</small></span>
-                  </span>
-                </label>
+                {enabledMethods.map(m => (
+                  <label key={m.value} className={`payment-option ${paymentMethod === m.value ? 'active' : ''}`}>
+                    <input type="radio" name="payment" value={m.value} checked={paymentMethod === m.value} onChange={() => setPaymentMethod(m.value)} />
+                    <span className="payment-option-content">
+                      <span className="payment-icon">{m.icon}</span>
+                      <span><strong>{m.label}</strong><small>{m.sub}</small></span>
+                    </span>
+                  </label>
+                ))}
+                {enabledMethods.length === 0 && (
+                  <Message variant="warning">No payment methods are currently enabled.</Message>
+                )}
               </div>
 
               {paymentMethod === 'upi' && (
@@ -176,12 +196,30 @@ export default function Checkout() {
                     <input placeholder="Enter the UTR after payment" value={upiTxnId} onChange={e => setUpiTxnId(e.target.value)} required />
                     <small>Enter the UPI Transaction Reference Number after payment</small>
                   </div>
+                  <div className="form-group">
+                    <label>Payment Screenshot</label>
+                    <div className="screenshot-upload-area">
+                      {upiScreenshot ? (
+                        <div className="screenshot-preview">
+                          <img src={upiScreenshot} alt="Payment Screenshot" />
+                          <button type="button" className="screenshot-remove" onClick={() => setUpiScreenshot(null)}>✕</button>
+                        </div>
+                      ) : (
+                        <label className="screenshot-upload-btn">
+                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                          <span>Upload Screenshot</span>
+                          <input type="file" accept="image/png,image/jpeg,image/webp" hidden onChange={handleScreenshotUpload} />
+                        </label>
+                      )}
+                    </div>
+                    <small>Upload a screenshot of your UPI payment (PNG, JPG, or WebP)</small>
+                  </div>
                   <Message variant="info">After placing the order, it will remain <strong>Pending Verification</strong> until we verify your UPI payment.</Message>
                 </div>
               )}
             </div>
 
-            <button type="submit" className="btn btn-primary btn-block btn-lg checkout-submit" disabled={saving}>
+            <button type="submit" className="btn btn-primary btn-block btn-lg checkout-submit" disabled={saving || enabledMethods.length === 0}>
               {saving ? 'Placing Order...' : `Place Order — ₹${totalPrice.toFixed(0)}`}
             </button>
           </form>

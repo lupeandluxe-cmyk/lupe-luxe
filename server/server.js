@@ -21,7 +21,7 @@ async function start() {
   app.use(express.json({ limit: '50mb' }));
 
   const uploadsDir = path.resolve(__dirname, '..', 'uploads');
-  ['', 'products', 'settings', 'general'].forEach(dir => {
+  ['', 'products', 'settings', 'general', 'upi'].forEach(dir => {
     const p = path.join(uploadsDir, dir);
     if (!fs.existsSync(p)) fs.mkdirSync(p, { recursive: true });
   });

@@ -39,6 +39,7 @@ const orderSchema = new mongoose.Schema({
   isDelivered: { type: Boolean, default: false },
   deliveredAt: { type: Date },
   upiTransactionId: { type: String },
+  upiScreenshot: { type: String },
   upiPaymentStatus: { type: String, enum: ['pending', 'verified', 'rejected'], default: 'pending' },
 }, { timestamps: true });
 

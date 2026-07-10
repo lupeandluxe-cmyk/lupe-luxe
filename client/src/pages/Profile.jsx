@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/axios';
 import Message from '../components/Message';
@@ -82,21 +83,31 @@ export default function Profile() {
             ) : (
               <div className="orders-list">
                 {orders.map((o) => (
-                  <div key={o._id} className="order-row">
+                  <Link to={`/order/${o._id}`} key={o._id} className="order-row">
                     <div className="order-row-info">
                       <span className="order-id">#{o._id.slice(-8).toUpperCase()}</span>
                       <span className="order-date">{new Date(o.createdAt).toLocaleDateString()}</span>
                     </div>
                     <div className="order-row-status">
-                      <span className={o.isPaid ? 'badge-success' : 'badge-muted'}>
-                        {o.isPaid ? 'Paid' : 'Pending'}
-                      </span>
+                      {o.paymentMethod === 'upi' && o.upiPaymentStatus ? (
+                        <span className={
+                          o.upiPaymentStatus === 'verified' ? 'badge-success' :
+                          o.upiPaymentStatus === 'rejected' ? 'badge-danger' : 'badge-warning'
+                        }>
+                          {o.upiPaymentStatus === 'verified' ? 'Payment Verified' :
+                           o.upiPaymentStatus === 'rejected' ? 'Payment Failed' : 'Verify Pending'}
+                        </span>
+                      ) : (
+                        <span className={o.isPaid ? 'badge-success' : 'badge-muted'}>
+                          {o.isPaid ? 'Paid' : 'Pending'}
+                        </span>
+                      )}
                       <span className={o.isDelivered ? 'badge-success' : 'badge-muted'}>
                         {o.isDelivered ? 'Delivered' : 'Shipping'}
                       </span>
                     </div>
                     <span className="order-row-total">₹{o.totalPrice.toFixed(2)}</span>
-                  </div>
+                  </Link>
                 ))}
               </div>
             )}

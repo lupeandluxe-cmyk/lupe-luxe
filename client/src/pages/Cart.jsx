@@ -6,7 +6,7 @@ import api from '../api/axios';
 import Message from '../components/Message';
 
 export default function Cart() {
-  const { items, removeItem, itemsPrice, discount, discountCode, shippingPrice, taxPrice, totalPrice, applyCoupon, removeCoupon } = useCart();
+  const { items, removeItem, itemsPrice, discount, discountCode, totalPrice, applyCoupon, removeCoupon } = useCart();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [couponInput, setCouponInput] = useState('');
@@ -58,8 +58,6 @@ export default function Cart() {
     );
   }
 
-  const freeShippingRemaining = 3999 - (itemsPrice - discount);
-
   return (
     <div className="cart-page">
       <div className="container">
@@ -91,12 +89,6 @@ export default function Cart() {
                 </button>
               </div>
             ))}
-
-            {freeShippingRemaining > 0 && !discountCode && (
-              <div className="free-shipping-notice">
-                Add ₹{freeShippingRemaining.toFixed(0)} more for <strong>free shipping</strong>
-              </div>
-            )}
           </div>
 
           <div className="cart-sidebar">
