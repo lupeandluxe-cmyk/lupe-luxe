@@ -170,7 +170,14 @@ app.use('/api/reports', adminLimiter);
 
 // --- Routes ---
 async function start() {
-  await connectDB();
+  try {
+    await connectDB();
+  } catch (err) {
+    console.error('FATAL: MongoDB connection failed:', err.message);
+    console.error('Check that MONGO_URI is set correctly in environment variables.');
+    console.error('Also verify MongoDB Atlas IP whitelist includes Render\'s IP range (0.0.0.0/0).');
+    process.exit(1);
+  }
 
   // --- Verify Cloudinary configuration ---
   console.log('========== CLOUDINARY CONFIG CHECK ==========');
@@ -253,4 +260,8 @@ async function start() {
   server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 }
 
-start();
+start().catch((err) => {
+  console.error('FATAL: Server startup failed:', err.message);
+  console.error(err.stack);
+  process.exit(1);
+});
