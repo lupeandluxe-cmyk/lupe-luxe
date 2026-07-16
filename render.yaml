@@ -3,7 +3,7 @@ services:
     name: lupe-and-luxe-api
     env: node
     rootDir: server
-    buildCommand: npm install
+    buildCommand: cd ../client && npm install && npm run build && cd ../server && npm install
     startCommand: npm start
     healthCheckPath: /api/health
     envVars:
