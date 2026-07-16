@@ -206,4 +206,105 @@ router.put('/profile', protect, async (req, res) => {
   }
 });
 
+// ── Admin Management Routes ──────────────────────────────────────────
+
+const adminProjection = '_id name email blocked createdAt lastLogin';
+
+router.get('/admins', protect, admin, async (req, res) => {
+  try {
+    const admins = await User.find({ isAdmin: true }).select(adminProjection).sort({ createdAt: -1 });
+    res.json(admins);
+  } catch (err) {
+    logger.error('List admins error', { message: err.message });
+    res.status(500).json({ message: 'Failed to fetch admins' });
+  }
+});
+
+router.post('/admins', protect, admin, async (req, res) => {
+  try {
+    const { name, email, password } = req.body;
+    if (!name || !email || !password) {
+      return res.status(400).json({ message: 'Name, email, and password are required' });
+    }
+    const nameTrimmed = String(name).trim();
+    if (nameTrimmed.length < 2 || nameTrimmed.length > 50) {
+      return res.status(400).json({ message: 'Name must be between 2 and 50 characters' });
+    }
+    if (!EMAIL_REGEX.test(email)) {
+      return res.status(400).json({ message: 'Invalid email format' });
+    }
+    const pwError = validatePassword(password);
+    if (pwError) return res.status(400).json({ message: pwError });
+    const exists = await User.findOne({ email: email.toLowerCase().trim() });
+    if (exists) return res.status(400).json({ message: 'A user with this email already exists' });
+    const user = await User.create({ name: nameTrimmed, email: email.toLowerCase().trim(), password, isAdmin: true });
+    logger.admin(req.user.email, 'admin_created', { createdId: user._id });
+    res.status(201).json({ _id: user._id, name: user.name, email: user.email, isAdmin: user.isAdmin, blocked: user.blocked, createdAt: user.createdAt });
+  } catch (err) {
+    logger.error('Create admin error', { message: err.message });
+    res.status(500).json({ message: 'Failed to create admin' });
+  }
+});
+
+router.put('/admins/:id', protect, admin, async (req, res) => {
+  try {
+    const target = await User.findById(req.params.id);
+    if (!target) return res.status(404).json({ message: 'Admin not found' });
+    if (!target.isAdmin) return res.status(400).json({ message: 'Target user is not an admin' });
+    if (req.user._id.toString() === target._id.toString()) {
+      if (req.body.isAdmin === false) return res.status(400).json({ message: 'You cannot remove your own admin status' });
+      if (req.body.blocked === true) return res.status(400).json({ message: 'You cannot block yourself' });
+    }
+    if (req.body.name !== undefined) {
+      const n = String(req.body.name).trim();
+      if (n.length < 2 || n.length > 50) return res.status(400).json({ message: 'Name must be between 2 and 50 characters' });
+      target.name = n;
+    }
+    if (req.body.blocked !== undefined) target.blocked = req.body.blocked;
+    if (req.body.isAdmin !== undefined) target.isAdmin = req.body.isAdmin;
+    const updated = await target.save();
+    logger.admin(req.user.email, 'admin_updated', { updatedId: updated._id });
+    res.json({ _id: updated._id, name: updated.name, email: updated.email, isAdmin: updated.isAdmin, blocked: updated.blocked, createdAt: updated.createdAt });
+  } catch (err) {
+    logger.error('Update admin error', { message: err.message });
+    res.status(500).json({ message: 'Failed to update admin' });
+  }
+});
+
+router.delete('/admins/:id', protect, admin, async (req, res) => {
+  try {
+    if (req.user._id.toString() === req.params.id) {
+      return res.status(400).json({ message: 'You cannot delete yourself' });
+    }
+    const target = await User.findById(req.params.id);
+    if (!target) return res.status(404).json({ message: 'Admin not found' });
+    if (!target.isAdmin) return res.status(400).json({ message: 'Target user is not an admin' });
+    await target.deleteOne();
+    logger.admin(req.user.email, 'admin_deleted', { deletedId: req.params.id });
+    res.json({ message: 'Admin removed' });
+  } catch (err) {
+    logger.error('Delete admin error', { message: err.message });
+    res.status(500).json({ message: 'Failed to delete admin' });
+  }
+});
+
+router.put('/admins/:id/reset-password', protect, admin, async (req, res) => {
+  try {
+    const { password } = req.body;
+    if (!password || password.length < PASSWORD_MIN) {
+      return res.status(400).json({ message: 'Password must be at least 8 characters' });
+    }
+    const target = await User.findById(req.params.id);
+    if (!target) return res.status(404).json({ message: 'Admin not found' });
+    if (!target.isAdmin) return res.status(400).json({ message: 'Target user is not an admin' });
+    target.password = password;
+    await target.save();
+    logger.admin(req.user.email, 'admin_password_reset', { targetId: req.params.id });
+    res.json({ message: 'Password reset' });
+  } catch (err) {
+    logger.error('Reset admin password error', { message: err.message });
+    res.status(500).json({ message: 'Failed to reset password' });
+  }
+});
+
 module.exports = router;

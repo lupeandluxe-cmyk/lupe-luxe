@@ -70,4 +70,21 @@ router.put('/:id/close', protect, async (req, res) => {
   }
 });
 
+router.get('/:id/messages', protect, async (req, res) => {
+  try {
+    const chat = await Chat.findById(req.params.id);
+    if (!chat) return res.status(404).json({ message: 'Chat not found' });
+    if (!req.user.isAdmin && chat.user?.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: 'Not authorized' });
+    }
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 50;
+    const startIdx = (page - 1) * limit;
+    const messages = chat.messages.slice(startIdx, startIdx + limit);
+    res.json({ messages, total: chat.messages.length, page, totalPages: Math.ceil(chat.messages.length / limit) });
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to fetch messages' });
+  }
+});
+
 module.exports = router;

@@ -20,6 +20,8 @@ const server = http.createServer(app);
 
 const isProduction = process.env.NODE_ENV === 'production';
 
+const jwt = require('jsonwebtoken');
+
 const io = new Server(server, {
   cors: {
     origin: isProduction ? process.env.CLIENT_URL || true : '*',
@@ -27,6 +29,22 @@ const io = new Server(server, {
     credentials: true,
   },
 });
+
+io.use((socket, next) => {
+  const token = socket.handshake.auth?.token || socket.handshake.query?.token;
+  if (token) {
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      if (decoded.type === 'access') {
+        socket.data.userId = decoded.id;
+        socket.data.authenticated = true;
+      }
+    } catch {}
+  }
+  next();
+});
+
+app.set('io', io);
 
 // --- Trust proxy for rate limiting behind reverse proxy ---
 app.set('trust proxy', 1);
@@ -154,6 +172,15 @@ app.use('/api/reports', adminLimiter);
 async function start() {
   await connectDB();
 
+  // --- Verify Cloudinary configuration ---
+  console.log('========== CLOUDINARY CONFIG CHECK ==========');
+  console.log('CLOUDINARY_CLOUD_NAME:', process.env.CLOUDINARY_CLOUD_NAME ? 'SET [' + process.env.CLOUDINARY_CLOUD_NAME + ']' : 'MISSING');
+  console.log('CLOUDINARY_API_KEY:', process.env.CLOUDINARY_API_KEY ? 'SET [' + process.env.CLOUDINARY_API_KEY?.substring(0, 4) + '...]' : 'MISSING');
+  console.log('CLOUDINARY_API_SECRET:', process.env.CLOUDINARY_API_SECRET ? 'SET [' + process.env.CLOUDINARY_API_SECRET?.substring(0, 4) + '...]' : 'MISSING');
+  const cloudinaryCheck = require('./config/cloudinary');
+  console.log('cloudinary.config() loaded:', cloudinaryCheck.config()?.cloud_name || 'NOT CONFIGURED');
+  console.log('=============================================');
+
   const seeded = await seedAll();
   if (Object.keys(seeded).length) {
     console.log('Seeded:', JSON.stringify(seeded));
@@ -174,6 +201,7 @@ async function start() {
   app.use('/api/seed', require('./routes/seed').router);
   app.use('/api/upload', require('./routes/upload'));
   app.use('/api/chats', require('./routes/chat'));
+  app.use('/api/internal', require('./routes/internal'));
 
   app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
 

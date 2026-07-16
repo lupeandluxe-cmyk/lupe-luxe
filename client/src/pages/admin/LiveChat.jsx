@@ -3,7 +3,9 @@ import api from '../../api/axios';
 import Message from '../../components/Message';
 
 const SOCKET_URL = import.meta.env.VITE_API_URL
-  ? import.meta.env.VITE_API_URL.replace('/api', '')
+  ? import.meta.env.VITE_API_URL.startsWith('/')
+    ? window.location.origin
+    : import.meta.env.VITE_API_URL.replace('/api', '')
   : window.location.origin;
 
 export default function LiveChat() {
@@ -16,6 +18,7 @@ export default function LiveChat() {
   const [typing, setTyping] = useState(false);
   const endRef = useRef(null);
   const typingTimer = useRef(null);
+  const selectedRef = useRef(null);
 
   useEffect(() => {
     api.get('/chats').then(({ data }) => {
@@ -29,9 +32,14 @@ export default function LiveChat() {
     endRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [selected?.messages, typing]);
 
+  useEffect(() => { selectedRef.current = selected; }, [selected]);
+
   useEffect(() => {
     import('socket.io-client').then(({ io }) => {
-      const s = io(SOCKET_URL);
+      const s = io(SOCKET_URL, { reconnection: true, reconnectionAttempts: Infinity, reconnectionDelay: 1000 });
+      s.on('connect', () => {
+        if (selectedRef.current) s.emit('chat:join', { chatId: selectedRef.current._id });
+      });
       setSocket(s);
       return () => s.close();
     });
@@ -157,7 +165,16 @@ export default function LiveChat() {
                     placeholder="Type a message..."
                     value={input}
                     onChange={e => setInput(e.target.value)}
-                    onKeyDown={e => e.key === 'Enter' && handleSend()}
+                    onKeyDown={e => {
+                      if (e.key === 'Enter') handleSend();
+                      socket?.emit('typing:start', { chatId: selected._id, sender: 'agent' });
+                    }}
+                    onKeyUp={() => {
+                      if (typingTimer.current) clearTimeout(typingTimer.current);
+                      typingTimer.current = setTimeout(() => {
+                        socket?.emit('typing:stop', { chatId: selected._id, sender: 'agent' });
+                      }, 1000);
+                    }}
                   />
                   <button className="coupon-apply-btn" onClick={handleSend} disabled={!input.trim()}>Send</button>
                   <button className="btn btn-sm" style={{ background: 'rgba(220,52,69,0.1)', color: 'var(--red)', border: '1px solid rgba(220,52,69,0.2)' }} onClick={async () => { try { await api.put(`/chats/${selected._id}/close`); setSelected((prev) => ({ ...prev, status: 'closed' })); setChats((prev) => prev.map((c) => c._id === selected._id ? { ...c, status: 'closed' } : c)); } catch {} }}>Close</button>

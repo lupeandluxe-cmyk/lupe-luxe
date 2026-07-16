@@ -47,11 +47,12 @@ export const CartProvider = ({ children }) => {
   };
 
   const addItem = (product, qty = 1, size = '') => {
+    const effectivePrice = product.salePrice && product.salePrice < product.price ? product.salePrice : product.price;
     const item = {
       product: product._id,
       name: product.name,
       image: product.images?.[0] || '',
-      price: product.price,
+      price: effectivePrice,
       countInStock: product.countInStock,
       qty,
       size,

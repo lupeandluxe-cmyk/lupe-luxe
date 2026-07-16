@@ -12,16 +12,24 @@ export default function AdminMedia() {
     setFiles(res.data);
   };
 
+  const [error, setError] = useState('');
+
   const uploadFile = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
+    setError('');
     setUploading(true);
     const fd = new FormData();
     fd.append('file', file);
     fd.append('folder', 'general');
-    await api.post('/media', fd);
+    try {
+      await api.post('/media', fd);
+      fetchFiles();
+    } catch (err) {
+      setError(err.response?.data?.message || 'Upload failed');
+    }
     setUploading(false);
-    fetchFiles();
+    e.target.value = '';
   };
 
   const deleteFile = async (id) => {
@@ -41,6 +49,7 @@ export default function AdminMedia() {
         <h1 className="admin-page-title">Media Library ({files.length})</h1>
         <label className="btn btn-primary" style={{ cursor: 'pointer' }}>{uploading ? 'Uploading...' : '+ Upload'}<input type="file" onChange={uploadFile} hidden accept="image/*,video/*" /></label>
       </div>
+      {error && <div className="admin-form-error">{error}</div>}
       <div className="media-grid">
         {files.map(f => (
           <div key={f._id} className="media-item">

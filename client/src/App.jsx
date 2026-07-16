@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
@@ -7,6 +8,7 @@ import ChatBot from './components/ChatBot';
 import BottomNav from './components/BottomNav';
 import AdminLayout from './components/AdminLayout';
 import useStandalone from './hooks/useStandalone';
+import { internalFetch } from './hooks/useInternalAuth';
 import Home from './pages/Home';
 import ProductList from './pages/ProductList';
 import ProductDetail from './pages/ProductDetail';
@@ -31,6 +33,18 @@ import AdminPaymentSettings from './pages/admin/PaymentSettings';
 import AdminPages from './pages/admin/Pages';
 import AdminReports from './pages/admin/Reports';
 import AdminLiveChat from './pages/admin/LiveChat';
+import AdminManagement from './pages/admin/AdminManagement';
+import InternalLogin from './pages/internal/InternalLogin';
+import InternalDashboard from './pages/internal/InternalDashboard';
+import InternalOrders from './pages/internal/InternalOrders';
+import InternalNotifications from './pages/internal/InternalNotifications';
+import InternalChat from './pages/internal/InternalChat';
+import InternalTasks from './pages/internal/InternalTasks';
+import InternalDepartments from './pages/internal/InternalDepartments';
+import InternalEmployees from './pages/internal/InternalEmployees';
+import InternalActivity from './pages/internal/InternalActivity';
+import InternalSettings from './pages/internal/InternalSettings';
+import InternalReports from './pages/internal/InternalReports';
 
 function PrivateRoute({ children }) {
   const { user, loading } = useAuth();
@@ -44,7 +58,23 @@ function AdminRoute({ children }) {
   return user?.isAdmin ? children : <Navigate to="/" />;
 }
 
+function InternalRoute({ children }) {
+  const [authorized, setAuthorized] = useState(null);
+  useEffect(() => {
+    const token = localStorage.getItem('internal_token');
+    if (!token) { setAuthorized(false); return; }
+    let cancelled = false;
+    internalFetch('/auth/profile')
+      .then(data => { if (!cancelled) setAuthorized(!!data.employee); })
+      .catch(() => { if (!cancelled) setAuthorized(false); });
+    return () => { cancelled = true; };
+  }, []);
+  if (authorized === null) return null;
+  return authorized ? children : <Navigate to="/internal/login" replace />;
+}
+
 const AdminPage = ({ Component }) => <AdminLayout><Component /></AdminLayout>;
+const InternalPage = ({ Component }) => <AdminLayout><Component /></AdminLayout>;
 
 function AppRoutes() {
   const isApp = useStandalone();
@@ -65,6 +95,8 @@ function AppRoutes() {
           <Route path="/checkout" element={<PrivateRoute><Checkout /></PrivateRoute>} />
           <Route path="/order/:id" element={<PrivateRoute><OrderConfirm /></PrivateRoute>} />
           <Route path="/page/:slug" element={<div>Page</div>} />
+
+          {/* Admin routes */}
           <Route path="/admin" element={<AdminRoute><AdminPage Component={AdminDashboard} /></AdminRoute>} />
           <Route path="/admin/products" element={<AdminRoute><AdminPage Component={AdminProducts} /></AdminRoute>} />
           <Route path="/admin/products/new" element={<AdminRoute><AdminPage Component={EditProduct} /></AdminRoute>} />
@@ -80,6 +112,32 @@ function AppRoutes() {
           <Route path="/admin/pages" element={<AdminRoute><AdminPage Component={AdminPages} /></AdminRoute>} />
           <Route path="/admin/reports" element={<AdminRoute><AdminPage Component={AdminReports} /></AdminRoute>} />
           <Route path="/admin/live-chat" element={<AdminRoute><AdminPage Component={AdminLiveChat} /></AdminRoute>} />
+          <Route path="/admin/admins" element={<AdminRoute><AdminPage Component={AdminManagement} /></AdminRoute>} />
+
+          {/* Internal Portal routes — inside AdminLayout, protected by InternalRoute */}
+          <Route path="/internal/login" element={<InternalLogin />} />
+          <Route path="/admin/internal/dashboard" element={<InternalRoute><InternalPage Component={InternalDashboard} /></InternalRoute>} />
+          <Route path="/admin/internal/orders" element={<InternalRoute><InternalPage Component={InternalOrders} /></InternalRoute>} />
+          <Route path="/admin/internal/notifications" element={<InternalRoute><InternalPage Component={InternalNotifications} /></InternalRoute>} />
+          <Route path="/admin/internal/chat" element={<InternalRoute><InternalPage Component={InternalChat} /></InternalRoute>} />
+          <Route path="/admin/internal/tasks" element={<InternalRoute><InternalPage Component={InternalTasks} /></InternalRoute>} />
+          <Route path="/admin/internal/departments" element={<InternalRoute><InternalPage Component={InternalDepartments} /></InternalRoute>} />
+          <Route path="/admin/internal/employees" element={<InternalRoute><InternalPage Component={InternalEmployees} /></InternalRoute>} />
+          <Route path="/admin/internal/activity" element={<InternalRoute><InternalPage Component={InternalActivity} /></InternalRoute>} />
+          <Route path="/admin/internal/settings" element={<InternalRoute><InternalPage Component={InternalSettings} /></InternalRoute>} />
+          <Route path="/admin/internal/reports" element={<InternalRoute><InternalPage Component={InternalReports} /></InternalRoute>} />
+
+          {/* Redirect /admin/internal to dashboard */}
+          <Route path="/admin/internal" element={<Navigate to="/admin/internal/dashboard" replace />} />
+          {/* Redirect old /internal routes for backwards compat */}
+          <Route path="/internal" element={<Navigate to="/admin/internal/dashboard" replace />} />
+          <Route path="/internal/dashboard" element={<Navigate to="/admin/internal/dashboard" replace />} />
+          <Route path="/internal/orders" element={<Navigate to="/admin/internal/orders" replace />} />
+          <Route path="/internal/chat" element={<Navigate to="/admin/internal/chat" replace />} />
+          <Route path="/internal/tasks" element={<Navigate to="/admin/internal/tasks" replace />} />
+          <Route path="/internal/employees" element={<Navigate to="/admin/internal/employees" replace />} />
+          <Route path="/internal/activity" element={<Navigate to="/admin/internal/activity" replace />} />
+          <Route path="/internal/settings" element={<Navigate to="/admin/internal/settings" replace />} />
         </Routes>
       </main>
       {!isApp && <Footer />}

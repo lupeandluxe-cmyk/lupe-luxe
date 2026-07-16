@@ -54,6 +54,15 @@ router.get('/:id', async (req, res) => {
 
 router.post('/', protect, admin, async (req, res) => {
   const { name, description, price, salePrice, images, category, tags, size, countInStock, sku, featured, bestSeller, visible } = req.body;
+  if (!name || !description || price == null || !category || countInStock == null) {
+    return res.status(400).json({ message: 'name, description, price, category, and countInStock are required' });
+  }
+  if (typeof price !== 'number' || price <= 0) {
+    return res.status(400).json({ message: 'price must be a positive number' });
+  }
+  if (typeof Number(countInStock) !== 'number' || Number(countInStock) < 0) {
+    return res.status(400).json({ message: 'countInStock must be a non-negative number' });
+  }
   const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
   const product = await Product.create({
     name, slug, description, price, salePrice, images, category, tags, size,
@@ -66,7 +75,8 @@ router.post('/', protect, admin, async (req, res) => {
 router.put('/:id', protect, admin, async (req, res) => {
   const product = await Product.findById(req.params.id);
   if (product) {
-    Object.assign(product, req.body);
+    const allowed = ['name', 'description', 'price', 'salePrice', 'images', 'category', 'tags', 'size', 'countInStock', 'sku', 'featured', 'bestSeller', 'visible'];
+    allowed.forEach(f => { if (req.body[f] !== undefined) product[f] = req.body[f]; });
     if (req.body.name) {
       product.slug = req.body.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
     }

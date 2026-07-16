@@ -19,4 +19,5 @@ const productSchema = new mongoose.Schema({
   visible: { type: Boolean, default: true },
 }, { timestamps: true });
 
+// slug is already defined as unique: true above
 module.exports = mongoose.model('Product', productSchema);

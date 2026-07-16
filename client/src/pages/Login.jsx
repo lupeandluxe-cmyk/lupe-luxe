@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Message from '../components/Message';
@@ -23,32 +23,30 @@ export default function Login() {
 
   return (
     <div className="auth-page">
-      <div className="auth-container">
-        <div className="auth-card">
-          <div className="auth-header">
-            <span className="auth-icon">⚓</span>
-            <h1>Welcome Back</h1>
-            <p>Sign in to continue your journey</p>
-          </div>
-          {error && <Message variant="danger">{error}</Message>}
-          <form onSubmit={handleSubmit}>
-            <div className="form-group">
-              <label>Email</label>
-              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="captain@example.com" required />
-            </div>
-            <div className="form-group">
-              <label>Password</label>
-              <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" required />
-            </div>
-            <button type="submit" className="btn btn-primary btn-block btn-lg">Set Sail →</button>
-          </form>
-          <p style={{ textAlign: 'center', marginTop: '12px' }}>
-            <Link to="/otp-login" style={{ fontSize: '0.85rem', color: '#888' }}>Login with OTP</Link>
-          </p>
-          <p className="auth-footer">
-            New to the crew? <Link to="/register">Join Now</Link>
-          </p>
+      <div className="auth-card">
+        <div className="auth-head">
+          <span className="auth-head-icon">⚓</span>
+          <h1>Welcome Back</h1>
+          <p>Sign in to continue your journey</p>
         </div>
+        {error && <Message variant="danger">{error}</Message>}
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label>Email</label>
+            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="captain@example.com" required />
+          </div>
+          <div className="form-group">
+            <label>Password</label>
+            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" required />
+          </div>
+          <button type="submit" className="btn btn-primary btn-block btn-lg">Set Sail →</button>
+        </form>
+        <p style={{ textAlign: 'center', marginTop: '12px' }}>
+          <Link to="/otp-login" style={{ fontSize: '0.85rem', color: '#888' }}>Login with OTP</Link>
+        </p>
+        <p className="auth-foot">
+          New to the crew? <Link to="/register">Join Now</Link>
+        </p>
       </div>
     </div>
   );

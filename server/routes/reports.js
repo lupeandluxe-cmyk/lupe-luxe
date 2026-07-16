@@ -7,21 +7,31 @@ const { protect, admin } = require('../middleware/auth');
 const router = express.Router();
 
 router.get('/dashboard', protect, admin, async (req, res) => {
-  const totalOrders = await Order.countDocuments();
-  const totalSalesArr = await Order.aggregate([{ $group: { _id: null, total: { $sum: '$totalPrice' } } }]);
-  const totalSales = totalSalesArr[0]?.total || 0;
-  const totalCustomers = await User.countDocuments({ isAdmin: false });
-  const totalProducts = await Product.countDocuments();
-  const lowStock = await Product.countDocuments({ countInStock: { $lte: 5 } });
-  const recentOrders = await Order.find({}).populate('user', 'name').sort({ createdAt: -1 }).limit(5);
-  const recentUsers = await User.find({}).select('-password').sort({ createdAt: -1 }).limit(5);
-
-  const revenueByMonth = await Order.aggregate([
-    { $match: { isPaid: true } },
-    { $group: { _id: { $dateToString: { format: '%Y-%m', date: '$createdAt' } }, revenue: { $sum: '$totalPrice' } } },
-    { $sort: { _id: 1 } },
-    { $limit: 12 },
+  const [
+    totalOrders,
+    totalSalesArr,
+    totalCustomers,
+    totalProducts,
+    lowStock,
+    recentOrders,
+    recentUsers,
+    revenueByMonth,
+  ] = await Promise.all([
+    Order.countDocuments(),
+    Order.aggregate([{ $group: { _id: null, total: { $sum: '$totalPrice' } } }]),
+    User.countDocuments({ isAdmin: false }),
+    Product.countDocuments(),
+    Product.countDocuments({ countInStock: { $lte: 5 } }),
+    Order.find({}).populate('user', 'name').sort({ createdAt: -1 }).limit(5).lean(),
+    User.find({}).select('-password').sort({ createdAt: -1 }).limit(5).lean(),
+    Order.aggregate([
+      { $match: { isPaid: true } },
+      { $group: { _id: { $dateToString: { format: '%Y-%m', date: '$createdAt' } }, revenue: { $sum: '$totalPrice' } } },
+      { $sort: { _id: 1 } },
+      { $limit: 12 },
+    ]),
   ]);
+  const totalSales = totalSalesArr[0]?.total || 0;
 
   res.json({ totalOrders, totalSales, totalCustomers, totalProducts, lowStock, recentOrders, recentUsers, revenueByMonth });
 });

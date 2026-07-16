@@ -66,6 +66,11 @@ router.post('/', protect, async (req, res) => {
       orderStatus: paymentMethod === 'cod' ? 'confirmed' : 'pending',
     });
 
+    const io = req.app.get('io');
+    if (io) {
+      io.to('admin').emit('new_order', { orderId: order._id, totalPrice: order.totalPrice, customer: req.user?.name });
+    }
+
     sendOrderEmail(order).catch(err => logger.error('Order email failed', { message: err.message, orderId: order._id }));
     logger.payment(order._id, 'created', { method: paymentMethod, amount: totalPrice, userId: req.user._id });
 
@@ -163,6 +168,7 @@ router.put('/:id/status', protect, admin, async (req, res) => {
     }
     const order = await Order.findById(req.params.id);
     if (!order) return res.status(404).json({ message: 'Order not found' });
+    const oldOrderStatus = order.orderStatus;
     order.orderStatus = req.body.orderStatus;
     if (req.body.trackingNumber) order.trackingNumber = String(req.body.trackingNumber).trim();
     if (req.body.orderStatus === 'delivered') {
@@ -171,6 +177,10 @@ router.put('/:id/status', protect, admin, async (req, res) => {
     }
     if (req.body.orderStatus === 'cancelled' || req.body.orderStatus === 'returned') {
       order.isPaid = false;
+    }
+    const io = req.app.get('io');
+    if (io) {
+      io.to('admin').emit('order_status_change', { orderId: order._id, status: req.body.orderStatus, oldStatus: oldOrderStatus });
     }
     const updated = await order.save();
     logger.admin(req.user.email, 'order_status_change', { orderId: order._id, status: req.body.orderStatus });

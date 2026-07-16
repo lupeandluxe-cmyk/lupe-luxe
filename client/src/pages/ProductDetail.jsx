@@ -54,6 +54,9 @@ export default function ProductDetail() {
 
   return (
     <div className="product-detail-page">
+      <span className="detail-doodle detail-doodle-1">✧</span>
+      <span className="detail-doodle detail-doodle-2">✦</span>
+      <span className="detail-doodle detail-doodle-3">♥</span>
       <div className="container">
         <div className="breadcrumbs">
           <Link to="/">Home</Link>
@@ -65,18 +68,15 @@ export default function ProductDetail() {
 
         <div className="product-detail-layout">
           <div className="detail-gallery">
-            <div className="detail-image-main">
-              <img src={images[selectedImage]} alt={product.name} className="detail-main-img" />
-              <div className="detail-img-zoom">
-                <img src={images[selectedImage]} alt="" />
-              </div>
+            <div className="detail-main-img">
+              <img src={images[selectedImage]} alt={product.name} />
             </div>
             {images.length > 1 && (
-              <div className="detail-thumbnails">
+              <div className="detail-thumbs">
                 {images.map((img, i) => (
                   <button
                     key={i}
-                    className={`thumb-btn ${i === selectedImage ? 'active' : ''}`}
+                    className={`detail-thumb ${i === selectedImage ? 'active' : ''}`}
                     onClick={() => setSelectedImage(i)}
                   >
                     <img src={img} alt={`${product.name} ${i + 1}`} />
@@ -87,22 +87,22 @@ export default function ProductDetail() {
           </div>
 
           <div className="detail-info">
-            <span className="detail-category">{product.category}</span>
+            <span className="detail-cat">{product.category}</span>
             <h1 className="detail-title">{product.name}</h1>
 
             <div className="detail-rating">
               <span className="stars">
                 {'★'.repeat(Math.floor(product.rating))}{'☆'.repeat(5 - Math.floor(product.rating))}
               </span>
-              <span className="review-count">({product.numReviews} reviews)</span>
+              <span className="detail-rev-count">({product.numReviews} reviews)</span>
             </div>
 
             <div className="detail-price-row">
               {hasSale ? (
                 <>
                   <span className="detail-sale-price">₹{product.salePrice.toFixed(0)}</span>
-                  <span className="detail-original-price">₹{product.price.toFixed(0)}</span>
-                  <span className="detail-sale-badge">Save ₹{(product.price - product.salePrice).toFixed(0)}</span>
+                  <span className="detail-orig-price">₹{product.price.toFixed(0)}</span>
+                  <span className="detail-save-badge">Save ₹{(product.price - product.salePrice).toFixed(0)}</span>
                 </>
               ) : (
                 <span className="detail-price">₹{product.price.toFixed(0)}</span>
@@ -111,14 +111,13 @@ export default function ProductDetail() {
 
             <p className="detail-desc">{product.description}</p>
 
-            <div className="detail-stock-row">
-              <span className={`stock-badge ${inStock ? 'in-stock' : 'out-of-stock'}`}>
+            <div className="detail-stock">
+              <span className={`detail-stock-badge ${inStock ? 'in-stock' : 'out-of-stock'}`}>
                 {inStock ? 'In Stock' : 'Out of Stock'}
               </span>
               {inStock && product.countInStock <= 5 && (
-                <span className="stock-warning">Only {product.countInStock} left</span>
+                <span className="detail-stock-warn">Only {product.countInStock} left</span>
               )}
-
             </div>
 
             {inStock && (
@@ -170,12 +169,12 @@ export default function ProductDetail() {
         </div>
 
         {related.length > 0 && (
-          <section className="related-section">
-            <div className="section-header">
-              <span className="section-subtitle">You May Also Like</span>
+          <section className="section">
+            <div className="section-head">
+              <span className="section-sub">You May Also Like</span>
               <h2 className="section-title">Related Products</h2>
             </div>
-            <div className="products-grid">
+            <div className="polaroid-grid">
               {related.map((p, i) => <ProductCard key={p._id} product={p} index={i} />)}
             </div>
           </section>

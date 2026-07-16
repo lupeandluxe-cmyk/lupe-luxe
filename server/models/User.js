@@ -44,4 +44,8 @@ userSchema.methods.toJSON = function () {
   return obj;
 };
 
+userSchema.index({ email: 1 }, { unique: true });
+userSchema.index({ createdAt: -1 });
+userSchema.index({ isAdmin: 1 });
+
 module.exports = mongoose.model('User', userSchema);

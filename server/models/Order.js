@@ -43,4 +43,9 @@ const orderSchema = new mongoose.Schema({
   upiPaymentStatus: { type: String, enum: ['pending', 'verified', 'rejected'], default: 'pending' },
 }, { timestamps: true });
 
+orderSchema.index({ user: 1, createdAt: -1 });
+orderSchema.index({ orderStatus: 1, createdAt: -1 });
+orderSchema.index({ isPaid: 1 });
+orderSchema.index({ createdAt: -1 });
+
 module.exports = mongoose.model('Order', orderSchema);

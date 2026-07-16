@@ -2,6 +2,9 @@ const Chat = require('./models/Chat');
 
 function setupSocket(io) {
   io.on('connection', (socket) => {
+    socket.data.connected = true;
+    io.emit('user:connected', { socketId: socket.id });
+
     socket.on('chat:join', ({ chatId }) => {
       socket.join(`chat:${chatId}`);
     });
@@ -12,6 +15,10 @@ function setupSocket(io) {
 
     socket.on('message:send', async ({ chatId, text, sender }, callback) => {
       try {
+        if (!socket.rooms.has(`chat:${chatId}`)) {
+          if (callback) callback({ error: 'Not authorized' });
+          return;
+        }
         const chat = await Chat.findById(chatId);
         if (!chat) {
           if (callback) callback({ error: 'Chat not found' });
@@ -42,6 +49,33 @@ function setupSocket(io) {
 
     socket.on('typing:stop', ({ chatId, sender }) => {
       socket.to(`chat:${chatId}`).emit('typing:display', { sender, typing: false });
+    });
+
+    socket.on('room:join', (room) => {
+      socket.join(room);
+    });
+
+    socket.on('employee:register', ({ employeeId }) => {
+      socket.data.employeeId = employeeId;
+      socket.join(`employee:${employeeId}`);
+    });
+
+    socket.on('order:new', ({ order, employeeIds }) => {
+      if (employeeIds && Array.isArray(employeeIds)) {
+        employeeIds.forEach(id => {
+          io.to(`employee:${id}`).emit('order:notification', { type: 'order:new', order });
+        });
+      }
+      io.to('admin').emit('order:notification', { type: 'order:new', order });
+    });
+
+    socket.on('order:status:change', ({ order, oldStatus, newStatus, employeeIds }) => {
+      if (employeeIds && Array.isArray(employeeIds)) {
+        employeeIds.forEach(id => {
+          io.to(`employee:${id}`).emit('order:notification', { type: 'order:status:change', order, oldStatus, newStatus });
+        });
+      }
+      io.to('admin').emit('order:notification', { type: 'order:status:change', order, oldStatus, newStatus });
     });
   });
 }
