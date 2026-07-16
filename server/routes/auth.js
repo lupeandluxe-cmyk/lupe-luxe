@@ -2,7 +2,7 @@ const crypto = require('crypto');
 const express = require('express');
 const User = require('../models/User');
 const Otp = require('../models/Otp');
-const { protect, generateTokenPair, refreshToken, checkLoginAttempts, recordLoginAttempt } = require('../middleware/auth');
+const { protect, admin, generateTokenPair, refreshToken, checkLoginAttempts, recordLoginAttempt } = require('../middleware/auth');
 const { sendOtpEmail } = require('../services/email');
 const logger = require('../services/logger');
 
