@@ -43,11 +43,10 @@ export default function Profile() {
 
   return (
     <div className="profile-page">
-      <span className="profile-doodle profile-doodle-1">✦</span>
-      <span className="profile-doodle profile-doodle-2">✧</span>
       <div className="container">
+        <h1 className="page-title">⚓ My Profile</h1>
         <div className="profile-layout">
-          <div className="profile-box">
+          <div className="profile-card">
             <h2>Account Details</h2>
             {msg && <Message variant="success">{msg}</Message>}
             {error && <Message variant="danger">{error}</Message>}
@@ -82,7 +81,7 @@ export default function Profile() {
                 <p>No orders yet. Time to find treasure!</p>
               </div>
             ) : (
-              <div className="order-list">
+              <div className="orders-list">
                 {orders.map((o) => (
                   <Link to={`/order/${o._id}`} key={o._id} className="order-row">
                     <div className="order-row-info">
@@ -99,11 +98,11 @@ export default function Profile() {
                            o.upiPaymentStatus === 'rejected' ? 'Payment Failed' : 'Verify Pending'}
                         </span>
                       ) : (
-                        <span className={o.isPaid ? 'badge-success' : 'badge-gray'}>
+                        <span className={o.isPaid ? 'badge-success' : 'badge-muted'}>
                           {o.isPaid ? 'Paid' : 'Pending'}
                         </span>
                       )}
-                      <span className={o.isDelivered ? 'badge-success' : 'badge-gray'}>
+                      <span className={o.isDelivered ? 'badge-success' : 'badge-muted'}>
                         {o.isDelivered ? 'Delivered' : 'Shipping'}
                       </span>
                     </div>

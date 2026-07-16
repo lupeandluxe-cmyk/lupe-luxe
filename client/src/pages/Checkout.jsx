@@ -120,16 +120,14 @@ export default function Checkout() {
 
   return (
     <div className="checkout-page">
-      <span className="checkout-doodle checkout-doodle-1">✧</span>
-      <span className="checkout-doodle checkout-doodle-2">✦</span>
       <div className="container">
         <h1 className="page-title">Checkout</h1>
         {error && <Message variant="danger">{error}</Message>}
 
         <div className="checkout-layout">
           <form onSubmit={handleSubmit} className="checkout-form">
-            <div className="checkout-box">
-              <h2>Shipping Address</h2>
+            <div className="checkout-section">
+              <h2 className="checkout-section-title">Shipping Address</h2>
               <div className="form-group">
                 <label>Full Name</label>
                 <input name="fullName" value={form.fullName} onChange={handleChange} className={errors.fullName ? 'input-error' : ''} placeholder="Enter your full name" required />
@@ -165,8 +163,8 @@ export default function Checkout() {
               </div>
             </div>
 
-            <div className="checkout-box">
-              <h2>Payment Method</h2>
+            <div className="checkout-section">
+              <h2 className="checkout-section-title">Payment Method</h2>
               <div className="payment-methods">
                 {enabledMethods.map(m => (
                   <label key={m.value} className={`payment-option ${paymentMethod === m.value ? 'active' : ''}`}>
@@ -209,7 +207,7 @@ export default function Checkout() {
                         </div>
                       ) : (
                         <label className="screenshot-upload-btn">
-                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                           <span>Upload Screenshot</span>
                           <input type="file" accept="image/png,image/jpeg,image/webp" hidden onChange={handleScreenshotUpload} />
                         </label>
@@ -222,12 +220,12 @@ export default function Checkout() {
               )}
             </div>
 
-            <button type="submit" className="btn btn-primary btn-block btn-lg" disabled={saving || enabledMethods.length === 0}>
+            <button type="submit" className="btn btn-primary btn-block btn-lg checkout-submit" disabled={saving || enabledMethods.length === 0}>
               {saving ? 'Placing Order...' : `Place Order — ₹${totalPrice.toFixed(0)}`}
             </button>
           </form>
 
-          <div className="checkout-side">
+          <div className="checkout-sidebar">
             <div className="checkout-summary-card">
               <h3>Order Summary</h3>
               <div className="checkout-items-preview">
@@ -243,30 +241,30 @@ export default function Checkout() {
                 ))}
                 {items.length > 3 && <p className="checkout-more-items">+{items.length - 3} more items</p>}
               </div>
-              <div className="cart-summary-divider" />
-              <div className="cart-summary-rows">
-                <div className="cart-summary-row"><span>Subtotal</span><span>₹{itemsPrice.toFixed(0)}</span></div>
+              <div className="summary-divider" />
+              <div className="summary-rows">
+                <div className="summary-row"><span>Subtotal</span><span>₹{itemsPrice.toFixed(0)}</span></div>
                 {discount > 0 && (
-                  <div className="cart-summary-row cart-summary-discount">
+                  <div className="summary-row discount-row">
                     <span>Discount ({discountCode})</span>
                     <span>-₹{discount.toFixed(0)}</span>
                   </div>
                 )}
-                <div className="cart-summary-divider" />
-                <div className="cart-summary-row cart-summary-total"><span>Total</span><span>₹{totalPrice.toFixed(0)}</span></div>
+                <div className="summary-divider" />
+                <div className="summary-row total"><span>Total</span><span>₹{totalPrice.toFixed(0)}</span></div>
               </div>
 
-              <div className="cart-coupon">
+              <div className="coupon-section">
                 {discountCode ? (
-                  <div className="cart-coupon-applied">
+                  <div className="coupon-applied">
                     <span>✅ {discountCode} applied</span>
-                    <button className="cart-coupon-remove" onClick={removeCoupon}>✕</button>
+                    <button className="coupon-remove-btn" onClick={removeCoupon}>✕</button>
                   </div>
                 ) : (
                   <>
-                    <div className="cart-coupon-input">
-                      <input type="text" placeholder="Coupon code" value={couponInput} onChange={(e) => setCouponInput(e.target.value.toUpperCase())} onKeyDown={(e) => e.key === 'Enter' && handleApplyCoupon()} />
-                      <button onClick={handleApplyCoupon} disabled={couponLoading || !couponInput.trim()}>{couponLoading ? '...' : 'Apply'}</button>
+                    <div className="coupon-input-wrap">
+                      <input type="text" placeholder="Coupon code" value={couponInput} onChange={(e) => setCouponInput(e.target.value.toUpperCase())} onKeyDown={(e) => e.key === 'Enter' && handleApplyCoupon()} className="coupon-input" />
+                      <button className="coupon-apply-btn" onClick={handleApplyCoupon} disabled={couponLoading || !couponInput.trim()}>{couponLoading ? '...' : 'Apply'}</button>
                     </div>
                     {couponError && <Message variant="danger">{couponError}</Message>}
                     {couponSuccess && <Message variant="success">{couponSuccess}</Message>}

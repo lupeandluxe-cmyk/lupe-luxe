@@ -5,31 +5,23 @@ import api from '../../api/axios';
 export default function AdminProducts() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
 
   useEffect(() => { fetchProducts(); }, []);
 
   const fetchProducts = async () => {
-    try { const res = await api.get('/products/all'); setProducts(res.data); setError(''); } catch (e) {
-      const msg = e.response?.status === 401 ? 'Session expired. Please log in again.' : (e.response?.data?.message || 'Failed to load products');
-      setError(msg);
-    }
+    try { const res = await api.get('/products/all'); setProducts(res.data); } catch (e) { console.error(e); }
     finally { setLoading(false); }
   };
 
   const toggleVisibility = async (id, visible) => {
-    try { await api.put(`/products/${id}`, { visible: !visible }); fetchProducts(); } catch (e) {
-      const msg = e.response?.status === 401 ? 'Session expired. Please log in again.' : (e.response?.data?.message || 'Failed to update product');
-      setError(msg);
-    }
+    await api.put(`/products/${id}`, { visible: !visible });
+    fetchProducts();
   };
 
   const deleteProduct = async (id) => {
     if (!window.confirm('Delete this product?')) return;
-    try { await api.delete(`/products/${id}`); fetchProducts(); } catch (e) {
-      const msg = e.response?.status === 401 ? 'Session expired. Please log in again.' : (e.response?.data?.message || 'Failed to delete product');
-      setError(msg);
-    }
+    await api.delete(`/products/${id}`);
+    fetchProducts();
   };
 
   if (loading) return <div className="admin-loading">Loading...</div>;
@@ -40,7 +32,6 @@ export default function AdminProducts() {
         <h1 className="admin-page-title">Products ({products.length})</h1>
         <Link to="/admin/products/new" className="btn btn-primary">+ Add Product</Link>
       </div>
-      {error && <div className="admin-error-banner">{error}</div>}
       <div className="admin-card">
         <table className="admin-table">
           <thead>
@@ -49,7 +40,7 @@ export default function AdminProducts() {
           <tbody>
             {products.map(p => (
               <tr key={p._id}>
-                <td><img src={p.images?.[0] || 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40"><rect fill="%23333" width="40" height="40"/><text x="20" y="26" text-anchor="middle" fill="%23666" font-size="18">📷</text></svg>'} alt="" className="table-thumb" /></td>
+                <td><img src={p.images?.[0] || '/placeholder.png'} alt="" className="table-thumb" /></td>
                 <td>{p.name}</td>
                 <td>₹{p.salePrice || p.price}</td>
                 <td><span className={p.countInStock <= 5 ? 'text-danger' : ''}>{p.countInStock}</span></td>

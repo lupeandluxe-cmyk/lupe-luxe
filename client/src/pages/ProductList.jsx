@@ -63,33 +63,31 @@ export default function ProductList() {
 
   return (
     <div className="shop-page">
-      <span className="shop-doodle shop-doodle-1">✦</span>
-      <span className="shop-doodle shop-doodle-2">✧</span>
       <div className="shop-header">
         <div className="container">
-          <div className="shop-header-flex">
+          <div className="shop-header-content">
             <div>
               <h1 className="shop-title">
                 {category ? category : keyword ? `"${keyword}"` : 'All Products'}
               </h1>
               <p className="shop-count">{total} {total === 1 ? 'product' : 'products'}</p>
             </div>
-            <button className="btn btn-outline shop-mobile-filters" onClick={() => setSidebarOpen(!sidebarOpen)}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M4 21v-7"/><path d="M4 10V3"/><path d="M12 21v-9"/><path d="M12 8V3"/><path d="M20 21v-5"/><path d="M20 12V3"/><path d="M1 14h6"/><path d="M9 8h6"/><path d="M17 16h6"/></svg>
+            <button className="btn btn-outline filter-toggle" onClick={() => setSidebarOpen(!sidebarOpen)}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 21v-7"/><path d="M4 10V3"/><path d="M12 21v-9"/><path d="M12 8V3"/><path d="M20 21v-5"/><path d="M20 12V3"/><path d="M1 14h6"/><path d="M9 8h6"/><path d="M17 16h6"/></svg>
               Filters
             </button>
           </div>
         </div>
       </div>
 
-      <div className="container product-layout">
+      <div className="container shop-layout">
         <aside className={`shop-sidebar ${sidebarOpen ? 'open' : ''}`}>
           <div className="sidebar-section">
             <h3 className="sidebar-title">Search</h3>
             <form onSubmit={handleSearch} className="search-box">
               <input type="text" placeholder="Search..." className="search-input" value={searchInput} onChange={(e) => setSearchInput(e.target.value)} />
               <button type="submit" className="search-submit" aria-label="Search">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
               </button>
             </form>
           </div>
@@ -117,10 +115,10 @@ export default function ProductList() {
           {error && <Message variant="danger">{error}</Message>}
 
           {loading ? (
-            <div className="polaroid-grid">
+            <div className="products-grid">
               {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-                <div key={i} className="polaroid-card skeleton">
-                  <div className="skeleton-img" />
+                <div key={i} className="product-card-skeleton">
+                  <div className="skeleton-image" />
                   <div className="skeleton-line skeleton-line-short" />
                   <div className="skeleton-line" />
                   <div className="skeleton-line skeleton-line-medium" />
@@ -136,7 +134,7 @@ export default function ProductList() {
             </div>
           ) : (
             <>
-              <div className="polaroid-grid">
+              <div className="products-grid">
                 {products.map((p, i) => (
                   <ProductCard key={p._id} product={p} index={i} />
                 ))}

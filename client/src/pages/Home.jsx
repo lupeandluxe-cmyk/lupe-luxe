@@ -48,52 +48,38 @@ export default function Home() {
   }, []);
 
   const renderHero = (sec) => (
-    <section className="hero" ref={heroRef} key={sec._id}>
-      <span className="doodle-star" style={{top:'12%',left:'6%',animationDelay:'0s'}}>✦</span>
-      <span className="doodle-star md" style={{top:'20%',right:'10%',animationDelay:'1.2s'}}>✧</span>
-      <span className="doodle-star sm" style={{bottom:'35%',left:'4%',animationDelay:'2s'}}>✦</span>
-      <span className="doodle-heart" style={{top:'42%',right:'6%',animationDelay:'0.7s'}}>♥</span>
-      <span className="doodle-circle" style={{top:'55%',right:'12%'}} />
-      <span className="doodle-sparkle" style={{bottom:'25%',right:'22%',animationDelay:'1.5s'}}>⚡</span>
-      <span className="doodle-cloud" style={{top:'18%',left:'55%',animationDelay:'0.3s'}}>☁</span>
-      <span className="doodle-cloud" style={{bottom:'30%',left:'70%',animationDelay:'2.5s',fontSize:'1.8rem'}}>☁</span>
-      <span className="doodle-arrow" style={{bottom:'22%',left:'12%',animationDelay:'1s'}}>↗</span>
+    <section className="hero-section" ref={heroRef} key={sec._id}>
+      <div className="hero-glare" />
       <HeroBackground poster={sec.image} />
-      <div className="hero-grid container">
-        <div className="hero-text">
+      <div className="hero-overlay" />
+      <div className="hero-content">
+        <div className="hero-glass">
           <div className="hero-badge">{sec.subtitle || 'Premium Streetwear'}</div>
           {sec.title && (
             <h1 className="hero-title">
               {sec.title.split('\n').map((line, i) => <span key={i} className="hero-line">{line}</span>)}
             </h1>
           )}
-          {sec.text && <p className="hero-paragraph">{sec.text}</p>}
-          <div className="hero-tagline-wrap">
+          {sec.text && <p className="hero-subtitle">{sec.text}</p>}
+          <div className="hero-actions">
             {sec.buttonText && sec.buttonLink ? (
               <Link to={sec.buttonLink} className="btn btn-primary btn-lg">
                 {sec.buttonText}
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
               </Link>
             ) : (
               <Link to="/products" className="btn btn-primary btn-lg">
                 Explore Collection
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
               </Link>
             )}
           </div>
         </div>
-        <div className="hero-img-wrap">
-          <div className="hero-sticky-note">
-            <span className="hero-sticky-fold" />
-            <p>New drops every week! ✨</p>
-          </div>
-        </div>
       </div>
-      <div className="hero-scroll">
+      <div className="hero-scroll-indicator">
         <span>Scroll</span>
         <div className="hero-scroll-line" />
       </div>
-      <span className="hero-doodle-line" />
     </section>
   );
 
@@ -102,26 +88,23 @@ export default function Home() {
       case 'hero': return renderHero(sec);
       case 'banner':
         return (
-          <section key={sec._id} className="banner" style={sec.image ? { backgroundImage: `url(${sec.image})` } : {}}>
-            <div className="container">
-              <div className="banner-content">
-                <span className="banner-doodle">✦</span>
-                {sec.title && <h2 className="banner-title">{sec.title}</h2>}
-                {sec.text && <p className="banner-desc">{sec.text}</p>}
-                {sec.buttonText && sec.buttonLink && <Link to={sec.buttonLink} className="btn btn-primary btn-lg">{sec.buttonText}</Link>}
-              </div>
+          <section key={sec._id} className="banner-section" style={sec.image ? { backgroundImage: `url(${sec.image})` } : {}}>
+            <div className="banner-content">
+              {sec.title && <h2 className="banner-title">{sec.title}</h2>}
+              {sec.text && <p className="banner-text">{sec.text}</p>}
+              {sec.buttonText && sec.buttonLink && <Link to={sec.buttonLink} className="btn btn-primary btn-lg">{sec.buttonText}</Link>}
             </div>
           </section>
         );
       case 'featured':
         return (
-          <section key={sec._id} className="section">
+          <section key={sec._id} className="section featured-section">
             <div className="container">
-              <div className="section-head">
-                {sec.subtitle && <span className="section-sub">{sec.subtitle}</span>}
+              <div className="section-header">
+                {sec.subtitle && <span className="section-subtitle">{sec.subtitle}</span>}
                 {sec.title && <h2 className="section-title">{sec.title}</h2>}
               </div>
-              <div className="polaroid-grid">
+              <div className="products-grid">
                 {featured.map((p, i) => <ProductCard key={p._id} product={p} index={i} />)}
               </div>
             </div>
@@ -129,10 +112,10 @@ export default function Home() {
         );
       case 'collection':
         return (
-          <section key={sec._id} className="section">
+          <section key={sec._id} className="section categories-section">
             <div className="container">
-              <div className="section-head">
-                {sec.subtitle && <span className="section-sub">{sec.subtitle}</span>}
+              <div className="section-header">
+                {sec.subtitle && <span className="section-subtitle">{sec.subtitle}</span>}
                 {sec.title && <h2 className="section-title">{sec.title}</h2>}
                 {sec.text && <p className="section-desc">{sec.text}</p>}
               </div>
@@ -140,10 +123,9 @@ export default function Home() {
                 {categories.map((cat, i) => {
                   const icons = { 'Custom Tees': '👕', 'Hoodies': '🧥', 'Outerwear': '🧥', 'Sweaters': '👔', 'Thrift Vintage': '📿', 'Limited Drops': '💎', 'Bottoms': '👖', 'Accessories': '🎒' };
                   return (
-                    <Link key={cat} to={`/products?category=${encodeURIComponent(cat)}`} className="cat-card" style={{ '--delay': `${i * 0.1}s` }}>
-                      <span className="cat-icon">{icons[cat] || '✦'}</span>
-                      <span className="cat-name">{cat}</span>
-                      <span className="cat-doodle">✧</span>
+                    <Link key={cat} to={`/products?category=${encodeURIComponent(cat)}`} className="category-card" style={{ '--delay': `${i * 0.1}s` }}>
+                      <span className="category-icon">{icons[cat] || '✦'}</span>
+                      <span className="category-name">{cat}</span>
                     </Link>
                   );
                 })}
@@ -153,7 +135,7 @@ export default function Home() {
         );
       case 'promo':
         return (
-          <section key={sec._id} className="section">
+          <section key={sec._id} className="ethos-section">
             <div className="container">
               <div className="ethos-grid">
                 {sec.items?.length > 0 ? sec.items.map((item, i) => (
@@ -175,10 +157,9 @@ export default function Home() {
         );
       case 'newsletter':
         return (
-          <section key={sec._id} className="newsletter">
+          <section key={sec._id} className="newsletter-section">
             <div className="container">
               <div className="newsletter-content">
-                <span className="newsletter-doodle">✧</span>
                 <h2>{sec.title || 'Stay Updated'}</h2>
                 <p>{sec.text || 'Get notified about new drops and exclusive offers.'}</p>
               </div>
@@ -197,26 +178,26 @@ export default function Home() {
       {sections.map(s => renderSection(s))}
 
       {sections.filter(s => s.type === 'featured').length === 0 && (
-        <section className="section">
+        <section className="section featured-section">
           <div className="container">
-            <div className="section-head">
-              <span className="section-sub">Premium Picks</span>
+            <div className="section-header">
+              <span className="section-subtitle">Premium Picks</span>
               <h2 className="section-title">Featured Pieces</h2>
             </div>
-            <div className="polaroid-grid">
+            <div className="products-grid">
               {featured.map((p, i) => <ProductCard key={p._id} product={p} index={i} />)}
             </div>
           </div>
         </section>
       )}
 
-      <section className="section">
+      <section className="section latest-section">
         <div className="container">
-          <div className="section-head">
-            <span className="section-sub">Fresh Drop</span>
+          <div className="section-header">
+            <span className="section-subtitle">Fresh Drop</span>
             <h2 className="section-title">Just Arrived</h2>
           </div>
-          <div className="polaroid-grid">
+          <div className="products-grid">
             {latest.map((p, i) => <ProductCard key={p._id} product={p} index={i} />)}
           </div>
           <div className="section-action">
@@ -227,8 +208,8 @@ export default function Home() {
 
       <section className="section">
         <div className="container">
-          <div className="section-head">
-            <span className="section-sub">What They Say</span>
+          <div className="section-header">
+            <span className="section-subtitle">What They Say</span>
             <h2 className="section-title">Voices of the Crew</h2>
           </div>
           <div className="testimonials-grid">
@@ -245,15 +226,15 @@ export default function Home() {
 
       <section className="section" style={{ paddingTop: 0 }}>
         <div className="container">
-          <div className="section-head">
-            <span className="section-sub">Follow the Journey</span>
+          <div className="section-header">
+            <span className="section-subtitle">Follow the Journey</span>
             <h2 className="section-title">@LupeAndLuxe</h2>
           </div>
           <div className="insta-grid">
             {INSTA_POSTS.map((img, i) => (
               <a key={i} href="#" className="insta-item" onClick={(e) => e.preventDefault()}>
                 <img src={img} alt="Gallery" loading="lazy" />
-                <div className="insta-overlay">
+                <div className="insta-item-overlay">
                   <span className="insta-icon">📷</span>
                 </div>
               </a>
