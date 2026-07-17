@@ -5,38 +5,46 @@ const { protect, admin } = require('../middleware/auth');
 const router = express.Router();
 
 router.get('/', protect, admin, async (req, res) => {
-  const { search, type, active } = req.query;
-  let filter = {};
-  if (search) filter.code = { $regex: String(search).toUpperCase(), $options: 'i' };
-  if (type) filter.type = type;
-  if (active === 'true') filter.active = true;
-  else if (active === 'false') filter.active = false;
-  const coupons = await Coupon.find(filter).sort({ createdAt: -1 });
-  res.json(coupons);
+  try {
+    const { search, type, active } = req.query;
+    let filter = {};
+    if (search) filter.code = { $regex: String(search).toUpperCase(), $options: 'i' };
+    if (type) filter.type = type;
+    if (active === 'true') filter.active = true;
+    else if (active === 'false') filter.active = false;
+    const coupons = await Coupon.find(filter).sort({ createdAt: -1 });
+    res.json(coupons);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 });
 
 router.post('/validate', async (req, res) => {
-  const { code, orderTotal } = req.body;
-  const cleanCode = String(code || '').toUpperCase().trim();
-  const coupon = await Coupon.findOne({ code: cleanCode, active: true });
-  if (!coupon) return res.status(400).json({ valid: false, message: 'Invalid coupon code' });
-  if (coupon.expiresAt && new Date(coupon.expiresAt) < new Date())
-    return res.status(400).json({ valid: false, message: 'This coupon has expired' });
-  if (coupon.maxUses && coupon.usedCount >= coupon.maxUses)
-    return res.status(400).json({ valid: false, message: 'This coupon has reached its usage limit' });
-  if (orderTotal < coupon.minOrder)
-    return res.status(400).json({ valid: false, message: `Minimum order amount is ₹${coupon.minOrder}` });
-  let discount = 0;
-  if (coupon.type === 'free_shipping') {
-    discount = 0;
-  } else if (coupon.type === 'percentage') {
-    discount = Math.round((orderTotal * coupon.discount) / 10000) * 100;
-    if (coupon.maxDiscount) discount = Math.min(discount, coupon.maxDiscount);
-  } else {
-    discount = coupon.discount;
+  try {
+    const { code, orderTotal } = req.body;
+    const cleanCode = String(code || '').toUpperCase().trim();
+    const coupon = await Coupon.findOne({ code: cleanCode, active: true });
+    if (!coupon) return res.status(400).json({ valid: false, message: 'Invalid coupon code' });
+    if (coupon.expiresAt && new Date(coupon.expiresAt) < new Date())
+      return res.status(400).json({ valid: false, message: 'This coupon has expired' });
+    if (coupon.maxUses && coupon.usedCount >= coupon.maxUses)
+      return res.status(400).json({ valid: false, message: 'This coupon has reached its usage limit' });
+    if (orderTotal < coupon.minOrder)
+      return res.status(400).json({ valid: false, message: `Minimum order amount is ₹${coupon.minOrder}` });
+    let discount = 0;
+    if (coupon.type === 'free_shipping') {
+      discount = 0;
+    } else if (coupon.type === 'percentage') {
+      discount = Math.round((orderTotal * coupon.discount) / 10000) * 100;
+      if (coupon.maxDiscount) discount = Math.min(discount, coupon.maxDiscount);
+    } else {
+      discount = coupon.discount;
+    }
+    discount = Math.max(0, Math.round(discount * 100) / 100);
+    res.json({ valid: true, discount, code: coupon.code, type: coupon.type });
+  } catch (err) {
+    res.status(500).json({ valid: false, message: err.message });
   }
-  discount = Math.max(0, Math.round(discount * 100) / 100);
-  res.json({ valid: true, discount, code: coupon.code, type: coupon.type });
 });
 
 router.post('/', protect, admin, async (req, res) => {
@@ -88,8 +96,13 @@ router.put('/:id', protect, admin, async (req, res) => {
 });
 
 router.delete('/:id', protect, admin, async (req, res) => {
-  await Coupon.findByIdAndDelete(req.params.id);
-  res.json({ message: 'Coupon deleted' });
+  try {
+    const coupon = await Coupon.findByIdAndDelete(req.params.id);
+    if (!coupon) return res.status(404).json({ message: 'Coupon not found' });
+    res.json({ message: 'Coupon deleted' });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 });
 
 module.exports = router;

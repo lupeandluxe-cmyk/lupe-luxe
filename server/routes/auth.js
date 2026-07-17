@@ -64,10 +64,10 @@ router.post('/login', async (req, res) => {
     const user = await User.findOne({ email: email.toLowerCase().trim() }).select('+password');
     if (user && (await user.matchPassword(password))) {
       await recordLoginAttempt(email, true);
-      user.loginHistory = user.loginHistory || [];
-      user.loginHistory.push({ ip: req.ip, date: new Date() });
-      if (user.loginHistory.length > 50) user.loginHistory = user.loginHistory.slice(-50);
-      await user.save();
+      await User.updateOne(
+        { _id: user._id },
+        { $push: { loginHistory: { $each: [{ ip: req.ip, date: new Date() }], $slice: -50 } } }
+      );
       const tokens = generateTokenPair(user._id);
       logger.login(email, true, req.ip, { action: 'login' });
       res.json({ _id: user._id, name: user.name, email: user.email, isAdmin: user.isAdmin, ...tokens });

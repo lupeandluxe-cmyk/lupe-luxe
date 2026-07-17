@@ -32,7 +32,7 @@ router.post('/razorpay', protect, async (req, res) => {
     }
     const order = await Order.findById(orderId);
     if (!order) return res.status(404).json({ message: 'Order not found' });
-    if (order.user.toString() !== req.user._id.toString()) {
+    if (order.user?.toString() !== req.user._id.toString()) {
       logger.security('Unauthorized payment attempt', req.ip, { orderId, userId: req.user._id });
       return res.status(403).json({ message: 'Not authorized' });
     }
@@ -99,7 +99,7 @@ router.post('/verify', protect, async (req, res) => {
       logger.payment(order._id, 'duplicate_verify_attempt', { userId: req.user._id });
       return res.status(400).json({ message: 'Order already paid' });
     }
-    if (order.user.toString() !== req.user._id.toString()) {
+    if (order.user?.toString() !== req.user._id.toString()) {
       return res.status(403).json({ message: 'Not authorized' });
     }
 
@@ -141,7 +141,7 @@ router.post('/upi', protect, async (req, res) => {
     }
     const order = await Order.findById(orderId);
     if (!order) return res.status(404).json({ message: 'Order not found' });
-    if (order.user.toString() !== req.user._id.toString()) {
+    if (order.user?.toString() !== req.user._id.toString()) {
       return res.status(403).json({ message: 'Not authorized' });
     }
     if (order.isPaid) {

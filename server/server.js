@@ -117,7 +117,7 @@ const generalLimiter = rateLimit({
 
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 10,
+  max: 20,
   message: { message: 'Too many login attempts, try again later' },
   standardHeaders: true,
   legacyHeaders: false,
@@ -125,7 +125,7 @@ const authLimiter = rateLimit({
 
 const signupLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
-  max: 3,
+  max: 10,
   message: { message: 'Too many registration attempts, try again later' },
   standardHeaders: true,
   legacyHeaders: false,
@@ -133,7 +133,7 @@ const signupLimiter = rateLimit({
 
 const otpLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 5,
+  max: 10,
   message: { message: 'Too many OTP requests, try again later' },
   standardHeaders: true,
   legacyHeaders: false,
@@ -141,7 +141,7 @@ const otpLimiter = rateLimit({
 
 const paymentLimiter = rateLimit({
   windowMs: 60 * 1000,
-  max: 10,
+  max: 20,
   message: { message: 'Too many payment requests, slow down' },
   standardHeaders: true,
   legacyHeaders: false,
