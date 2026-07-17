@@ -20,6 +20,7 @@ router.get('/', async (req, res) => {
       .skip(pageSize * (page - 1));
     res.json({ products, page, pages: Math.ceil(count / pageSize), count });
   } catch (err) {
+    console.error('[PRODUCTS] List error:', err.message);
     res.status(500).json({ message: err.message });
   }
 });
@@ -92,7 +93,9 @@ router.post('/', protect, admin, async (req, res) => {
     if (isNaN(Number(countInStock)) || Number(countInStock) < 0) {
       return res.status(400).json({ message: 'countInStock must be a non-negative number' });
     }
-    const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    let slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    const existing = await Product.findOne({ slug });
+    if (existing) slug = slug + '-' + Date.now();
     const product = await Product.create({
       name, slug, description, price, salePrice, images, category, tags, size,
       countInStock, sku, featured: featured || false, bestSeller: bestSeller || false,
@@ -100,6 +103,7 @@ router.post('/', protect, admin, async (req, res) => {
     });
     res.status(201).json(product);
   } catch (err) {
+    console.error('[PRODUCTS] Create error:', err.message, err.code);
     res.status(500).json({ message: err.message });
   }
 });
@@ -111,7 +115,10 @@ router.put('/:id', protect, admin, async (req, res) => {
       const allowed = ['name', 'description', 'price', 'salePrice', 'images', 'category', 'tags', 'size', 'countInStock', 'sku', 'featured', 'bestSeller', 'visible'];
       allowed.forEach(f => { if (req.body[f] !== undefined) product[f] = req.body[f]; });
       if (req.body.name) {
-        product.slug = req.body.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+        let newSlug = req.body.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+        const slugExists = await Product.findOne({ slug: newSlug, _id: { $ne: req.params.id } });
+        if (slugExists) newSlug = newSlug + '-' + Date.now();
+        product.slug = newSlug;
       }
       const updated = await product.save();
       res.json(updated);
