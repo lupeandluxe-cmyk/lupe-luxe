@@ -14,6 +14,7 @@ export default function EditProduct() {
   });
   const [loading, setLoading] = useState(!isNew);
   const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState('');
 
   useEffect(() => {
     if (!isNew) {
@@ -38,12 +39,18 @@ export default function EditProduct() {
     const file = e.target.files[0];
     if (!file) return;
     setUploading(true);
-    const fd = new FormData();
-    fd.append('file', file);
-    fd.append('folder', 'products');
-    const res = await api.post('/media', fd);
-    setForm({ ...form, images: [...form.images, res.data.url] });
-    setUploading(false);
+    setUploadError('');
+    try {
+      const fd = new FormData();
+      fd.append('file', file);
+      fd.append('folder', 'products');
+      const res = await api.post('/media', fd);
+      setForm({ ...form, images: [...form.images, res.data.url] });
+    } catch (err) {
+      setUploadError(err.response?.data?.message || err.message || 'Upload failed');
+    } finally {
+      setUploading(false);
+    }
   };
 
   const removeImage = (idx) => {
@@ -97,6 +104,7 @@ export default function EditProduct() {
             ))}
             <label className="upload-btn">{uploading ? 'Uploading...' : '+ Upload'}<input type="file" onChange={uploadImage} hidden accept="image/*" /></label>
           </div>
+          {uploadError && <p className="text-danger" style={{ fontSize: '0.85rem', marginTop: '0.5rem' }}>{uploadError}</p>}
         </div>
         <button type="submit" className="btn btn-primary">{isNew ? 'Create Product' : 'Save Changes'}</button>
       </form>

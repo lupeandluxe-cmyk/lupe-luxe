@@ -5,6 +5,7 @@ import api from '../../api/axios';
 export default function AdminProducts() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [actionError, setActionError] = useState('');
 
   useEffect(() => { fetchProducts(); }, []);
 
@@ -14,14 +15,22 @@ export default function AdminProducts() {
   };
 
   const toggleVisibility = async (id, visible) => {
-    await api.put(`/products/${id}`, { visible: !visible });
-    fetchProducts();
+    try {
+      await api.put(`/products/${id}`, { visible: !visible });
+      fetchProducts();
+    } catch (err) {
+      setActionError(err.response?.data?.message || 'Failed to update visibility');
+    }
   };
 
   const deleteProduct = async (id) => {
     if (!window.confirm('Delete this product?')) return;
-    await api.delete(`/products/${id}`);
-    fetchProducts();
+    try {
+      await api.delete(`/products/${id}`);
+      fetchProducts();
+    } catch (err) {
+      setActionError(err.response?.data?.message || 'Failed to delete product');
+    }
   };
 
   if (loading) return <div className="admin-loading">Loading...</div>;
@@ -32,6 +41,7 @@ export default function AdminProducts() {
         <h1 className="admin-page-title">Products ({products.length})</h1>
         <Link to="/admin/products/new" className="btn btn-primary">+ Add Product</Link>
       </div>
+      {actionError && <div className="alert alert-danger" style={{ padding: '0.75rem', marginBottom: '1rem', borderRadius: '4px', background: 'rgba(220,52,69,0.1)', color: 'var(--red)', border: '1px solid rgba(220,52,69,0.2)' }}>{actionError}</div>}
       <div className="admin-card">
         <table className="admin-table">
           <thead>
