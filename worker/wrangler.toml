@@ -1,0 +1,22 @@
+name = "lupe-luxe"
+main = "src/index.js"
+compatibility_date = "2024-11-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Static frontend (built client) — SPA fallback so /products, /login etc. serve index.html
+assets = { directory = "../client/dist", not_found_handling = "single-page-application", run_worker_first = false }
+
+# Durable Object for realtime chat over WebSocket
+[durable_objects]
+bindings = [
+  { name = "CHAT_ROOM", class_name = "ChatRoom" }
+]
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["ChatRoom"]
+
+# Secret env vars are set via `wrangler secret put <NAME>` or dashboard.
+# Non-secret vars can be defined here as plain `[vars]`.
+[vars]
+ATLAS_DATABASE = "lupe-and-luxe"

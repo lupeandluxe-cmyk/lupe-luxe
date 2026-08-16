@@ -101,7 +101,7 @@ const recordLoginAttempt = async (email, success) => {
 };
 
 const admin = (req, res, next) => {
-  if (req.user && req.user.isAdmin) {
+  if (req.user && req.user.isAdmin()) {
     logger.admin(req.user.email, 'route_access', { path: req.originalUrl, ip: req.ip });
     next();
   } else {
@@ -110,4 +110,34 @@ const admin = (req, res, next) => {
   }
 };
 
-module.exports = { protect, admin, generateTokenPair, generateAccessToken, refreshToken, checkLoginAttempts, recordLoginAttempt };
+const staff = (req, res, next) => {
+  if (req.user && req.user.isStaff()) {
+    logger.admin(req.user.email, 'route_access', { path: req.originalUrl, ip: req.ip });
+    next();
+  } else {
+    logger.security('Unauthorized staff access attempt', req.ip, { userId: req.user?._id, path: req.originalUrl });
+    res.status(403).json({ message: 'Not authorized as staff' });
+  }
+};
+
+const employee = (req, res, next) => {
+  if (req.user && req.user.isEmployee()) {
+    logger.admin(req.user.email, 'route_access', { path: req.originalUrl, ip: req.ip });
+    next();
+  } else {
+    logger.security('Unauthorized employee access attempt', req.ip, { userId: req.user?._id, path: req.originalUrl });
+    res.status(403).json({ message: 'Not authorized as employee' });
+  }
+};
+
+const superAdmin = (req, res, next) => {
+  if (req.user && req.user.isSuperAdmin()) {
+    logger.admin(req.user.email, 'route_access', { path: req.originalUrl, ip: req.ip });
+    next();
+  } else {
+    logger.security('Unauthorized super admin access attempt', req.ip, { userId: req.user?._id, path: req.originalUrl });
+    res.status(403).json({ message: 'Not authorized as super admin' });
+  }
+};
+
+module.exports = { protect, admin, staff, employee, superAdmin, generateTokenPair, generateAccessToken, refreshToken, checkLoginAttempts, recordLoginAttempt };

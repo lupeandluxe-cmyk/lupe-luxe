@@ -5,3 +5,13 @@ dist/
 .DS_Store
 server/node_modules/
 client/node_modules/
+worker/node_modules/
+worker/.wrangler/
+worker/.dev.vars
+
+# Debug/test scripts
+server/check-*.js
+server/test-*.js
+server/fix-*.js
+*.backup
+FINAL_RECOVERY_REPORT.md

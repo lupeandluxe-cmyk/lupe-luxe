@@ -12,7 +12,11 @@ const userSchema = new mongoose.Schema({
     match: [/^\S+@\S+\.\S+$/, 'Invalid email'],
   },
   password: { type: String, required: true, minlength: 8 },
-  isAdmin: { type: Boolean, default: false },
+  role: { 
+    type: String, 
+    enum: ['super_admin', 'admin', 'staff', 'employee', 'customer'], 
+    default: 'customer' 
+  },
   blocked: { type: Boolean, default: false },
   loginAttempts: { type: Number, default: 0 },
   lockedUntil: { type: Date, default: null },
@@ -44,8 +48,29 @@ userSchema.methods.toJSON = function () {
   return obj;
 };
 
+// Helper methods to check roles
+userSchema.methods.isSuperAdmin = function() {
+  return this.role === 'super_admin';
+};
+
+userSchema.methods.isAdmin = function() {
+  return this.role === 'admin' || this.role === 'super_admin';
+};
+
+userSchema.methods.isStaff = function() {
+  return this.role === 'staff' || this.role === 'admin' || this.role === 'super_admin';
+};
+
+userSchema.methods.isEmployee = function() {
+  return this.role === 'employee' || this.role === 'staff' || this.role === 'admin' || this.role === 'super_admin';
+};
+
+userSchema.methods.isCustomer = function() {
+  return this.role === 'customer';
+};
+
 userSchema.index({ email: 1 }, { unique: true });
 userSchema.index({ createdAt: -1 });
-userSchema.index({ isAdmin: 1 });
+userSchema.index({ role: 1 });
 
 module.exports = mongoose.model('User', userSchema);

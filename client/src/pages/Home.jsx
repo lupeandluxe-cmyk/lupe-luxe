@@ -1,9 +1,8 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../api/axios';
 import ProductCard from '../components/ProductCard';
 import Loader from '../components/Loader';
-import HeroBackground from '../components/HeroBackground';
 
 const TESTIMONIALS = [
   { name: 'Roronoa Zoro', text: '"The quality of this hoodie is insane. Lost my way finding the store, but totally worth it."', stars: 5 },
@@ -20,65 +19,68 @@ const INSTA_POSTS = [
   'https://images.unsplash.com/photo-1551024601-bec78aea704b?w=300&q=80',
 ];
 
+const FALLBACK_CAT_IMG = 'https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=500&q=80';
+
 export default function Home() {
   const [sections, setSections] = useState([]);
   const [featured, setFeatured] = useState([]);
   const [latest, setLatest] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [categoryImages, setCategoryImages] = useState({});
   const [loading, setLoading] = useState(true);
-  const heroRef = useRef(null);
+  const [subscribed, setSubscribed] = useState('');
+  const [email, setEmail] = useState('');
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [secRes, featRes, latRes, catRes] = await Promise.all([
+        const [secRes, featRes, latRes, catRes, allRes] = await Promise.all([
           api.get('/homepage'),
           api.get('/products/featured'),
           api.get('/products/latest'),
           api.get('/products/categories'),
+          api.get('/products?pageSize=100'),
         ]);
         setSections(secRes.data);
         setFeatured(featRes.data);
         setLatest(latRes.data);
         setCategories(catRes.data);
+        const imgs = {};
+        for (const cat of catRes.data) {
+          const match = allRes.data?.products?.find(p => p.category === cat);
+          imgs[cat] = match?.images?.[0] || FALLBACK_CAT_IMG;
+        }
+        setCategoryImages(imgs);
       } catch (err) { console.error(err); }
       finally { setLoading(false); }
     };
     fetchData();
   }, []);
 
+  const handleSubscribe = (e) => {
+    e.preventDefault();
+    if (!email.trim()) return;
+    setSubscribed(`Thanks! You're on the list — ${email.trim()}`);
+    setEmail('');
+  };
+
   const renderHero = (sec) => (
-    <section className="hero-section" ref={heroRef} key={sec._id}>
-      <div className="hero-glare" />
-      <HeroBackground poster={sec.image} />
+    <section className="hero-section" key={sec._id}>
+      <img className="hero-canvas-fallback" src={sec.image || 'https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=1600&q=80'} alt={sec.title || 'Lupe and Luxe'} />
       <div className="hero-overlay" />
       <div className="hero-content">
-        <div className="hero-glass">
-          <div className="hero-badge">{sec.subtitle || 'Premium Streetwear'}</div>
-          {sec.title && (
-            <h1 className="hero-title">
-              {sec.title.split('\n').map((line, i) => <span key={i} className="hero-line">{line}</span>)}
-            </h1>
-          )}
-          {sec.text && <p className="hero-subtitle">{sec.text}</p>}
-          <div className="hero-actions">
-            {sec.buttonText && sec.buttonLink ? (
-              <Link to={sec.buttonLink} className="btn btn-primary btn-lg">
-                {sec.buttonText}
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-              </Link>
-            ) : (
-              <Link to="/products" className="btn btn-primary btn-lg">
-                Explore Collection
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-              </Link>
-            )}
-          </div>
+        <div className="hero-badge">{sec.subtitle || 'New Collection'}</div>
+        {sec.title && (
+          <h1 className="hero-title">
+            {sec.title.split('\n').map((line, i) => <span key={i} className="hero-line">{line}</span>)}
+          </h1>
+        )}
+        {sec.text && <p className="hero-subtitle">{sec.text}</p>}
+        <div className="hero-actions">
+          <Link to={sec.buttonLink || '/products'} className="btn btn-primary btn-lg">
+            {sec.buttonText || 'Explore Collection'}
+          </Link>
         </div>
-      </div>
-      <div className="hero-scroll-indicator">
-        <span>Scroll</span>
-        <div className="hero-scroll-line" />
       </div>
     </section>
   );
@@ -88,8 +90,9 @@ export default function Home() {
       case 'hero': return renderHero(sec);
       case 'banner':
         return (
-          <section key={sec._id} className="banner-section" style={sec.image ? { backgroundImage: `url(${sec.image})` } : {}}>
+          <section key={sec._id} className="banner-section" style={sec.image ? { backgroundImage: `url(${sec.image})` } : { background: 'var(--panel)' }}>
             <div className="banner-content">
+              {sec.subtitle && <span className="banner-sub">{sec.subtitle}</span>}
               {sec.title && <h2 className="banner-title">{sec.title}</h2>}
               {sec.text && <p className="banner-text">{sec.text}</p>}
               {sec.buttonText && sec.buttonLink && <Link to={sec.buttonLink} className="btn btn-primary btn-lg">{sec.buttonText}</Link>}
@@ -120,15 +123,13 @@ export default function Home() {
                 {sec.text && <p className="section-desc">{sec.text}</p>}
               </div>
               <div className="categories-grid">
-                {categories.map((cat, i) => {
-                  const icons = { 'Custom Tees': '👕', 'Hoodies': '🧥', 'Outerwear': '🧥', 'Sweaters': '👔', 'Thrift Vintage': '📿', 'Limited Drops': '💎', 'Bottoms': '👖', 'Accessories': '🎒' };
-                  return (
-                    <Link key={cat} to={`/products?category=${encodeURIComponent(cat)}`} className="category-card" style={{ '--delay': `${i * 0.1}s` }}>
-                      <span className="category-icon">{icons[cat] || '✦'}</span>
-                      <span className="category-name">{cat}</span>
-                    </Link>
-                  );
-                })}
+                {categories.map((cat) => (
+                  <Link key={cat} to={`/products?category=${encodeURIComponent(cat)}`} className="category-card">
+                    <img src={categoryImages[cat] || FALLBACK_CAT_IMG} alt={cat} className="category-card-img" loading="lazy" />
+                    <div className="category-card-shade" />
+                    <span className="category-card-label">{cat}</span>
+                  </Link>
+                ))}
               </div>
             </div>
           </section>
@@ -137,6 +138,10 @@ export default function Home() {
         return (
           <section key={sec._id} className="ethos-section">
             <div className="container">
+              <div className="section-header">
+                {sec.subtitle && <span className="section-subtitle">{sec.subtitle}</span>}
+                {sec.title && <h2 className="section-title">{sec.title}</h2>}
+              </div>
               <div className="ethos-grid">
                 {sec.items?.length > 0 ? sec.items.map((item, i) => (
                   <div key={i} className="ethos-card">
@@ -158,10 +163,39 @@ export default function Home() {
       case 'newsletter':
         return (
           <section key={sec._id} className="newsletter-section">
+            <div className="newsletter-content">
+              <h2>{sec.title || 'Subscribe to our emails'}</h2>
+              <p>{sec.text || 'Be the first to know about new collections and exclusive offers.'}</p>
+              <form className="newsletter-form" onSubmit={handleSubscribe}>
+                <input
+                  type="email"
+                  placeholder="Enter your email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+                <button type="submit" className="btn btn-primary">Subscribe</button>
+              </form>
+              {subscribed && <p className="newsletter-note">{subscribed}</p>}
+            </div>
+          </section>
+        );
+      case 'testimonial':
+        return (
+          <section key={sec._id} className="section">
             <div className="container">
-              <div className="newsletter-content">
-                <h2>{sec.title || 'Stay Updated'}</h2>
-                <p>{sec.text || 'Get notified about new drops and exclusive offers.'}</p>
+              <div className="section-header">
+                <span className="section-subtitle">{sec.subtitle || 'Testimonials'}</span>
+                <h2 className="section-title">{sec.title || 'What They Say'}</h2>
+              </div>
+              <div className="testimonials-grid">
+                {TESTIMONIALS.map((t, i) => (
+                  <div key={i} className="testimonial-card">
+                    <div className="testimonial-stars">{'★'.repeat(t.stars)}</div>
+                    <p className="testimonial-text">{t.text}</p>
+                    <p className="testimonial-author">— {t.name}</p>
+                  </div>
+                ))}
               </div>
             </div>
           </section>
@@ -173,11 +207,13 @@ export default function Home() {
 
   if (loading) return <Loader />;
 
+  const hasFeatured = sections.some(s => s.type === 'featured');
+
   return (
     <div className="home-page">
       {sections.map(s => renderSection(s))}
 
-      {sections.filter(s => s.type === 'featured').length === 0 && (
+      {!hasFeatured && featured.length > 0 && (
         <section className="section featured-section">
           <div className="container">
             <div className="section-header">
@@ -195,34 +231,56 @@ export default function Home() {
         <div className="container">
           <div className="section-header">
             <span className="section-subtitle">Fresh Drop</span>
-            <h2 className="section-title">Just Arrived</h2>
+            <h2 className="section-title">New Arrivals</h2>
           </div>
           <div className="products-grid">
             {latest.map((p, i) => <ProductCard key={p._id} product={p} index={i} />)}
           </div>
           <div className="section-action">
-            <Link to="/products" className="btn btn-outline">View All Products →</Link>
+            <Link to="/products" className="btn btn-outline">Shop All</Link>
           </div>
         </div>
       </section>
 
-      <section className="section">
-        <div className="container">
-          <div className="section-header">
-            <span className="section-subtitle">What They Say</span>
-            <h2 className="section-title">Voices of the Crew</h2>
+      {!sections.some(s => s.type === 'newsletter') && (
+        <section className="newsletter-section">
+          <div className="newsletter-content">
+            <h2>Subscribe to our emails</h2>
+            <p>Be the first to know about new collections and exclusive offers.</p>
+            <form className="newsletter-form" onSubmit={handleSubscribe}>
+              <input
+                type="email"
+                placeholder="Enter your email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+              <button type="submit" className="btn btn-primary">Subscribe</button>
+            </form>
+            {subscribed && <p className="newsletter-note">{subscribed}</p>}
           </div>
-          <div className="testimonials-grid">
-            {TESTIMONIALS.map((t, i) => (
-              <div key={i} className="testimonial-card" style={{ animationDelay: `${i * 0.15}s`, opacity: 0, animation: 'slideUp 0.6s ease forwards' }}>
-                <div className="testimonial-stars">{'★'.repeat(t.stars)}</div>
-                <p className="testimonial-text">{t.text}</p>
-                <p className="testimonial-author">— {t.name}</p>
-              </div>
-            ))}
+        </section>
+      )}
+
+      {!sections.some(s => s.type === 'testimonial') && (
+        <section className="section">
+          <div className="container">
+            <div className="section-header">
+              <span className="section-subtitle">What They Say</span>
+              <h2 className="section-title">Voices of the Crew</h2>
+            </div>
+            <div className="testimonials-grid">
+              {TESTIMONIALS.map((t, i) => (
+                <div key={i} className="testimonial-card">
+                  <div className="testimonial-stars">{'★'.repeat(t.stars)}</div>
+                  <p className="testimonial-text">{t.text}</p>
+                  <p className="testimonial-author">— {t.name}</p>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       <section className="section" style={{ paddingTop: 0 }}>
         <div className="container">

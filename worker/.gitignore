@@ -1,0 +1,8 @@
+# Local dev secrets (contains real API keys — never commit)
+.dev.vars
+
+# Wrangler build artifacts
+.wrangler/
+
+# Node
+node_modules/
