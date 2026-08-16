@@ -2,10 +2,6 @@ import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/axios';
 
-const SOCKET_URL = import.meta.env.VITE_API_URL
-  ? import.meta.env.VITE_API_URL.replace('/api', '')
-  : window.location.origin;
-
 const FAQ = [
   { q: ['shipping', 'delivery', 'how long', 'ship', 'arrive'], a: 'Orders are processed within 1-2 business days. Domestic shipping takes 3-7 days, international 7-14 days. You\'ll receive a tracking link once shipped.' },
   { q: ['return', 'refund', 'exchange', 'cancel'], a: 'We accept returns within 7 days of delivery. Items must be unworn with tags attached. Custom pieces are final sale. Initiate returns from your profile page.' },
@@ -62,16 +58,22 @@ export default function ChatBot() {
   }, [chatId, open]);
 
   const connectSocket = (id) => {
-    import('socket.io-client').then(({ io }) => {
-      const s = io(SOCKET_URL);
-      s.emit('chat:join', { chatId: id });
-      s.on('message:new', (msg) => {
-        if (msg.sender === 'user') return;
-        setMessages((prev) => [...prev, { id: Date.now(), text: msg.text, sender: 'agent' }]);
-      });
-      s.on('agent:joined', () => setAgentActive(true));
-      setSocket(s);
-    });
+    try {
+      const ws = new WebSocket(`${window.location.origin}/ws/chat/${id}`);
+      ws.onopen = () => setAgentActive(true);
+      ws.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          if (data.type === 'message:new' && data.payload && data.payload.sender !== 'user') {
+            setMessages((prev) => [...prev, { id: Date.now(), text: data.payload.text, sender: 'agent' }]);
+          }
+        } catch { /* ignore malformed frames */ }
+      };
+      ws.onerror = () => { /* server offline — chat still works via bot + REST */ };
+      setSocket(ws);
+    } catch {
+      setSocket(null);
+    }
   };
 
   const requestAgent = async () => {
@@ -100,8 +102,8 @@ export default function ChatBot() {
     if (!msg || typing) return;
     setInput('');
     setMessages((m) => [...m, { id: Date.now(), text: msg, sender: 'user' }]);
-    if (agentActive && chatId && socket) {
-      socket.emit('message:send', { chatId, text: msg, sender: 'user' });
+    if (agentActive && chatId && socket && socket.readyState === WebSocket.OPEN) {
+      socket.send(JSON.stringify({ chatId, event: 'message:send', text: msg, sender: 'user' }));
     } else {
       setTyping(true);
       setTimeout(() => {
@@ -123,8 +125,7 @@ export default function ChatBot() {
   return (
     <>
       <div className={`chatbot-toggle ${open ? 'active' : ''}`} onClick={() => setOpen(!open)} role="button" tabIndex={0} onKeyDown={(e) => e.key === 'Enter' && setOpen(!open)} aria-label="Chat">
-        {!open && <div className="chatbot-speech-bubble">Need help? <span className="chatbot-speech-tail" /></div>}
-        <div className="chatbot-mascot">
+        {!open && <div className="chatbot-mascot">
           <svg viewBox="0 0 120 150" xmlns="http://www.w3.org/2000/svg" className="chatbot-mascot-svg">
             <defs>
               <radialGradient id="eyeGrad" cx="40%" cy="35%" r="60%">
@@ -178,7 +179,7 @@ export default function ChatBot() {
               <circle cx="96" cy="86" r="5.5" className="mascot-hand" />
             </g>
           </svg>
-        </div>
+        </div>}
       </div>
 
       <div className={`chatbot-panel ${open ? 'open' : ''}`}>

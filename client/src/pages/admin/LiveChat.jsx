@@ -2,10 +2,6 @@ import { useState, useEffect, useRef } from 'react';
 import api from '../../api/axios';
 import Message from '../../components/Message';
 
-const SOCKET_URL = import.meta.env.VITE_API_URL
-  ? import.meta.env.VITE_API_URL.replace('/api', '')
-  : window.location.origin;
-
 export default function LiveChat() {
   const [chats, setChats] = useState([]);
   const [selected, setSelected] = useState(null);
@@ -30,32 +26,33 @@ export default function LiveChat() {
   }, [selected?.messages, typing]);
 
   useEffect(() => {
-    import('socket.io-client').then(({ io }) => {
-      const s = io(SOCKET_URL);
-      setSocket(s);
-      return () => s.close();
-    });
-  }, []);
-
-  useEffect(() => {
-    if (!socket || !selected) return;
-    socket.emit('chat:join', { chatId: selected._id });
-    socket.on('message:new', (msg) => {
-      setSelected((prev) => {
-        if (!prev || prev._id !== selected._id) return prev;
-        return { ...prev, messages: [...prev.messages, msg], unreadUser: 0 };
-      });
-      setChats((prev) => prev.map((c) =>
-        c._id === selected._id ? { ...c, messages: [...(c.messages || []), msg], updatedAt: new Date().toISOString() } : c
-      ));
-    });
-    socket.on('typing:display', ({ typing: t }) => setTyping(t));
-    return () => {
-      socket.emit('chat:leave', { chatId: selected._id });
-      socket.off('message:new');
-      socket.off('typing:display');
-    };
-  }, [socket, selected?._id]);
+    if (!selected) return;
+    let ws;
+    try {
+      ws = new WebSocket(`${window.location.origin}/ws/chat/${selected._id}`);
+      setSocket(ws);
+      ws.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          if (data.type === 'message:new' && data.payload) {
+            setSelected((prev) => {
+              if (!prev || prev._id !== selected._id) return prev;
+              return { ...prev, messages: [...prev.messages, data.payload], unreadUser: 0 };
+            });
+            setChats((prev) => prev.map((c) =>
+              c._id === selected._id ? { ...c, messages: [...(c.messages || []), data.payload], updatedAt: new Date().toISOString() } : c
+            ));
+          } else if (data.type === 'typing:display') {
+            setTyping(data.payload?.typing);
+          }
+        } catch { /* ignore */ }
+      };
+      ws.onclose = () => { if (socket === ws) setSocket(null); };
+    } catch {
+      setSocket(null);
+    }
+    return () => { try { ws?.close(); } catch { /* ignore */ } };
+  }, [selected?._id]);
 
   const handleSelect = (chat) => {
     setSelected(chat);
@@ -63,16 +60,17 @@ export default function LiveChat() {
   };
 
   const handleSend = async () => {
-    if (!input.trim() || !selected || !socket) return;
+    if (!input.trim() || !selected) return;
     const text = input.trim();
     setInput('');
-    await socket.emit('message:send', { chatId: selected._id, text, sender: 'agent' });
+    try {
+      await api.post(`/chats/${selected._id}/messages`, { text, sender: 'agent' });
+    } catch { setError('Failed to send message'); }
   };
 
   const handleAssign = async (chat) => {
     try {
       const { data } = await api.put(`/chats/${chat._id}/assign`);
-      socket?.emit('chat:assign', { chatId: chat._id });
       setChats((prev) => prev.map((c) => c._id === data._id ? { ...c, assignedTo: data.assignedTo } : c));
       if (selected?._id === data._id) setSelected((prev) => ({ ...prev, assignedTo: data.assignedTo }));
     } catch { setError('Assignment failed'); }
