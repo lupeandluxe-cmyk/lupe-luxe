@@ -7,21 +7,6 @@ import HeroBackground from '../components/HeroBackground';
 import DoodleAccents from '../components/DoodleAccents';
 import ReviewForm from '../components/ReviewForm';
 
-const TESTIMONIALS = [
-  { name: 'Roronoa Zoro', text: '"The quality of this hoodie is insane. Lost my way finding the store, but totally worth it."', stars: 5 },
-  { name: 'Nami', text: '"Finally, a brand that understands luxury thrift. My wallet cries but my wardrobe sings!"', stars: 5 },
-  { name: 'Sanji', text: '"Custom tee came out perfect. The fabric is premium — would expect nothing less for the Grand Line."', stars: 5 },
-];
-
-const INSTA_POSTS = [
-  'https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=300&q=80',
-  'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=300&q=80',
-  'https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=300&q=80',
-  'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=300&q=80',
-  'https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=300&q=80',
-  'https://images.unsplash.com/photo-1551024601-bec78aea704b?w=300&q=80',
-];
-
 export default function Home() {
   const [sections, setSections] = useState([]);
   const [featured, setFeatured] = useState([]);
@@ -30,6 +15,8 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [reviews, setReviews] = useState([]);
   const [reviewStats, setReviewStats] = useState({ average: 0, count: 0 });
+  const [newsletterEmail, setNewsletterEmail] = useState('');
+  const [newsletterMsg, setNewsletterMsg] = useState('');
   const heroRef = useRef(null);
 
   const fetchReviews = async () => {
@@ -127,7 +114,16 @@ export default function Home() {
               </div>
               <div className="categories-grid">
                 {categories.map((cat, i) => {
-                  const icons = { 'Custom Tees': '👕', 'Hoodies': '🧥', 'Outerwear': '🧥', 'Sweaters': '👔', 'Thrift Vintage': '📿', 'Limited Drops': '💎', 'Bottoms': '👖', 'Accessories': '🎒' };
+                  const icons = {
+                    'Custom Tees': '✦',
+                    'Hoodies': '◆',
+                    'Outerwear': '▲',
+                    'Sweaters': '◇',
+                    'Thrift Vintage': '♦',
+                    'Limited Drops': '★',
+                    'Bottoms': '▼',
+                    'Accessories': '○',
+                  };
                   return (
                     <Link key={cat} to={`/products?category=${encodeURIComponent(cat)}`} className="category-card" style={{ '--delay': `${i * 0.1}s` }}>
                       <span className="category-icon">{icons[cat] || '✦'}</span>
@@ -230,13 +226,11 @@ export default function Home() {
                 <p className="testimonial-text">"{r.text}"</p>
                 <p className="testimonial-author">— {r.name}{r.verified ? ' ✓' : ''}</p>
               </div>
-            )) : TESTIMONIALS.map((t, i) => (
-              <div key={i} className="testimonial-card" style={{ animationDelay: `${i * 0.15}s`, opacity: 0, animation: 'slideUp 0.6s ease forwards' }}>
-                <div className="testimonial-stars">{'★'.repeat(t.stars)}</div>
-                <p className="testimonial-text">"{t.text}"</p>
-                <p className="testimonial-author">— {t.name}</p>
+            )) : (
+              <div className="testimonial-card" style={{ gridColumn: '1 / -1', textAlign: 'center' }}>
+                <p className="testimonial-text">No reviews yet. Be the first to share your experience!</p>
               </div>
-            ))}
+            )}
           </div>
         </div>
       </section>
@@ -251,21 +245,32 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="section" style={{ paddingTop: 0 }}>
+      <section className="newsletter-section">
         <div className="container">
-          <div className="section-header">
-            <span className="section-subtitle">Follow the Journey</span>
-            <h2 className="section-title">@LupeAndLuxe</h2>
-          </div>
-          <div className="insta-grid">
-            {INSTA_POSTS.map((img, i) => (
-              <a key={i} href="#" className="insta-item" onClick={(e) => e.preventDefault()}>
-                <img src={img} alt="Gallery" loading="lazy" />
-                <div className="insta-item-overlay">
-                  <span className="insta-icon">📷</span>
-                </div>
-              </a>
-            ))}
+          <div className="newsletter-content">
+            <h2>Stay in the Loop</h2>
+            <p>Get notified about new drops, exclusive offers, and Grand Line adventures.</p>
+            {newsletterMsg ? (
+              <p className="newsletter-success">{newsletterMsg}</p>
+            ) : (
+              <form className="newsletter-form" onSubmit={(e) => {
+                e.preventDefault();
+                if (newsletterEmail.trim()) {
+                  setNewsletterMsg('You\'re on the crew! ⚓ Check your inbox.');
+                  setNewsletterEmail('');
+                }
+              }}>
+                <input
+                  type="email"
+                  className="newsletter-input"
+                  placeholder="your@email.com"
+                  value={newsletterEmail}
+                  onChange={(e) => setNewsletterEmail(e.target.value)}
+                  required
+                />
+                <button type="submit" className="btn btn-primary">Subscribe</button>
+              </form>
+            )}
           </div>
         </div>
       </section>

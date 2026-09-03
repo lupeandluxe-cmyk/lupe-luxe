@@ -17,6 +17,7 @@ export default function ProductDetail() {
   const [added, setAdded] = useState(false);
   const [selectedImage, setSelectedImage] = useState(0);
   const [related, setRelated] = useState([]);
+  const [reviews, setReviews] = useState([]);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -28,6 +29,11 @@ export default function ProductDetail() {
 
         const catRes = await api.get('/products', { params: { category: data.category, page: 1 } });
         setRelated(catRes.data.products.filter((p) => p._id !== data._id).slice(0, 4));
+
+        try {
+          const revRes = await api.get('/reviews?limit=10');
+          setReviews(revRes.data.reviews || []);
+        } catch { /* reviews optional */ }
       } catch (err) {
         setError('Product not found');
       } finally {
@@ -35,7 +41,6 @@ export default function ProductDetail() {
       }
     };
     fetchProduct();
-    window.scrollTo(0, 0);
   }, [id]);
 
   const handleAdd = () => {
@@ -67,9 +72,6 @@ export default function ProductDetail() {
           <div className="detail-gallery">
             <div className="detail-image-main">
               <img src={images[selectedImage]} alt={product.name} className="detail-main-img" />
-              <div className="detail-img-zoom">
-                <img src={images[selectedImage]} alt="" />
-              </div>
             </div>
             {images.length > 1 && (
               <div className="detail-thumbnails">
@@ -118,7 +120,6 @@ export default function ProductDetail() {
               {inStock && product.countInStock <= 5 && (
                 <span className="stock-warning">Only {product.countInStock} left</span>
               )}
-
             </div>
 
             {inStock && (
@@ -168,6 +169,25 @@ export default function ProductDetail() {
             </div>
           </div>
         </div>
+
+        {reviews.length > 0 && (
+          <section className="product-reviews-section">
+            <div className="section-header">
+              <span className="section-subtitle">Customer Reviews</span>
+              <h2 className="section-title">What Crew Members Say</h2>
+            </div>
+            <div className="testimonials-grid">
+              {reviews.map((r, i) => (
+                <div key={r._id || i} className="testimonial-card">
+                  <div className="testimonial-stars">{'★'.repeat(r.rating)}{'☆'.repeat(5 - r.rating)}</div>
+                  {r.title && <p className="testimonial-title">{r.title}</p>}
+                  <p className="testimonial-text">"{r.text}"</p>
+                  <p className="testimonial-author">— {r.name}{r.verified ? ' ✓' : ''}</p>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
 
         {related.length > 0 && (
           <section className="related-section">

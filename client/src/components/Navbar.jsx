@@ -52,6 +52,9 @@ export default function Navbar() {
           <div className="nav-center">
             <Link to="/" className={`nav-link ${location.pathname === '/' ? 'active' : ''}`}>Home</Link>
             <Link to="/products" className={`nav-link ${location.pathname === '/products' ? 'active' : ''}`}>Shop</Link>
+            <Link to="/products?sort=latest" className={`nav-link ${location.search.includes('sort=latest') ? 'active' : ''}`}>New In</Link>
+            <Link to="/products?category=Custom+Tees" className={`nav-link ${location.search.includes('Custom+Tees') ? 'active' : ''}`}>Custom</Link>
+            <Link to="/products?category=Limited+Drops" className={`nav-link ${location.search.includes('Limited+Drops') ? 'active' : ''}`}>Drops</Link>
           </div>
 
           <div className="nav-right">
@@ -122,6 +125,10 @@ export default function Navbar() {
         <div className="mobile-menu-body">
           <Link to="/" className="mobile-link" onClick={() => setMenuOpen(false)}>Home</Link>
           <Link to="/products" className="mobile-link" onClick={() => setMenuOpen(false)}>Shop All</Link>
+          <Link to="/products?sort=latest" className="mobile-link" onClick={() => setMenuOpen(false)}>New Arrivals</Link>
+          <Link to="/products?category=Custom+Tees" className="mobile-link" onClick={() => setMenuOpen(false)}>Custom Tees</Link>
+          <Link to="/products?category=Limited+Drops" className="mobile-link" onClick={() => setMenuOpen(false)}>Limited Drops</Link>
+          <Link to="/products?category=Thrift+Vintage" className="mobile-link" onClick={() => setMenuOpen(false)}>Thrift Vintage</Link>
           <Link to="/cart" className="mobile-link" onClick={() => setMenuOpen(false)}>Cart {totalItems > 0 && `(${totalItems})`}</Link>
           {user ? (
             <>

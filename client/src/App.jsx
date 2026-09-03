@@ -1,6 +1,7 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
+import { useEffect } from 'react';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ChatBot from './components/ChatBot';
@@ -47,14 +48,21 @@ function AdminRoute({ children }) {
 
 const AdminPage = ({ Component }) => <AdminLayout><Component /></AdminLayout>;
 
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => { window.scrollTo(0, 0); }, [pathname]);
+  return null;
+}
+
 function AppRoutes() {
   const isApp = useStandalone();
 
   return (
     <div className={`app ${isApp ? 'app-mode' : 'web-mode'}`}>
       <IntroOverlay />
+      <ScrollToTop />
       {!isApp && <Navbar />}
-      <main className="main-content">
+      <main className="main-content page-transition">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/products" element={<ProductList />} />

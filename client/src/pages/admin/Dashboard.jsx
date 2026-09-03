@@ -43,12 +43,17 @@ export default function AdminDashboard() {
         <div className="admin-card">
           <h3>Revenue (Last 12 Months)</h3>
           <div className="chart-container">
-            {data.revenueByMonth.map((item, i) => (
-              <div key={i} className="chart-bar-wrapper" title={`${item._id}: ₹${item.revenue}`}>
-                <div className="chart-bar" style={{ height: `${(item.revenue / Math.max(...data.revenueByMonth.map(r => r.revenue)) * 180)}px` }}></div>
-                <span className="chart-label">{item._id?.slice(-2)}</span>
-              </div>
-            ))}
+            {data.revenueByMonth.map((item, i) => {
+              const maxRev = Math.max(...data.revenueByMonth.map(r => r.revenue));
+              const height = maxRev > 0 ? (item.revenue / maxRev * 180) : 0;
+              return (
+                <div key={i} className="chart-bar-wrapper" title={`${item._id}: ₹${item.revenue.toLocaleString()}`}>
+                  <span className="chart-value">₹{item.revenue > 999 ? `${(item.revenue / 1000).toFixed(1)}k` : item.revenue}</span>
+                  <div className="chart-bar" style={{ height: `${height}px` }}></div>
+                  <span className="chart-label">{item._id?.slice(-2)}</span>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}

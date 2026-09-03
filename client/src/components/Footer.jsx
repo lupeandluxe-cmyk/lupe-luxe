@@ -45,7 +45,7 @@ export default function Footer() {
           </div>
           <div className="footer-bottom">
             <p>&copy; {new Date().getFullYear()} {settings.siteName || 'Lupe & Luxe'}. All rights reserved.</p>
-            <p className="footer-quote">"The one who inherits the will of all those who've sailed the seas..."</p>
+            <p className="footer-quote">Built between the wilderness and the city.</p>
           </div>
         </div>
       </div>

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap');
 
 :root {
   --black: #0b0d0b;
@@ -18,8 +18,9 @@
   --green: #2ECC71;
   --green-dark: #1A6B3C;
   --font-heading: 'Playfair Display', Georgia, serif;
-  --font-body: 'DM Mono', monospace;
+  --font-body: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-button: 'DM Mono', monospace;
+  --font-accent: 'DM Mono', monospace;
   --glass-bg: rgba(255,255,255,0.03);
   --glass-border: rgba(255,255,255,0.06);
   --glass-strong: rgba(255,255,255,0.08);
@@ -55,6 +56,14 @@ ul { list-style: none; }
 button { cursor: pointer; font-family: var(--font-button); border: none; background: none; }
 input, textarea, select { font-family: var(--font-body); }
 .container { max-width: 1280px; margin: 0 auto; padding: 0 1.5rem; }
+
+.main-content {
+  animation: pageFadeIn 0.35s ease;
+}
+@keyframes pageFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
 
 /* ============================================
    ANIMATIONS
@@ -674,32 +683,6 @@ input, textarea, select { font-family: var(--font-body); }
   border: 1px solid rgba(169,151,105,0.3);
 }
 
-.product-card-actions {
-  position: absolute;
-  top: 0.75rem;
-  right: 0.75rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  opacity: 0;
-  transform: translateX(10px);
-  transition: all var(--transition);
-  z-index: 2;
-}
-.product-card-link:hover .product-card-actions { opacity: 1; transform: translateX(0); }
-.card-action-btn {
-  width: 36px; height: 36px;
-  display: flex; align-items: center; justify-content: center;
-  background: rgba(9,9,13,0.7);
-  backdrop-filter: blur(10px);
-  border-radius: 50%;
-  color: var(--white);
-  font-size: 0.85rem;
-  transition: all var(--transition);
-  border: 1px solid var(--glass-border);
-}
-.card-action-btn:hover { background: var(--gold); color: var(--black); border-color: var(--gold); transform: scale(1.1); }
-
 .product-card-info { padding: 0 0.25rem; }
 .product-card-category {
   font-family: var(--font-button);
@@ -803,7 +786,7 @@ input, textarea, select { font-family: var(--font-body); }
   transform: translateY(-6px);
   box-shadow: var(--shadow-gold);
 }
-.category-icon { font-size: 2.2rem; transition: transform var(--transition); }
+.category-icon { font-size: 1.8rem; transition: transform var(--transition); color: var(--gold); font-family: var(--font-body); }
 .category-card:hover .category-icon { transform: scale(1.15); }
 .category-name {
   font-family: var(--font-button);
@@ -896,6 +879,36 @@ input, textarea, select { font-family: var(--font-body); }
   margin-bottom: 0.75rem;
 }
 .newsletter-content p { color: var(--gray); margin-bottom: 1.5rem; font-size: 0.95rem; }
+.newsletter-form {
+  display: flex;
+  gap: 0.75rem;
+  max-width: 440px;
+  margin: 0 auto;
+}
+.newsletter-input {
+  flex: 1;
+  padding: 0.85rem 1.2rem;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: var(--radius);
+  color: var(--white);
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  transition: border-color 0.3s;
+}
+.newsletter-input:focus {
+  outline: none;
+  border-color: var(--gold);
+}
+.newsletter-input::placeholder { color: rgba(255,255,255,0.25); }
+.newsletter-success {
+  color: var(--green);
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+@media (max-width: 480px) {
+  .newsletter-form { flex-direction: column; }
+}
 
 /* --- Testimonials --- */
 .testimonials-grid {
@@ -2846,6 +2859,49 @@ input, textarea, select { font-family: var(--font-body); }
 }
 
 /* ============================================
+   ADMIN CHART
+   ========================================== */
+.chart-container {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  height: 220px;
+  padding: 1rem 0;
+  overflow-x: auto;
+}
+.chart-bar-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+  min-width: 36px;
+}
+.chart-bar {
+  width: 100%;
+  max-width: 28px;
+  background: linear-gradient(180deg, var(--gold) 0%, var(--gold-dark) 100%);
+  border-radius: 4px 4px 0 0;
+  transition: height 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  min-height: 2px;
+}
+.chart-bar:hover {
+  background: linear-gradient(180deg, var(--gold-light) 0%, var(--gold) 100%);
+  box-shadow: 0 0 12px var(--gold-glow);
+}
+.chart-value {
+  font-size: 0.6rem;
+  color: var(--gray-light);
+  font-family: var(--font-accent);
+  white-space: nowrap;
+}
+.chart-label {
+  font-size: 0.65rem;
+  color: var(--gray);
+  font-family: var(--font-accent);
+}
+
+/* ============================================
    DOODLE ACCENTS
    ========================================== */
 .doodle-accents {
@@ -2938,6 +2994,11 @@ input, textarea, select { font-family: var(--font-body); }
 .review-section {
   background: rgba(255,255,255,0.02);
   border-top: 1px solid rgba(255,255,255,0.05);
+}
+.product-reviews-section {
+  margin-top: 4rem;
+  padding-top: 3rem;
+  border-top: 1px solid var(--glass-border);
 }
 .testimonial-title {
   font-size: 0.8rem;
