@@ -2795,7 +2795,6 @@ input, textarea, select { font-family: var(--font-body); }
 
 .hero-ref-title .hero-line-em{
     display:block;
-    margin-left:6vw;
     color:#b7b7aa;
     font-style:italic;
 }
@@ -2844,7 +2843,6 @@ input, textarea, select { font-family: var(--font-body); }
     .hero-ref-title{ font-size:22vw; line-height:.85; }
     .hero-ref .hero-bottom{ display:block; text-align:center; }
     .hero-ref .explore-link{ display:inline-block; margin-top:30px; }
-    .hero-ref-title .hero-line-em{ margin-left:3vw; }
 }
 
 /* ============================================
