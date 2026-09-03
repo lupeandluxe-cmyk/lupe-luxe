@@ -307,4 +307,48 @@ router.put('/admins/:id/reset-password', protect, admin, async (req, res) => {
   }
 });
 
+// --- Google Sign-In ---
+router.post('/google', async (req, res) => {
+  try {
+    const { credential } = req.body;
+    if (!credential) {
+      return res.status(400).json({ message: 'Google credential is required' });
+    }
+
+    const { OAuth2Client } = require('google-auth-library');
+    const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
+    const ticket = await client.verifyIdToken({
+      idToken: credential,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+
+    const payload = ticket.getPayload();
+    const { sub: googleId, email, name, picture } = payload;
+
+    let user = await User.findOne({ $or: [{ googleId }, { email: email.toLowerCase() }] });
+
+    if (user) {
+      if (!user.googleId) {
+        user.googleId = googleId;
+        await user.save();
+      }
+    } else {
+      user = await User.create({
+        name: name || email.split('@')[0],
+        email: email.toLowerCase(),
+        googleId,
+        password: require('crypto').randomBytes(24).toString('hex'),
+      });
+    }
+
+    const tokens = generateTokenPair(user._id);
+    logger.login(email, true, req.ip, { action: 'google' });
+    res.json({ _id: user._id, name: user.name, email: user.email, isAdmin: user.isAdmin, ...tokens });
+  } catch (err) {
+    logger.error('Google auth error', { message: err.message });
+    res.status(401).json({ message: 'Invalid Google credential' });
+  }
+});
+
 module.exports = router;

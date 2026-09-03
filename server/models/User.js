@@ -11,7 +11,8 @@ const userSchema = new mongoose.Schema({
     trim: true,
     match: [/^\S+@\S+\.\S+$/, 'Invalid email'],
   },
-  password: { type: String, required: true, minlength: 8 },
+  password: { type: String, required: false, minlength: 8 },
+  googleId: { type: String, sparse: true },
   role: { 
     type: String, 
     enum: ['super_admin', 'admin', 'staff', 'employee', 'customer'], 

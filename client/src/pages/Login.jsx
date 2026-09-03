@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Message from '../components/Message';
@@ -7,9 +7,10 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const { login } = useAuth();
+  const { login, googleLogin } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const googleBtnRef = useRef(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -20,6 +21,27 @@ export default function Login() {
       setError(err.response?.data?.message || 'Invalid credentials');
     }
   };
+
+  useEffect(() => {
+    if (!window.google?.accounts?.id || !googleBtnRef.current) return;
+    window.google.accounts.id.initialize({
+      client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+      callback: async (response) => {
+        try {
+          await googleLogin(response.credential);
+          navigate(searchParams.get('redirect') || '/');
+        } catch (err) {
+          setError(err.response?.data?.message || 'Google sign-in failed');
+        }
+      },
+    });
+    window.google.accounts.id.renderButton(googleBtnRef.current, {
+      theme: 'outline',
+      size: 'large',
+      width: '100%',
+      text: 'continue_with',
+    });
+  }, [googleLogin, navigate, searchParams]);
 
   return (
     <div className="auth-page">
@@ -42,6 +64,8 @@ export default function Login() {
             </div>
             <button type="submit" className="btn btn-primary btn-block btn-lg">Set Sail →</button>
           </form>
+          <div className="auth-divider"><span>or</span></div>
+          <div ref={googleBtnRef} className="google-btn-wrapper" />
           <p style={{ textAlign: 'center', marginTop: '12px' }}>
             <Link to="/otp-login" style={{ fontSize: '0.85rem', color: '#888' }}>Login with OTP</Link>
           </p>

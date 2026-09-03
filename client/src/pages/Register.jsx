@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Message from '../components/Message';
@@ -9,8 +9,9 @@ export default function Register() {
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
   const [error, setError] = useState('');
-  const { register } = useAuth();
+  const { register, googleLogin } = useAuth();
   const navigate = useNavigate();
+  const googleBtnRef = useRef(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -22,6 +23,27 @@ export default function Register() {
       setError(err.response?.data?.message || 'Registration failed');
     }
   };
+
+  useEffect(() => {
+    if (!window.google?.accounts?.id || !googleBtnRef.current) return;
+    window.google.accounts.id.initialize({
+      client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+      callback: async (response) => {
+        try {
+          await googleLogin(response.credential);
+          navigate('/');
+        } catch (err) {
+          setError(err.response?.data?.message || 'Google sign-in failed');
+        }
+      },
+    });
+    window.google.accounts.id.renderButton(googleBtnRef.current, {
+      theme: 'outline',
+      size: 'large',
+      width: '100%',
+      text: 'continue_with',
+    });
+  }, [googleLogin, navigate]);
 
   return (
     <div className="auth-page">
@@ -52,6 +74,8 @@ export default function Register() {
             </div>
             <button type="submit" className="btn btn-primary btn-block btn-lg">Join Now →</button>
           </form>
+          <div className="auth-divider"><span>or</span></div>
+          <div ref={googleBtnRef} className="google-btn-wrapper" />
           <p className="auth-footer">
             Already a member? <Link to="/login">Sign In</Link>
           </p>

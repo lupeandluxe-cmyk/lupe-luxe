@@ -4,6 +4,7 @@ import api from '../api/axios';
 import ProductCard from '../components/ProductCard';
 import Loader from '../components/Loader';
 import HeroBackground from '../components/HeroBackground';
+import DoodleAccents from '../components/DoodleAccents';
 
 const TESTIMONIALS = [
   { name: 'Roronoa Zoro', text: '"The quality of this hoodie is insane. Lost my way finding the store, but totally worth it."', stars: 5 },
@@ -52,6 +53,7 @@ export default function Home() {
       <div className="hero-glare" />
       <HeroBackground poster={sec.image} />
       <div className="hero-overlay" />
+      <DoodleAccents />
       <div className="hero-content">
         <div className="hero-label">{sec.subtitle || 'Chapter I — The Wanderer'}</div>
         <h1 className="hero-title hero-ref-title">
@@ -88,7 +90,8 @@ export default function Home() {
         );
       case 'featured':
         return (
-          <section key={sec._id} className="section featured-section">
+          <section key={sec._id} className="section featured-section" style={{ position: 'relative' }}>
+            <DoodleAccents />
             <div className="container">
               <div className="section-header">
                 {sec.subtitle && <span className="section-subtitle">{sec.subtitle}</span>}
@@ -102,7 +105,8 @@ export default function Home() {
         );
       case 'collection':
         return (
-          <section key={sec._id} className="section categories-section">
+          <section key={sec._id} className="section categories-section" style={{ position: 'relative' }}>
+            <DoodleAccents />
             <div className="container">
               <div className="section-header">
                 {sec.subtitle && <span className="section-subtitle">{sec.subtitle}</span>}
@@ -147,7 +151,8 @@ export default function Home() {
         );
       case 'newsletter':
         return (
-          <section key={sec._id} className="newsletter-section">
+          <section key={sec._id} className="newsletter-section" style={{ position: 'relative' }}>
+            <DoodleAccents />
             <div className="container">
               <div className="newsletter-content">
                 <h2>{sec.title || 'Stay Updated'}</h2>

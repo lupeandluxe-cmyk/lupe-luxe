@@ -51,8 +51,15 @@ export const AuthProvider = ({ children }) => {
     return data;
   };
 
+  const googleLogin = async (credential) => {
+    const { data } = await api.post('/auth/google', { credential });
+    localStorage.setItem('ll_user', JSON.stringify(data));
+    setUser(data);
+    return data;
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout, updateProfile, requestOtp, verifyOtp }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout, updateProfile, requestOtp, verifyOtp, googleLogin }}>
       {children}
     </AuthContext.Provider>
   );

@@ -1716,6 +1716,33 @@ input, textarea, select { font-family: var(--font-body); }
 .auth-footer a { color: var(--gold); font-weight: 600; transition: color var(--transition); }
 .auth-footer a:hover { color: var(--gold-light); }
 
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 1.25rem 0;
+  color: var(--gray);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+.auth-divider::before,
+.auth-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(255,255,255,0.08);
+}
+
+.google-btn-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+.google-btn-wrapper iframe {
+  width: 100% !important;
+}
+
 /* ============================================
    PROFILE
    ============================================ */
@@ -2738,6 +2765,7 @@ input, textarea, select { font-family: var(--font-body); }
     z-index:2;
     width:100%;
     max-width:1200px;
+    margin:0 auto;
 }
 
 .hero-ref .hero-label{
@@ -2747,6 +2775,7 @@ input, textarea, select { font-family: var(--font-body); }
     margin-bottom:25px;
     font-family:var(--font-button);
     text-transform:uppercase;
+    text-align:center;
 }
 
 .hero-ref-title{
@@ -2757,6 +2786,7 @@ input, textarea, select { font-family: var(--font-body); }
     letter-spacing:-.03em;
     color:var(--white);
     text-shadow:0 4px 40px rgba(0,0,0,.6);
+    text-align:center;
 }
 
 .hero-ref-title .hero-line{
@@ -2765,16 +2795,18 @@ input, textarea, select { font-family: var(--font-body); }
 
 .hero-ref-title .hero-line-em{
     display:block;
-    margin-left:10vw;
+    margin-left:6vw;
     color:#b7b7aa;
+    font-style:italic;
 }
 
 .hero-ref .hero-bottom{
     display:flex;
-    justify-content:space-between;
+    justify-content:center;
     align-items:flex-end;
     margin-top:45px;
     gap:30px;
+    text-align:center;
 }
 
 .hero-ref .hero-copy{
@@ -2783,6 +2815,7 @@ input, textarea, select { font-family: var(--font-body); }
     color:var(--gray);
     line-height:2;
     white-space:pre-line;
+    text-align:center;
 }
 
 .hero-ref .explore-link{
@@ -2807,9 +2840,96 @@ input, textarea, select { font-family: var(--font-body); }
 }
 
 @media (max-width:700px){
-    .hero-ref{ padding:14% 7%; }
-    .hero-ref-title{ font-size:22vw; }
-    .hero-ref .hero-bottom{ display:block; }
+.hero-ref{ padding:14% 7%; }
+    .hero-ref-title{ font-size:22vw; line-height:.85; }
+    .hero-ref .hero-bottom{ display:block; text-align:center; }
     .hero-ref .explore-link{ display:inline-block; margin-top:30px; }
-    .hero-ref-title .hero-line-em{ margin-left:5vw; }
+    .hero-ref-title .hero-line-em{ margin-left:3vw; }
+}
+
+/* ============================================
+   DOODLE ACCENTS
+   ========================================== */
+.doodle-accents {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+}
+.doodle {
+  position: absolute;
+  color: var(--white);
+}
+.hero-section .doodle-compass {
+  top: 8%;
+  right: 8%;
+  width: 56px;
+  animation: doodleSpin 40s linear infinite;
+}
+.hero-section .doodle-stars {
+  top: 15%;
+  left: 6%;
+  width: 70px;
+}
+.hero-section .doodle-wave {
+  bottom: 18%;
+  right: 5%;
+  width: 100px;
+}
+.hero-section .doodle-anchor {
+  bottom: 22%;
+  left: 5%;
+  width: 20px;
+}
+.section .doodle-arrow {
+  top: 50%;
+  right: 4%;
+  width: 44px;
+  transform: translateY(-50%);
+}
+.section .doodle-route {
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+}
+.section .doodle-hatch {
+  top: 10px;
+  left: 10px;
+  width: 32px;
+}
+.categories-section .doodle-stars {
+  top: 20%;
+  right: 3%;
+  width: 50px;
+}
+.ethos-section .doodle-anchor {
+  bottom: 12%;
+  right: 6%;
+  width: 18px;
+}
+.newsletter-section .doodle-compass {
+  top: 50%;
+  left: 6%;
+  width: 44px;
+  transform: translateY(-50%);
+}
+@keyframes doodleSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@media (max-width: 768px) {
+  .doodle-accents .doodle {
+    opacity: 0.5;
+    transform: scale(0.7);
+  }
+  .hero-section .doodle-compass { top: 5%; right: 4%; width: 36px; }
+  .hero-section .doodle-stars { top: 10%; left: 3%; width: 44px; }
+  .hero-section .doodle-wave { display: none; }
+  .hero-section .doodle-anchor { display: none; }
+  .section .doodle-arrow,
+  .section .doodle-route,
+  .section .doodle-hatch { display: none; }
 }
