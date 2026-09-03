@@ -338,7 +338,7 @@ router.post('/google', async (req, res) => {
         name: name || email.split('@')[0],
         email: email.toLowerCase(),
         googleId,
-        password: require('crypto').randomBytes(24).toString('hex'),
+        password: crypto.randomBytes(24).toString('hex'),
       });
     }
 
