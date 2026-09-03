@@ -23,19 +23,6 @@ import { INDEX_HTML } from './spa-index.js';
 
 export { ChatRoom };
 
-let seeded = false;
-
-async function lazySeed(env) {
-  if (seeded) return;
-  seeded = true;
-  try {
-    const result = await seedAll(env);
-    if (Object.keys(result).length) console.log('[SEED]', JSON.stringify(result));
-  } catch (err) {
-    console.error('[SEED] lazy seed error:', err.message);
-  }
-}
-
 const app = new Hono();
 
 app.use('*', cors({
@@ -111,7 +98,6 @@ app.onError((err, c) => {
 export default {
   fetch: async (request, env) => {
     setEnv(env);
-    lazySeed(env);
     const url = new URL(request.url);
     if (!url.pathname.startsWith('/api') && !url.pathname.startsWith('/ws')) {
       if (env.ASSETS) return env.ASSETS.fetch(request); // production: static assets + SPA fallback

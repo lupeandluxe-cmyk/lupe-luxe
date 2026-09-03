@@ -1,0 +1,98 @@
+[
+  {
+    "_id": "6a4fdd3a23da51b916ec0edf",
+    "slug": "custom-tees",
+    "__v": 0,
+    "active": true,
+    "createdAt": "2026-07-09T17:40:29.404Z",
+    "description": "Hand-painted custom t-shirts",
+    "name": "Custom Tees",
+    "order": 1,
+    "parent": null,
+    "updatedAt": "2026-07-09T17:40:55.403Z"
+  },
+  {
+    "_id": "6a4fdd3b23da51b916ec0ee2",
+    "slug": "hoodies",
+    "__v": 0,
+    "active": true,
+    "createdAt": "2026-07-09T17:40:30.107Z",
+    "description": "Premium hoodies and sweatshirts",
+    "name": "Hoodies",
+    "order": 2,
+    "parent": null,
+    "updatedAt": "2026-07-09T17:40:55.643Z"
+  },
+  {
+    "_id": "6a4fdd3b23da51b916ec0ee3",
+    "slug": "outerwear",
+    "__v": 0,
+    "active": true,
+    "createdAt": "2026-07-09T17:40:30.342Z",
+    "description": "Jackets and coats",
+    "name": "Outerwear",
+    "order": 3,
+    "parent": null,
+    "updatedAt": "2026-07-09T17:40:55.877Z"
+  },
+  {
+    "_id": "6a4fdd3b23da51b916ec0ee4",
+    "slug": "sweaters",
+    "__v": 0,
+    "active": true,
+    "createdAt": "2026-07-09T17:40:30.575Z",
+    "description": "Knit sweaters and cardigans",
+    "name": "Sweaters",
+    "order": 4,
+    "parent": null,
+    "updatedAt": "2026-07-09T17:40:56.111Z"
+  },
+  {
+    "_id": "6a4fdd3b23da51b916ec0ee5",
+    "slug": "thrift-vintage",
+    "__v": 0,
+    "active": true,
+    "createdAt": "2026-07-09T17:40:30.809Z",
+    "description": "Curated vintage finds",
+    "name": "Thrift Vintage",
+    "order": 5,
+    "parent": null,
+    "updatedAt": "2026-07-09T17:40:56.345Z"
+  },
+  {
+    "_id": "6a4fdd3c23da51b916ec0ee6",
+    "slug": "limited-drops",
+    "__v": 0,
+    "active": true,
+    "createdAt": "2026-07-09T17:40:31.059Z",
+    "description": "Exclusive limited editions",
+    "name": "Limited Drops",
+    "order": 6,
+    "parent": null,
+    "updatedAt": "2026-07-09T17:40:56.590Z"
+  },
+  {
+    "_id": "6a4fdd3c23da51b916ec0ee7",
+    "slug": "bottoms",
+    "__v": 0,
+    "active": true,
+    "createdAt": "2026-07-09T17:40:31.322Z",
+    "description": "Pants and shorts",
+    "name": "Bottoms",
+    "order": 7,
+    "parent": null,
+    "updatedAt": "2026-07-09T17:40:56.824Z"
+  },
+  {
+    "_id": "6a4fdd3c23da51b916ec0ee8",
+    "slug": "accessories",
+    "__v": 0,
+    "active": true,
+    "createdAt": "2026-07-09T17:40:31.583Z",
+    "description": "Bags, hats, and more",
+    "name": "Accessories",
+    "order": 8,
+    "parent": null,
+    "updatedAt": "2026-07-09T17:40:57.057Z"
+  }
+]

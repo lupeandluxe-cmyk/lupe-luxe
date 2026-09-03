@@ -48,32 +48,22 @@ export default function Home() {
   }, []);
 
   const renderHero = (sec) => (
-    <section className="hero-section" ref={heroRef} key={sec._id}>
+    <section className="hero-section hero-ref" ref={heroRef} key={sec._id}>
       <div className="hero-glare" />
       <HeroBackground poster={sec.image} />
       <div className="hero-overlay" />
       <div className="hero-content">
-        <div className="hero-glass">
-          <div className="hero-badge">{sec.subtitle || 'Premium Streetwear'}</div>
-          {sec.title && (
-            <h1 className="hero-title">
-              {sec.title.split('\n').map((line, i) => <span key={i} className="hero-line">{line}</span>)}
-            </h1>
-          )}
-          {sec.text && <p className="hero-subtitle">{sec.text}</p>}
-          <div className="hero-actions">
-            {sec.buttonText && sec.buttonLink ? (
-              <Link to={sec.buttonLink} className="btn btn-primary btn-lg">
-                {sec.buttonText}
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-              </Link>
-            ) : (
-              <Link to="/products" className="btn btn-primary btn-lg">
-                Explore Collection
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-              </Link>
-            )}
-          </div>
+        <div className="hero-label">{sec.subtitle || 'Chapter I — The Wanderer'}</div>
+        <h1 className="hero-title hero-ref-title">
+          {(sec.title ? sec.title.split('\n') : ['BEYOND', 'THE ORDINARY.']).map((line, i) => (
+            <span key={i} className={`hero-line ${i > 0 ? 'hero-line-em' : ''}`}>{line}</span>
+          ))}
+        </h1>
+        <div className="hero-bottom">
+          <p className="hero-copy">{sec.text || 'A new expression of clothing.\nBuilt between the wilderness and the city.\nCreated for those writing their own story.'}</p>
+          <Link to={sec.buttonLink || '/products'} className="explore-link">
+            {sec.buttonText || 'Discover'} ↓
+          </Link>
         </div>
       </div>
       <div className="hero-scroll-indicator">

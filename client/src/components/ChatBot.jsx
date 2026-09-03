@@ -43,6 +43,11 @@ export default function ChatBot() {
   const [socket, setSocket] = useState(null);
   const endRef = useRef(null);
   const inputRef = useRef(null);
+  const timerRef = useRef([]);
+
+  useEffect(() => {
+    return () => { timerRef.current.forEach(clearTimeout); timerRef.current = []; };
+  }, []);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -53,13 +58,10 @@ export default function ChatBot() {
   }, [open]);
 
   useEffect(() => {
-    if (!open) return;
-    if (chatId) connectSocket(chatId);
-  }, [chatId, open]);
-
-  const connectSocket = (id) => {
+    if (!open || !chatId) return;
+    let ws;
     try {
-      const ws = new WebSocket(`${window.location.origin}/ws/chat/${id}`);
+      ws = new WebSocket(`${window.location.origin}/ws/chat/${chatId}`);
       ws.onopen = () => setAgentActive(true);
       ws.onmessage = (event) => {
         try {
@@ -74,7 +76,8 @@ export default function ChatBot() {
     } catch {
       setSocket(null);
     }
-  };
+    return () => { try { ws?.close(); } catch { /* ignore */ } };
+  }, [chatId, open]);
 
   const requestAgent = async () => {
     if (!user) {
@@ -86,11 +89,12 @@ export default function ChatBot() {
       const { data } = await api.post('/chats');
       setChatId(data._id);
       setMessages((prev) => [...prev, { id: Date.now(), text: 'Connecting you to a crew member...', sender: 'bot' }]);
-      setTimeout(() => {
+      const tid = setTimeout(() => {
         setMessages((prev) => [...prev, { id: Date.now() + 1, text: 'You\'re now chatting with a real person! They\'ll respond shortly. ⚓', sender: 'agent' }]);
         setAgentActive(true);
         setTyping(false);
       }, 1000);
+      timerRef.current.push(tid);
     } catch {
       setMessages((prev) => [...prev, { id: Date.now(), text: 'Something went wrong. Try again later.', sender: 'bot' }]);
       setTyping(false);
@@ -106,7 +110,7 @@ export default function ChatBot() {
       socket.send(JSON.stringify({ chatId, event: 'message:send', text: msg, sender: 'user' }));
     } else {
       setTyping(true);
-      setTimeout(() => {
+      const tid = setTimeout(() => {
         const answer = findAnswer(msg);
         if (answer === 'AGENT_REQUEST') {
           requestAgent();
@@ -115,6 +119,7 @@ export default function ChatBot() {
           setTyping(false);
         }
       }, 500 + Math.random() * 400);
+      timerRef.current.push(tid);
     }
   };
 
