@@ -1,11 +1,10 @@
 services:
   - type: web
-    name: lupe-and-luxe-api
-    env: node
-    rootDir: server
-    buildCommand: cd ../client && npm install && npm run build && cd ../server && npm install
-    startCommand: npm start
-    healthCheckPath: /api/health
+    name: lupe-luxe
+    runtime: node
+    plan: free
+    buildCommand: cd client && npm install && npm run build && cd ../server && npm install
+    startCommand: cd server && npm start
     envVars:
       - key: NODE_ENV
         value: production
@@ -13,13 +12,11 @@ services:
         sync: false
       - key: JWT_SECRET
         sync: false
-      - key: RAZORPAY_KEY_ID
-        sync: false
-      - key: RAZORPAY_KEY_SECRET
-        sync: false
       - key: CLOUDINARY_CLOUD_NAME
         sync: false
       - key: CLOUDINARY_API_KEY
         sync: false
       - key: CLOUDINARY_API_SECRET
         sync: false
+      - key: CLIENT_URL
+        value: https://lupe-luxe.onrender.com
