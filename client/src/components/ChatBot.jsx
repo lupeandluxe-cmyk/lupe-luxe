@@ -125,7 +125,22 @@ export default function ChatBot() {
       socket.send(JSON.stringify({ chatId, event: 'message:send', text: msg, sender: 'user' }));
     } else {
       setTyping(true);
-      const tid = setTimeout(() => {
+      try {
+        const history = messages.map((m) => ({ text: m.text, sender: m.sender }));
+        const { data } = await api.post('/chat/ai', { message: msg, history });
+        if (data.source === 'ai' && data.reply) {
+          setMessages((m) => [...m, { id: Date.now() + 1, text: data.reply, sender: 'bot' }]);
+          setTyping(false);
+        } else {
+          const answer = findAnswer(msg);
+          if (answer === 'AGENT_REQUEST') {
+            requestAgent();
+          } else {
+            setMessages((m) => [...m, { id: Date.now() + 1, text: answer, sender: 'bot' }]);
+            setTyping(false);
+          }
+        }
+      } catch {
         const answer = findAnswer(msg);
         if (answer === 'AGENT_REQUEST') {
           requestAgent();
@@ -133,8 +148,7 @@ export default function ChatBot() {
           setMessages((m) => [...m, { id: Date.now() + 1, text: answer, sender: 'bot' }]);
           setTyping(false);
         }
-      }, 500 + Math.random() * 400);
-      timerRef.current.push(tid);
+      }
     }
   };
 

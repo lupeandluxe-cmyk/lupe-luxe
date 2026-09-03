@@ -24,3 +24,5 @@ services:
         sync: false
       - key: VITE_GOOGLE_CLIENT_ID
         sync: false
+      - key: GOOGLE_GEMINI_API_KEY
+        sync: false

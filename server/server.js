@@ -209,6 +209,7 @@ async function start() {
   app.use('/api/upload', require('./routes/upload'));
   app.use('/api/chats', require('./routes/chat'));
   app.use('/api/reviews', require('./routes/reviews'));
+  app.use('/api/chat/ai', require('./routes/chat-ai'));
 
   app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
 
