@@ -208,6 +208,7 @@ async function start() {
   app.use('/api/seed', require('./routes/seed').router);
   app.use('/api/upload', require('./routes/upload'));
   app.use('/api/chats', require('./routes/chat'));
+  app.use('/api/reviews', require('./routes/reviews'));
 
   app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
 

@@ -5,6 +5,7 @@ import ProductCard from '../components/ProductCard';
 import Loader from '../components/Loader';
 import HeroBackground from '../components/HeroBackground';
 import DoodleAccents from '../components/DoodleAccents';
+import ReviewForm from '../components/ReviewForm';
 
 const TESTIMONIALS = [
   { name: 'Roronoa Zoro', text: '"The quality of this hoodie is insane. Lost my way finding the store, but totally worth it."', stars: 5 },
@@ -27,7 +28,17 @@ export default function Home() {
   const [latest, setLatest] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [reviews, setReviews] = useState([]);
+  const [reviewStats, setReviewStats] = useState({ average: 0, count: 0 });
   const heroRef = useRef(null);
+
+  const fetchReviews = async () => {
+    try {
+      const { data } = await api.get('/reviews?limit=6');
+      setReviews(data.reviews);
+      setReviewStats(data.stats);
+    } catch { /* ignore */ }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -46,6 +57,7 @@ export default function Home() {
       finally { setLoading(false); }
     };
     fetchData();
+    fetchReviews();
   }, []);
 
   const renderHero = (sec) => (
@@ -206,16 +218,36 @@ export default function Home() {
           <div className="section-header">
             <span className="section-subtitle">What They Say</span>
             <h2 className="section-title">Voices of the Crew</h2>
+            {reviewStats.count > 0 && (
+              <p className="section-desc">Average: {'★'.repeat(Math.round(reviewStats.average))}{'☆'.repeat(5 - Math.round(reviewStats.average))} ({reviewStats.count} review{reviewStats.count > 1 ? 's' : ''})</p>
+            )}
           </div>
           <div className="testimonials-grid">
-            {TESTIMONIALS.map((t, i) => (
+            {reviews.length > 0 ? reviews.map((r, i) => (
+              <div key={r._id || i} className="testimonial-card" style={{ animationDelay: `${i * 0.15}s`, opacity: 0, animation: 'slideUp 0.6s ease forwards' }}>
+                <div className="testimonial-stars">{'★'.repeat(r.rating)}{'☆'.repeat(5 - r.rating)}</div>
+                {r.title && <p className="testimonial-title">{r.title}</p>}
+                <p className="testimonial-text">"{r.text}"</p>
+                <p className="testimonial-author">— {r.name}{r.verified ? ' ✓' : ''}</p>
+              </div>
+            )) : TESTIMONIALS.map((t, i) => (
               <div key={i} className="testimonial-card" style={{ animationDelay: `${i * 0.15}s`, opacity: 0, animation: 'slideUp 0.6s ease forwards' }}>
                 <div className="testimonial-stars">{'★'.repeat(t.stars)}</div>
-                <p className="testimonial-text">{t.text}</p>
+                <p className="testimonial-text">"{t.text}"</p>
                 <p className="testimonial-author">— {t.name}</p>
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      <section className="section review-section">
+        <div className="container">
+          <div className="section-header">
+            <span className="section-subtitle">Share Your Experience</span>
+            <h2 className="section-title">Write a Review</h2>
+          </div>
+          <ReviewForm onSuccess={fetchReviews} />
         </div>
       </section>
 

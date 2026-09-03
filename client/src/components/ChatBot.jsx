@@ -3,22 +3,37 @@ import { useAuth } from '../context/AuthContext';
 import api from '../api/axios';
 
 const FAQ = [
-  { q: ['shipping', 'delivery', 'how long', 'ship', 'arrive'], a: 'Orders are processed within 1-2 business days. Domestic shipping takes 3-7 days, international 7-14 days. You\'ll receive a tracking link once shipped.' },
-  { q: ['return', 'refund', 'exchange', 'cancel'], a: 'We accept returns within 7 days of delivery. Items must be unworn with tags attached. Custom pieces are final sale. Initiate returns from your profile page.' },
-  { q: ['size', 'fit', 'measurement', 'sizing chart'], a: 'Each product page has size options. If unsure, go one size up for an oversized fit. Contact us for custom sizing on premium pieces.' },
-  { q: ['payment', 'pay', 'razorpay', 'upi', 'cod'], a: 'We accept Razorpay (cards, UPI, net banking), UPI QR (GPay/PhonePe/PayTM), and Cash on Delivery. All payments are secure.' },
-  { q: ['order', 'track', 'status', 'where is my'], a: 'Check your order status anytime from your Profile page. You\'ll see real-time updates on payment verification and shipping.' },
-  { q: ['contact', 'support', 'help', 'email', 'phone'], a: 'Reach us at lupeandluxe@gmail.com. We respond within 24 hours. For urgent queries, DM us on Instagram.' },
-  { q: ['product', 'custom', 'design', 'customize'], a: 'Yes! We offer custom designs. Browse our Custom Tees category or contact us with your design idea and we\'ll create something unique.' },
-  { q: ['discount', 'coupon', 'promo', 'offer', 'sale'], a: 'Apply coupon codes at checkout. Follow us on Instagram for exclusive drops and limited-time offers. New crew members get welcome discounts!' },
-  { q: ['premium', 'featured', 'limited', 'drop'], a: 'Limited Drops are our most exclusive pieces — each numbered and released in small batches. Check the Limited Drops category for current availability.' },
-  { q: ['hello', 'hi', 'hey', 'help', 'start'], a: 'Ahoy, Captain! ⚓ Welcome to Lupe & Luxe. I can help with orders, shipping, sizing, payments, or anything else. Just ask!' },
-  { q: ['human', 'agent', 'real person', 'talk to', 'support'], a: 'AGENT_REQUEST' },
+  { q: ['kya haal', 'kaise ho', 'kaisa hai', 'theek hu', 'main theek', 'sab theek', 'acha', 'badhiya', 'sahi hai', 'kya scene', 'kya chal raha', 'whats up', "what's up", 'sup', "how's it going", 'yo', 'hello', 'hi ', ' hey', 'hii', 'helloo', 'helo', 'hiiii', 'helooo', 'good morning', 'good evening', 'good night', 'namaste', 'namaskar', 'adaab'], a: 'Sab badhiya hai! ⚓ Welcome to Lupe & Luxe. Main aapki kya help kar sakta hun? Orders, shipping, sizing — kuch bhi poochho!' },
+  { q: ['kya bol', 'kaun ho', 'tumhara naam', 'naam kya', 'who are you', 'what are you', 'tum kaun', 'tu kaun'], a: 'Main Lupe & Luxe ka assistant hun! 🤖 Aapke orders, shipping, sizing, payments — sabke baare mein madad kar sakta hun. Batao kya chahiye?' },
+  { q: ['accha', 'theek hai', 'ok', 'okay', 'alright', 'nice', 'cool', 'awesome', 'great', 'perfect', 'lit', 'fire', 'amazing', 'love it', 'awesome hai', 'badiya'], a: 'Glad you like it! ⚓ Kuch aur poochna hai? Main yahan hun!' },
+  { q: ['bhai', 'yaar', 'dost', 'bro', 'dude', 'fam', 'boss', 'anna', 'bhaiya'], a: 'Haan bhai, batao kya help chahiye! ⚓ Lupe & Luxe mein aapka swagat hai!' },
+  { q: ['shipping', 'delivery', 'kab milega', 'kab aayega', 'deliver kab', 'shipping time', 'kitne din', 'kitne din mein', 'delivery time', 'ship', 'arrive', 'package'], a: 'Orders 1-2 business days mein process hote hain. Domestic shipping 3-7 days, international 7-14 days. Tracking link mil jayega shipped hone pe! 📦' },
+  { q: ['return', 'refund', 'exchange', 'cancel', 'wapas karna', 'return karna', 'badalna', 'paisa wapas', 'money back', 'replacement'], a: 'Delivery ke 7 din andar return kar sakte ho. Items unworn aur tags attached hone chahiye. Custom pieces final sale hain. Profile page se initiate karo! 🔄' },
+  { q: ['size', 'fit', 'measurement', 'sizing chart', 'size kaise', 'kaunsa size', 'kaise size', 'kitna bada', 'kitna chhota', 'loose', 'tight', 'oversized'], a: 'Har product page pe size options hain. Doubt ho toh ek size up lo oversized fit ke liye. Premium pieces pe custom sizing bhi available hai! 📏' },
+  { q: ['payment', 'pay', 'razorpay', 'upi', 'cod', 'paisa', 'kitna price', 'price kitna', 'kitne ka', 'mehnga', 'sasta', 'cost', 'rate'], a: 'Razorpay (cards, UPI, net banking), UPI QR (GPay/PhonePe/PayTM), aur Cash on Delivery accept karte hain. Sab secure hai! 💳' },
+  { q: ['price', 'kitna', 'rate', 'cost', 'mehnga', 'sasta', 'cheap', 'affordable', 'budget'], a: 'Hamare pieces premium quality ke hain aur prices justified hain. Har product page pe price dikha hai. Limited Drops zyada exclusive hain! 💰' },
+  { q: ['order', 'track', 'status', 'where is my', 'mera order', 'order kahan', 'tracking', 'order status'], a: 'Profile page pe order status check karo — real-time updates milenge payment verification aur shipping ke baare mein! 📍' },
+  { q: ['contact', 'support', 'help', 'email', 'phone', 'baat karni', 'sunao', 'sun', 'bolo'], a: 'Email karo lupeandluxe@gmail.com pe — 24 hours mein reply mil jayega. Urgent ho toh Instagram pe DM karo! 📧' },
+  { q: ['product', 'custom', 'design', 'customize', 'banwana', 'design karna', 'apna design', 'custom piece'], a: 'Haan! Custom designs available hain. Custom Tees category browse karo ya apna design idea bhejo — unique piece bana denge! 🎨' },
+  { q: ['discount', 'coupon', 'promo', 'offer', 'sale', 'sasta', 'bachat', 'kam price', 'deal'], a: 'Checkout pe coupon codes lagao. Instagram pe follow karo exclusive drops ke liye. New crew members ko welcome discount milta hai! 🏷️' },
+  { q: ['premium', 'featured', 'limited', 'drop', 'exclusive', 'khaas', 'special', 'rare'], a: ' Limited Drops hamare sabse exclusive pieces hain — har ek numbered aur small batches mein release hota hai. Limited Drops category mein dekho! 💎' },
+  { q: ['kya kar rahe', 'kya scene', 'kya baat', 'kya hua', 'kya masla', 'kya problem', 'everything ok', 'sab thik', 'sab changa'], a: 'Sab changa hai! ⚓ Lupe & Luxe chal raha hai full josh mein. Aapki kya help kar sakta hun?' },
+  { q: ['thank', 'shukriya', 'dhanyavaad', 'thanks', 'ty', 'thank you', 'thanku'], a: 'Arey! Kab ka thank you! ⚓ Kuch aur poochna hai toh batao!' },
+  { q: ['bye', 'alvida', 'chalta hun', 'ja raha', 'ja rahi', 'see you', 'goodbye', 'tata', 'phir milenge'], a: 'Bye bye! ⚓ Lupe & Luxe mein aapka swagat hai. Kabhi bhi aana!' },
+  { q: ['kya dikha', 'show me', 'kuch dikha', 'products dikhao', 'designs dikhao', 'browse', 'dekhna hai'], a: 'Products browse karo! 🛍️ Home page pe sab categories hain — Custom Tees, Hoodies, Limited Drops, aur bahut kuch!' },
+  { q: ['kya chal raha', 'new arrivals', 'naya kya', 'latest', 'fresh', 'new drop', 'abhi kya'], a: 'Fresh drops aa rahe hain! 🔥 Home page pe "Just Arrived" section dekho ya Products page pe naye pieces dekho!' },
+  { q: ['mujhe chahiye', 'mujhe lena', 'kharidna', 'buy karna', 'purchase', 'kharid', 'lenge'], a: 'Bas product select karo aur cart mein daal do! 💳 Checkout pe payment options mil jayenge — UPI, cards, COD sab available hai!' },
+  { q: ['kya milta', 'benefit', 'fayda', 'why lupe', 'kyu lupe', 'why you'], a: 'Lupe & Luxe — premium thrift aur custom clothing! Sustainable fashion, unique designs, aur Grand Line vibes. Har piece khaas hai! ⚓' },
+  { q: ['instagram', 'social', 'follow', 'insta'], a: 'Instagram pe follow karo @LupeAndLuxe — naye drops, behind-the-scenes, aur exclusive offers wahan milte hain! 📸' },
+  { q: ['kya bolte', 'bol', 'speak', 'hindi', 'english', 'hinglish', 'mixed'], a: 'Main Hindi aur English dono samajhta hun! 🤗 Jo bhi comfortable ho, woh likho — main help karunga!' },
+  { q: ['human', 'agent', 'real person', 'talk to', 'support', 'insaan', 'aadmi', 'person'], a: 'AGENT_REQUEST' },
+  { q: ['review', 'reviews', 'rating', 'star', 'feedback', 'review dena', 'review karna'], a: 'Aap review de sakte ho! ⚓ Hamari website pe "Reviews" section hai — wahan jaakar apna experience share karo. Aapki rai hamare liye important hai!' },
+  { q: ['review kaise', 'how to review', 'review kahan', 'kahan review'], a: 'Home page pe "Voices of the Crew" section mein jaakar apna review de sakte ho! Ya "Write a Review" button pe click karo. 📝' },
 ];
 
 function findAnswer(input) {
   const text = input.toLowerCase().trim();
-  if (!text) return FAQ[FAQ.length - 2].a;
+  if (!text) return 'Batao kya help chahiye! ⚓';
   for (const item of FAQ) {
     for (const kw of item.q) {
       if (text.includes(kw)) {
@@ -27,14 +42,14 @@ function findAnswer(input) {
       }
     }
   }
-  return FAQ[FAQ.length - 2].a;
+  return 'Samajh nahi aaya! 🤔 Thoda aur clearly batao? Main orders, shipping, sizing, payments, reviews — sabke baare mein madad kar sakta hun. Ya "Talk to Agent" se real person se baat karo!';
 }
 
 export default function ChatBot() {
   const { user } = useAuth();
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState([
-    { id: 0, text: 'Ahoy Captain! ⚓ Ask me anything about Lupe & Luxe.', sender: 'bot' },
+    { id: 0, text: 'Ahoy Captain! ⚓ Lupe & Luxe mein swagat hai! Kuch bhi poochho — orders, shipping, sizing, reviews — main help karunga!', sender: 'bot' },
   ]);
   const [input, setInput] = useState('');
   const [typing, setTyping] = useState(false);
@@ -125,7 +140,7 @@ export default function ChatBot() {
 
   const quickReplies = agentActive
     ? []
-    : ['Shipping info', 'Return policy', 'Sizing help', 'Talk to Agent'];
+    : ['Shipping info', 'Size help', 'Write a Review', 'Talk to Agent'];
 
   return (
     <>
