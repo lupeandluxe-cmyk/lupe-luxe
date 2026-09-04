@@ -54,6 +54,25 @@ function ScrollToTop() {
   return null;
 }
 
+function LazyImageObserver() {
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('loaded');
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { rootMargin: '100px' }
+    );
+    document.querySelectorAll('img[loading="lazy"]').forEach((img) => observer.observe(img));
+    return () => observer.disconnect();
+  }, []);
+  return null;
+}
+
 function AppRoutes() {
   const isApp = useStandalone();
 
@@ -61,6 +80,7 @@ function AppRoutes() {
     <div className={`app ${isApp ? 'app-mode' : 'web-mode'}`}>
       <IntroOverlay />
       <ScrollToTop />
+      <LazyImageObserver />
       {!isApp && <Navbar />}
       <main className="main-content page-transition">
         <Routes>
