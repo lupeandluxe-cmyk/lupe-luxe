@@ -47,7 +47,7 @@ router.post('/register', async (req, res) => {
     const user = await User.create({ name: nameTrimmed, email: email.toLowerCase().trim(), password });
     const tokens = generateTokenPair(user._id);
     logger.login(email, true, req.ip, { action: 'register' });
-    res.status(201).json({ _id: user._id, name: user.name, email: user.email, isAdmin: user.isAdmin, ...tokens });
+    res.status(201).json({ _id: user._id, name: user.name, email: user.email, isAdmin: user.isAdmin(), ...tokens });
   } catch (err) {
     logger.error('Registration error', { message: err.message, email: req.body?.email });
     res.status(500).json({ message: 'Registration failed' });
@@ -70,7 +70,7 @@ router.post('/login', async (req, res) => {
       );
       const tokens = generateTokenPair(user._id);
       logger.login(email, true, req.ip, { action: 'login' });
-      res.json({ _id: user._id, name: user.name, email: user.email, isAdmin: user.isAdmin, ...tokens });
+      res.json({ _id: user._id, name: user.name, email: user.email, isAdmin: user.isAdmin(), ...tokens });
     } else {
       if (user) await recordLoginAttempt(email, false);
       logger.login(email, false, req.ip, { action: 'login_failed' });
@@ -158,7 +158,7 @@ router.post('/verify-otp', async (req, res) => {
     }
     const tokens = generateTokenPair(user._id);
     logger.otp(cleanEmail, 'verified', req.ip);
-    res.json({ _id: user._id, name: user.name, email: user.email, isAdmin: user.isAdmin, ...tokens });
+    res.json({ _id: user._id, name: user.name, email: user.email, isAdmin: user.isAdmin(), ...tokens });
   } catch (err) {
     logger.error('Verify OTP error', { message: err.message });
     res.status(500).json({ message: 'Verification failed' });
@@ -239,7 +239,7 @@ router.post('/admins', protect, admin, async (req, res) => {
     if (exists) return res.status(400).json({ message: 'A user with this email already exists' });
     const user = await User.create({ name: nameTrimmed, email: email.toLowerCase().trim(), password, isAdmin: true });
     logger.admin(req.user.email, 'admin_created', { createdId: user._id });
-    res.status(201).json({ _id: user._id, name: user.name, email: user.email, isAdmin: user.isAdmin, blocked: user.blocked, createdAt: user.createdAt });
+    res.status(201).json({ _id: user._id, name: user.name, email: user.email, isAdmin: user.isAdmin(), blocked: user.blocked, createdAt: user.createdAt });
   } catch (err) {
     logger.error('Create admin error', { message: err.message });
     res.status(500).json({ message: 'Failed to create admin' });
@@ -344,7 +344,7 @@ router.post('/google', async (req, res) => {
 
     const tokens = generateTokenPair(user._id);
     logger.login(email, true, req.ip, { action: 'google' });
-    res.json({ _id: user._id, name: user.name, email: user.email, isAdmin: user.isAdmin, ...tokens });
+    res.json({ _id: user._id, name: user.name, email: user.email, isAdmin: user.isAdmin(), ...tokens });
   } catch (err) {
     logger.error('Google auth error', { message: err.message });
     res.status(401).json({ message: 'Invalid Google credential' });
