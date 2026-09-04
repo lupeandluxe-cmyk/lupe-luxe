@@ -160,8 +160,16 @@ export default function ChatBot() {
     <>
       <div className={`chatbot-toggle ${open ? 'active' : ''}`} onClick={() => setOpen(!open)} role="button" tabIndex={0} onKeyDown={(e) => e.key === 'Enter' && setOpen(!open)} aria-label="Chat">
         {!open && (
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+          <svg className="chatbot-mascot-icon" width="32" height="32" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="32" cy="32" r="30" fill="#0b0d0b" stroke="#a99769" strokeWidth="2"/>
+            <ellipse cx="32" cy="30" rx="14" ry="13" fill="#f2efe7"/>
+            <circle cx="26" cy="28" r="3" fill="#0b0d0b"/>
+            <circle cx="38" cy="28" r="3" fill="#0b0d0b"/>
+            <circle cx="27" cy="27" r="1" fill="#fff"/>
+            <circle cx="39" cy="27" r="1" fill="#fff"/>
+            <path d="M27 35 q5 4 10 0" stroke="#0b0d0b" strokeWidth="1.8" fill="none" strokeLinecap="round"/>
+            <path d="M25 18 L32 12 L39 18" fill="#a99769" stroke="#8a7c55" strokeWidth="1"/>
+            <circle cx="40" cy="16" r="2" fill="#f2efe7" stroke="#a99769" strokeWidth="0.8"/>
           </svg>
         )}
       </div>
@@ -169,7 +177,18 @@ export default function ChatBot() {
       <div className={`chatbot-panel ${open ? 'open' : ''}`}>
         <div className="chatbot-header">
           <div className="chatbot-header-info">
-            <span className="chatbot-avatar">{agentActive ? '👤' : 'L'}</span>
+            <span className="chatbot-avatar">
+              {agentActive ? '👤' : (
+                <svg width="24" height="24" viewBox="0 0 64 64" fill="none">
+                  <circle cx="32" cy="32" r="30" fill="#0b0d0b" stroke="#a99769" strokeWidth="2"/>
+                  <ellipse cx="32" cy="30" rx="14" ry="13" fill="#f2efe7"/>
+                  <circle cx="26" cy="28" r="3" fill="#0b0d0b"/>
+                  <circle cx="38" cy="28" r="3" fill="#0b0d0b"/>
+                  <path d="M27 35 q5 4 10 0" stroke="#0b0d0b" strokeWidth="1.8" fill="none" strokeLinecap="round"/>
+                  <path d="M25 18 L32 12 L39 18" fill="#a99769"/>
+                </svg>
+              )}
+            </span>
             <div>
               <p className="chatbot-name">{agentActive ? 'Crew Member' : 'Lupe & Luxe'}</p>
               <p className="chatbot-status">{agentActive ? '🟢 Online' : '🤖 Auto assistant'}</p>
