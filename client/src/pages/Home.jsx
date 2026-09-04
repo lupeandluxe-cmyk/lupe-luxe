@@ -40,7 +40,7 @@ export default function Home() {
         setFeatured(featRes.data);
         setLatest(latRes.data);
         setCategories(catRes.data);
-      } catch (err) { console.error(err); }
+      } catch (err) { /* silent */ }
       finally { setLoading(false); }
     };
     fetchData();

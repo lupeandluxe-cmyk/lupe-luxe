@@ -10,7 +10,7 @@ export default function AdminProducts() {
   useEffect(() => { fetchProducts(); }, []);
 
   const fetchProducts = async () => {
-    try { const res = await api.get('/products/all'); setProducts(res.data); } catch (e) { console.error(e); }
+    try { const res = await api.get('/products/all'); setProducts(res.data); } catch (e) { /* silent */ }
     finally { setLoading(false); }
   };
 

@@ -9,7 +9,7 @@ export default function AdminOrders() {
   useEffect(() => { fetchOrders(); }, []);
 
   const fetchOrders = async () => {
-    try { const res = await api.get('/orders'); setOrders(res.data); } catch (e) { console.error(e); }
+    try { const res = await api.get('/orders'); setOrders(res.data); } catch (e) { /* silent */ }
     finally { setLoading(false); }
   };
 

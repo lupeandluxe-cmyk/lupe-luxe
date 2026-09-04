@@ -6,7 +6,6 @@ function randomBetween(min, max) {
 
 export default function HeroBackground({ poster }) {
   const canvasRef = useRef(null);
-  const fallbackImgRef = useRef(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -427,7 +426,7 @@ export default function HeroBackground({ poster }) {
 
   return (
     <>
-      {poster && <img ref={fallbackImgRef} src={poster} alt="" className="hero-canvas-fallback" />}
+      {poster && <img src={poster} alt="" className="hero-canvas-fallback" />}
       <canvas ref={canvasRef} className="hero-canvas-bg" />
     </>
   );

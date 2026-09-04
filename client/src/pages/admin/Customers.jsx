@@ -12,7 +12,7 @@ export default function AdminCustomers() {
     try {
       const res = await api.get('/customers' + (search ? `?search=${search}` : ''));
       setCustomers(res.data);
-    } catch (e) { console.error(e); }
+    } catch (e) { /* silent */ }
     finally { setLoading(false); }
   };
 

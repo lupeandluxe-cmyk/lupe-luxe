@@ -34,7 +34,7 @@ export default function OrderConfirm() {
         if (searchParams.get('pay') === '1' && data.paymentMethod === 'razorpay' && !data.isPaid) {
           setTimeout(() => handlePay(data), 500);
         }
-      } catch (err) { console.error(err); }
+      } catch (err) { /* silent */ }
       finally { setLoading(false); }
     };
     fetchOrder();
