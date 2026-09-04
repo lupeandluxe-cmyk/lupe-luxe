@@ -351,21 +351,4 @@ router.post('/google', async (req, res) => {
   }
 });
 
-router.post('/fix-admin-role', async (req, res) => {
-  try {
-    const { email, secret } = req.body;
-    if (secret !== 'lupe-fix-admin-2026') {
-      return res.status(403).json({ message: 'Forbidden' });
-    }
-    const user = await User.findOne({ email: email.toLowerCase().trim() });
-    if (!user) return res.status(404).json({ message: 'User not found' });
-    const oldRole = user.role;
-    user.role = 'admin';
-    await user.save();
-    res.json({ message: 'Role updated', oldRole, newRole: user.role });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
-
 module.exports = router;
