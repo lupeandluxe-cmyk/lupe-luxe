@@ -17,6 +17,7 @@ import Checkout from './pages/Checkout';
 import OrderConfirm from './pages/OrderConfirm';
 import Login from './pages/Login';
 import OtpLogin from './pages/OtpLogin';
+import OtpRegister from './pages/OtpRegister';
 import Register from './pages/Register';
 import Profile from './pages/Profile';
 import AdminDashboard from './pages/admin/Dashboard';
@@ -90,6 +91,7 @@ function AppRoutes() {
           <Route path="/cart" element={<Cart />} />
           <Route path="/login" element={<Login />} />
           <Route path="/otp-login" element={<OtpLogin />} />
+          <Route path="/otp-register" element={<OtpRegister />} />
           <Route path="/register" element={<Register />} />
           <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
           <Route path="/checkout" element={<PrivateRoute><Checkout /></PrivateRoute>} />

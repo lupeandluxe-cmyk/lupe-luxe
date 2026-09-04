@@ -124,7 +124,7 @@ router.post('/send-otp', async (req, res) => {
 
 router.post('/verify-otp', async (req, res) => {
   try {
-    const { email, otp } = req.body;
+    const { email, otp, name } = req.body;
     if (!email || !otp) {
       return res.status(400).json({ message: 'Email and OTP are required' });
     }
@@ -152,9 +152,9 @@ router.post('/verify-otp', async (req, res) => {
     await Otp.deleteOne({ _id: record._id });
     let user = await User.findOne({ email: cleanEmail });
     if (!user) {
-      const name = cleanEmail.split('@')[0];
+      const userName = (name && name.trim()) || cleanEmail.split('@')[0];
       const tempPassword = crypto.randomBytes(16).toString('hex');
-      user = await User.create({ name, email: cleanEmail, password: tempPassword });
+      user = await User.create({ name: userName, email: cleanEmail, password: tempPassword });
     }
     const tokens = generateTokenPair(user._id);
     logger.otp(cleanEmail, 'verified', req.ip);

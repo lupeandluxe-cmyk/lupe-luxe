@@ -75,6 +75,9 @@ export default function Register() {
             <button type="submit" className="btn btn-primary btn-block btn-lg">Join Now →</button>
           </form>
           <div className="auth-divider"><span>or</span></div>
+          <Link to="/otp-register" className="btn btn-outline btn-block btn-lg" style={{ textAlign: 'center' }}>
+            Register with OTP →
+          </Link>
           <div ref={googleBtnRef} className="google-btn-wrapper" />
           <p className="auth-footer">
             Already a member? <Link to="/login">Sign In</Link>
