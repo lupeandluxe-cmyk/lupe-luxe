@@ -6,6 +6,7 @@ import Loader from '../components/Loader';
 import HeroBackground from '../components/HeroBackground';
 import DoodleAccents from '../components/DoodleAccents';
 import ReviewForm from '../components/ReviewForm';
+import StarRating from '../components/StarRating';
 
 export default function Home() {
   const [sections, setSections] = useState([]);
@@ -194,6 +195,30 @@ export default function Home() {
         </section>
       )}
 
+      <section className="section editorial-section">
+        <div className="container">
+          <div className="editorial-grid">
+            <div className="editorial-image">
+              <img
+                src="https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=800&q=80"
+                alt="Curated streetwear"
+                loading="lazy"
+              />
+            </div>
+            <div className="editorial-content">
+              <span className="section-subtitle">The Lookbook</span>
+              <h2 className="editorial-title">Streetwear Meets Heritage</h2>
+              <p className="editorial-text">
+                Every piece is crafted for those who move between worlds —
+                from late-night sessions to weekend adventures. Premium fabrics,
+                bold graphics, and designs that don't follow trends, they set them.
+              </p>
+              <Link to="/products" className="btn btn-primary">Explore Collection</Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section className="section latest-section">
         <div className="container">
           <div className="section-header">
@@ -215,13 +240,15 @@ export default function Home() {
             <span className="section-subtitle">What They Say</span>
             <h2 className="section-title">Voices of the Crew</h2>
             {reviewStats.count > 0 && (
-              <p className="section-desc">Average: {'★'.repeat(Math.round(reviewStats.average))}{'☆'.repeat(5 - Math.round(reviewStats.average))} ({reviewStats.count} review{reviewStats.count > 1 ? 's' : ''})</p>
+              <p className="section-desc" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+                Average: <StarRating rating={reviewStats.average} size={14} /> ({reviewStats.count} review{reviewStats.count > 1 ? 's' : ''})
+              </p>
             )}
           </div>
           <div className="testimonials-grid">
             {reviews.length > 0 ? reviews.map((r, i) => (
               <div key={r._id || i} className="testimonial-card" style={{ animationDelay: `${i * 0.15}s`, opacity: 0, animation: 'slideUp 0.6s ease forwards' }}>
-                <div className="testimonial-stars">{'★'.repeat(r.rating)}{'☆'.repeat(5 - r.rating)}</div>
+                <StarRating rating={r.rating} size={14} />
                 {r.title && <p className="testimonial-title">{r.title}</p>}
                 <p className="testimonial-text">"{r.text}"</p>
                 <p className="testimonial-author">— {r.name}{r.verified ? ' ✓' : ''}</p>

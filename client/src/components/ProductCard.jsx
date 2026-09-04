@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
+import StarRating from './StarRating';
 
 export default function ProductCard({ product, index = 0 }) {
   const hasSale = product.salePrice && product.salePrice < product.price;
@@ -45,9 +46,7 @@ export default function ProductCard({ product, index = 0 }) {
               )}
             </span>
             <div className="product-card-rating">
-              <span className="stars">
-                {'★'.repeat(Math.floor(product.rating))}{'☆'.repeat(5 - Math.floor(product.rating))}
-              </span>
+              <StarRating rating={product.rating} size={12} />
               <span className="review-count">({product.numReviews})</span>
             </div>
           </div>

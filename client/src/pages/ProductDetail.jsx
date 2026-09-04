@@ -5,6 +5,7 @@ import { useCart } from '../context/CartContext';
 import Loader from '../components/Loader';
 import Message from '../components/Message';
 import ProductCard from '../components/ProductCard';
+import StarRating from '../components/StarRating';
 
 export default function ProductDetail() {
   const { id } = useParams();
@@ -93,9 +94,7 @@ export default function ProductDetail() {
             <h1 className="detail-title">{product.name}</h1>
 
             <div className="detail-rating">
-              <span className="stars">
-                {'★'.repeat(Math.floor(product.rating))}{'☆'.repeat(5 - Math.floor(product.rating))}
-              </span>
+              <StarRating rating={product.rating} size={16} />
               <span className="review-count">({product.numReviews} reviews)</span>
             </div>
 
@@ -179,7 +178,7 @@ export default function ProductDetail() {
             <div className="testimonials-grid">
               {reviews.map((r, i) => (
                 <div key={r._id || i} className="testimonial-card">
-                  <div className="testimonial-stars">{'★'.repeat(r.rating)}{'☆'.repeat(5 - r.rating)}</div>
+                  <StarRating rating={r.rating} size={14} />
                   {r.title && <p className="testimonial-title">{r.title}</p>}
                   <p className="testimonial-text">"{r.text}"</p>
                   <p className="testimonial-author">— {r.name}{r.verified ? ' ✓' : ''}</p>
