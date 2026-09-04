@@ -1,10 +1,9 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../api/axios';
 import ProductCard from '../components/ProductCard';
 import Loader from '../components/Loader';
 import HeroBackground from '../components/HeroBackground';
-import DoodleAccents from '../components/DoodleAccents';
 import ReviewForm from '../components/ReviewForm';
 import StarRating from '../components/StarRating';
 
@@ -16,9 +15,6 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [reviews, setReviews] = useState([]);
   const [reviewStats, setReviewStats] = useState({ average: 0, count: 0 });
-  const [newsletterEmail, setNewsletterEmail] = useState('');
-  const [newsletterMsg, setNewsletterMsg] = useState('');
-  const heroRef = useRef(null);
 
   const fetchReviews = async () => {
     try {
@@ -49,14 +45,13 @@ export default function Home() {
   }, []);
 
   const renderHero = (sec) => (
-    <section className="hero-section hero-ref" ref={heroRef} key={sec._id}>
+    <section className="hero-section" key={sec._id}>
       <div className="hero-glare" />
       <HeroBackground poster={sec.image} />
       <div className="hero-overlay" />
-      <DoodleAccents />
       <div className="hero-content">
         <div className="hero-label">{sec.subtitle || 'Chapter I — The Wanderer'}</div>
-        <h1 className="hero-title hero-ref-title">
+        <h1 className="hero-title">
           {(sec.title ? sec.title.split('\n') : ['BEYOND', 'THE ORDINARY.']).map((line, i) => (
             <span key={i} className={`hero-line ${i > 0 ? 'hero-line-em' : ''}`}>{line}</span>
           ))}
@@ -67,10 +62,6 @@ export default function Home() {
             {sec.buttonText || 'Discover'} ↓
           </Link>
         </div>
-      </div>
-      <div className="hero-scroll-indicator">
-        <span>Scroll</span>
-        <div className="hero-scroll-line" />
       </div>
     </section>
   );
@@ -90,8 +81,7 @@ export default function Home() {
         );
       case 'featured':
         return (
-          <section key={sec._id} className="section featured-section" style={{ position: 'relative' }}>
-            <DoodleAccents />
+          <section key={sec._id} className="section featured-section">
             <div className="container">
               <div className="section-header">
                 {sec.subtitle && <span className="section-subtitle">{sec.subtitle}</span>}
@@ -105,8 +95,7 @@ export default function Home() {
         );
       case 'collection':
         return (
-          <section key={sec._id} className="section categories-section" style={{ position: 'relative' }}>
-            <DoodleAccents />
+          <section key={sec._id} className="section categories-section">
             <div className="container">
               <div className="section-header">
                 {sec.subtitle && <span className="section-subtitle">{sec.subtitle}</span>}
@@ -114,24 +103,11 @@ export default function Home() {
                 {sec.text && <p className="section-desc">{sec.text}</p>}
               </div>
               <div className="categories-grid">
-                {categories.map((cat, i) => {
-                  const icons = {
-                    'Custom Tees': '✦',
-                    'Hoodies': '◆',
-                    'Outerwear': '▲',
-                    'Sweaters': '◇',
-                    'Thrift Vintage': '♦',
-                    'Limited Drops': '★',
-                    'Bottoms': '▼',
-                    'Accessories': '○',
-                  };
-                  return (
-                    <Link key={cat} to={`/products?category=${encodeURIComponent(cat)}`} className="category-card" style={{ '--delay': `${i * 0.1}s` }}>
-                      <span className="category-icon">{icons[cat] || '✦'}</span>
-                      <span className="category-name">{cat}</span>
-                    </Link>
-                  );
-                })}
+                {categories.map((cat, i) => (
+                  <Link key={cat} to={`/products?category=${encodeURIComponent(cat)}`} className="category-card" style={{ '--delay': `${i * 0.1}s` }}>
+                    <span className="category-name">{cat}</span>
+                  </Link>
+                ))}
               </div>
             </div>
           </section>
@@ -143,15 +119,14 @@ export default function Home() {
               <div className="ethos-grid">
                 {sec.items?.length > 0 ? sec.items.map((item, i) => (
                   <div key={i} className="ethos-card">
-                    <span className="ethos-icon">{item.icon || '✦'}</span>
                     <h3>{item.title}</h3>
                     <p>{item.text}</p>
                   </div>
                 )) : (
                   <>
-                    <div className="ethos-card"><span className="ethos-icon">♻️</span><h3>Sustainable Thrift</h3><p>Every thrifted piece is a victory against fast fashion.</p></div>
-                    <div className="ethos-card"><span className="ethos-icon">🎨</span><h3>Handcrafted Art</h3><p>Custom designs hand-applied by our team.</p></div>
-                    <div className="ethos-card"><span className="ethos-icon">🌊</span><h3>One Piece Inspired</h3><p>For those who chase dreams across the Grand Line.</p></div>
+                    <div className="ethos-card"><h3>Sustainable Thrift</h3><p>Every thrifted piece is a victory against fast fashion.</p></div>
+                    <div className="ethos-card"><h3>Handcrafted Art</h3><p>Custom designs hand-applied by our team.</p></div>
+                    <div className="ethos-card"><h3>One Piece Inspired</h3><p>For those who chase dreams across the Grand Line.</p></div>
                   </>
                 )}
               </div>
@@ -159,17 +134,7 @@ export default function Home() {
           </section>
         );
       case 'newsletter':
-        return (
-          <section key={sec._id} className="newsletter-section" style={{ position: 'relative' }}>
-            <DoodleAccents />
-            <div className="container">
-              <div className="newsletter-content">
-                <h2>{sec.title || 'Stay Updated'}</h2>
-                <p>{sec.text || 'Get notified about new drops and exclusive offers.'}</p>
-              </div>
-            </div>
-          </section>
-        );
+        return null;
       default:
         return null;
     }
@@ -269,36 +234,6 @@ export default function Home() {
             <h2 className="section-title">Write a Review</h2>
           </div>
           <ReviewForm onSuccess={fetchReviews} />
-        </div>
-      </section>
-
-      <section className="newsletter-section">
-        <div className="container">
-          <div className="newsletter-content">
-            <h2>Stay in the Loop</h2>
-            <p>Get notified about new drops, exclusive offers, and Grand Line adventures.</p>
-            {newsletterMsg ? (
-              <p className="newsletter-success">{newsletterMsg}</p>
-            ) : (
-              <form className="newsletter-form" onSubmit={(e) => {
-                e.preventDefault();
-                if (newsletterEmail.trim()) {
-                  setNewsletterMsg('You\'re on the crew! ⚓ Check your inbox.');
-                  setNewsletterEmail('');
-                }
-              }}>
-                <input
-                  type="email"
-                  className="newsletter-input"
-                  placeholder="your@email.com"
-                  value={newsletterEmail}
-                  onChange={(e) => setNewsletterEmail(e.target.value)}
-                  required
-                />
-                <button type="submit" className="btn btn-primary">Subscribe</button>
-              </form>
-            )}
-          </div>
         </div>
       </section>
     </div>

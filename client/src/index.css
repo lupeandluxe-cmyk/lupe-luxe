@@ -499,29 +499,6 @@ input, textarea, select { font-family: var(--font-body); }
 .hero-line { display: block; }
 .hero-line:last-child { color: var(--gold); }
 
-.hero-scroll-indicator {
-  position: absolute;
-  bottom: 2rem;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-  color: var(--gray-dark);
-  font-size: 0.65rem;
-  font-family: var(--font-button);
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  animation: fadeIn 1s ease 1.5s both;
-}
-.hero-scroll-line {
-  width: 1px; height: 40px;
-  background: linear-gradient(to bottom, var(--gold), transparent);
-  animation: scrollPulse 2s ease-in-out infinite;
-}
-@keyframes scrollPulse { 0%, 100% { opacity: 0.3; transform: scaleY(1); } 50% { opacity: 1; transform: scaleY(1.3); } }
-
 /* ============================================
    SECTIONS
    ============================================ */
@@ -795,7 +772,7 @@ input, textarea, select { font-family: var(--font-body); }
   opacity: 0;
   transition: opacity var(--transition);
 }
-.ethos-card:hover { border-color: var(--gold); transform: translateY(-6px); box-shadow: var(--shadow-gold); }
+.ethos-card:hover { border-color: var(--gold); }
 .ethos-card:hover::before { opacity: 1; }
 .ethos-icon { font-size: 2.8rem; display: block; margin-bottom: 1rem; }
 .ethos-card h3 { font-family: var(--font-heading); font-size: 1.2rem; font-weight: 600; margin-bottom: 0.5rem; }
@@ -924,7 +901,7 @@ input, textarea, select { font-family: var(--font-body); }
   border-radius: var(--radius-lg);
   transition: all var(--transition);
 }
-.testimonial-card:hover { border-color: var(--gold); transform: translateY(-4px); box-shadow: var(--shadow-gold); }
+.testimonial-card:hover { border-color: var(--gold); }
 .testimonial-stars { color: var(--gold); font-size: 0.9rem; margin-bottom: 0.75rem; letter-spacing: 3px; }
 .testimonial-text { color: var(--gray); font-size: 0.9rem; line-height: 1.7; font-style: italic; margin-bottom: 1rem; }
 .testimonial-author { font-family: var(--font-heading); font-weight: 600; font-size: 0.95rem; color: var(--white); }
@@ -2810,10 +2787,6 @@ input, textarea, select { font-family: var(--font-body); }
     letter-spacing:.35em;
 }
 
-.hero-ref .hero-scroll-indicator{
-    bottom:28px;
-}
-
 @media (max-width:700px){
 .hero-ref{ padding:14% 7%; }
     .hero-ref-title{ font-size:22vw; line-height:.85; }
@@ -2862,93 +2835,6 @@ input, textarea, select { font-family: var(--font-body); }
   font-size: 0.65rem;
   color: var(--gray);
   font-family: var(--font-accent);
-}
-
-/* ============================================
-   DOODLE ACCENTS
-   ========================================== */
-.doodle-accents {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 1;
-  overflow: hidden;
-}
-.doodle {
-  position: absolute;
-  color: var(--white);
-}
-.hero-section .doodle-compass {
-  top: 8%;
-  right: 8%;
-  width: 56px;
-  animation: doodleSpin 40s linear infinite;
-}
-.hero-section .doodle-stars {
-  top: 15%;
-  left: 6%;
-  width: 70px;
-}
-.hero-section .doodle-wave {
-  bottom: 18%;
-  right: 5%;
-  width: 100px;
-}
-.hero-section .doodle-anchor {
-  bottom: 22%;
-  left: 5%;
-  width: 20px;
-}
-.section .doodle-arrow {
-  top: 50%;
-  right: 4%;
-  width: 44px;
-  transform: translateY(-50%);
-}
-.section .doodle-route {
-  bottom: -8px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 80px;
-}
-.section .doodle-hatch {
-  top: 10px;
-  left: 10px;
-  width: 32px;
-}
-.categories-section .doodle-stars {
-  top: 20%;
-  right: 3%;
-  width: 50px;
-}
-.ethos-section .doodle-anchor {
-  bottom: 12%;
-  right: 6%;
-  width: 18px;
-}
-.newsletter-section .doodle-compass {
-  top: 50%;
-  left: 6%;
-  width: 44px;
-  transform: translateY(-50%);
-}
-@keyframes doodleSpin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-@media (max-width: 768px) {
-  .doodle-accents .doodle {
-    opacity: 0.5;
-    transform: scale(0.7);
-  }
-  .hero-section .doodle-compass { top: 5%; right: 4%; width: 36px; }
-  .hero-section .doodle-stars { top: 10%; left: 3%; width: 44px; }
-  .hero-section .doodle-wave { display: none; }
-  .hero-section .doodle-anchor { display: none; }
-  .section .doodle-arrow,
-  .section .doodle-route,
-  .section .doodle-hatch { display: none; }
 }
 
 /* ============================================
@@ -3033,51 +2919,6 @@ input, textarea, select { font-family: var(--font-body); }
 /* ============================================
    PREMIUM POLISH LAYER
    ========================================== */
-
-/* --- Grain texture overlay for premium feel --- */
-body::after {
-  content: '';
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  pointer-events: none;
-  opacity: 0.025;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  background-size: 200px;
-}
-
-/* --- Improved buttons with shimmer --- */
-.btn-primary::before {
-  content: '';
-  position: absolute;
-  top: 0; left: -100%;
-  width: 100%; height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
-  transition: left 0.5s ease;
-}
-.btn-primary:hover::before { left: 100%; }
-.btn-primary:focus-visible {
-  outline: 2px solid var(--gold);
-  outline-offset: 3px;
-}
-
-.btn-outline {
-  position: relative;
-  overflow: hidden;
-}
-.btn-outline::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(169,151,105,0.05), rgba(169,151,105,0.1));
-  opacity: 0;
-  transition: opacity 0.3s;
-}
-.btn-outline:hover::before { opacity: 1; }
-.btn-outline:focus-visible {
-  outline: 2px solid var(--gold);
-  outline-offset: 3px;
-}
 
 /* --- Focus rings for accessibility --- */
 input:focus-visible,
@@ -3189,18 +3030,6 @@ a:focus-visible {
 /* --- Testimonial card polish --- */
 .testimonial-card {
   position: relative;
-  overflow: hidden;
-}
-.testimonial-card::before {
-  content: '"';
-  position: absolute;
-  top: -10px; right: 10px;
-  font-family: var(--font-heading);
-  font-size: 6rem;
-  color: var(--gold);
-  opacity: 0.04;
-  line-height: 1;
-  pointer-events: none;
 }
 .testimonial-stars {
   letter-spacing: 2px;
@@ -3243,11 +3072,10 @@ a:focus-visible {
 /* --- Category card polish --- */
 .category-card {
   border: 1px solid rgba(255,255,255,0.04);
-  transition: all var(--transition);
+  transition: border-color var(--transition);
 }
 .category-card:hover {
   border-color: rgba(169,151,105,0.2);
-  box-shadow: 0 8px 30px rgba(0,0,0,0.2), 0 0 20px rgba(169,151,105,0.05);
 }
 
 /* --- Scrollbar polish --- */
@@ -3260,11 +3088,6 @@ a:focus-visible {
   background: var(--gold);
   color: var(--black);
   text-shadow: none;
-}
-
-/* --- Hero scroll indicator polish --- */
-.hero-scroll-indicator {
-  animation: fadeIn 1s ease 2s both;
 }
 
 /* --- Badge polish --- */

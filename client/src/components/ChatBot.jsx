@@ -159,67 +159,17 @@ export default function ChatBot() {
   return (
     <>
       <div className={`chatbot-toggle ${open ? 'active' : ''}`} onClick={() => setOpen(!open)} role="button" tabIndex={0} onKeyDown={(e) => e.key === 'Enter' && setOpen(!open)} aria-label="Chat">
-        {!open && <div className="chatbot-mascot">
-          <svg viewBox="0 0 120 150" xmlns="http://www.w3.org/2000/svg" className="chatbot-mascot-svg">
-            <defs>
-              <radialGradient id="eyeGrad" cx="40%" cy="35%" r="60%">
-                <stop offset="0%" stopColor="#2a1a3a" />
-                <stop offset="100%" stopColor="#0d0d1a" />
-              </radialGradient>
-            </defs>
-            {/* Body */}
-            <rect x="42" y="88" width="36" height="30" rx="12" className="mascot-body" />
-            <path d="M38 94 L50 88 L70 88 L82 94 L76 118 L60 112 L44 118 Z" className="mascot-coat" />
-            {/* Head */}
-            <circle cx="60" cy="54" r="34" className="mascot-head" />
-            {/* Hair fringe */}
-            <path d="M30 48 Q40 28 60 22 Q80 28 90 48" className="mascot-hair" fill="none" strokeWidth="3" strokeLinecap="round" />
-            <path d="M35 42 Q45 25 60 20 Q75 25 85 42" className="mascot-hair" fill="none" strokeWidth="2.5" strokeLinecap="round" opacity="0.5" />
-            {/* Hat */}
-            <path d="M22 38 Q60 10 98 38 Q92 30 78 28 Q60 32 42 28 Q28 30 22 38 Z" className="mascot-hat-top" />
-            <ellipse cx="60" cy="38" rx="40" ry="5" className="mascot-hat-band" />
-            <circle cx="86" cy="28" r="5.5" className="mascot-hat-skull" />
-            <circle cx="87" cy="28" r="2.5" className="mascot-hat-skull-inner" />
-            {/* Eyes - huge sparkly */}
-            <ellipse cx="43" cy="50" rx="10" ry="12" className="mascot-eye" />
-            <ellipse cx="77" cy="50" rx="10" ry="12" className="mascot-eye" />
-            <ellipse cx="43" cy="50" rx="6" ry="8" fill="url(#eyeGrad)" />
-            <ellipse cx="77" cy="50" rx="6" ry="8" fill="url(#eyeGrad)" />
-            {/* Primary catchlights */}
-            <circle cx="39" cy="45" r="4" className="mascot-catchlight" />
-            <circle cx="73" cy="45" r="4" className="mascot-catchlight" />
-            {/* Secondary catchlights */}
-            <circle cx="46" cy="54" r="2" className="mascot-catchlight" />
-            <circle cx="80" cy="54" r="2" className="mascot-catchlight" />
-            {/* Star catchlights */}
-            <path d="M39 48 h2 l-1.6 1.2 l0.6 -2 l0.6 2 Z" className="mascot-catchlight-star" />
-            <path d="M73 48 h2 l-1.6 1.2 l0.6 -2 l0.6 2 Z" className="mascot-catchlight-star" />
-            {/* Blush */}
-            <ellipse cx="30" cy="62" rx="7" ry="4" className="mascot-blush" opacity="0.35" />
-            <ellipse cx="90" cy="62" rx="7" ry="4" className="mascot-blush" opacity="0.35" />
-            {/* Mouth - tiny cute "w" */}
-            <path d="M55 66 q2 3 5 0 q3 3 5 0" className="mascot-mouth" strokeWidth="2.2" strokeLinecap="round" fill="none" />
-            {/* Nose - tiny dot */}
-            <circle cx="60" cy="59" r="1.5" className="mascot-nose" opacity="0.5" />
-            {/* Collar */}
-            <path d="M46 84 L60 92 L74 84 L60 98 Z" className="mascot-collar" />
-            <circle cx="60" cy="96" r="3.5" className="mascot-collar-knot" />
-            {/* Left arm */}
-            <rect x="24" y="94" width="18" height="8" rx="4" className="mascot-arm" />
-            <circle cx="24" cy="98" r="5.5" className="mascot-hand" />
-            {/* Right arm waving */}
-            <g className="mascot-wave-group">
-              <rect x="78" y="88" width="18" height="8" rx="4" className="mascot-arm" />
-              <circle cx="96" cy="86" r="5.5" className="mascot-hand" />
-            </g>
+        {!open && (
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
           </svg>
-        </div>}
+        )}
       </div>
 
       <div className={`chatbot-panel ${open ? 'open' : ''}`}>
         <div className="chatbot-header">
           <div className="chatbot-header-info">
-            <span className="chatbot-avatar">{agentActive ? '👤' : '☠'}</span>
+            <span className="chatbot-avatar">{agentActive ? '👤' : 'L'}</span>
             <div>
               <p className="chatbot-name">{agentActive ? 'Crew Member' : 'Lupe & Luxe'}</p>
               <p className="chatbot-status">{agentActive ? '🟢 Online' : '🤖 Auto assistant'}</p>
