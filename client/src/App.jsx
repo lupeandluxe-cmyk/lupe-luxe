@@ -6,6 +6,7 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ChatBot from './components/ChatBot';
 import BottomNav from './components/BottomNav';
+import IntroOverlay from './components/IntroOverlay';
 import AdminLayout from './components/AdminLayout';
 import useStandalone from './hooks/useStandalone';
 import Home from './pages/Home';
@@ -77,6 +78,7 @@ function AppRoutes() {
 
   return (
     <div className={`app ${isApp ? 'app-mode' : 'web-mode'}`}>
+      <IntroOverlay />
       <ScrollToTop />
       <LazyImageObserver />
       {!isApp && <Navbar />}
