@@ -426,9 +426,9 @@ export default function Home() {
             <div className="empty-state">
               <span className="empty-icon">✦</span>
               <h3>The jewel edit is being curated</h3>
-              <p>Explore accessories from the live catalogue meanwhile.</p>
-              <Link to="/products?audience=accessories" className="btn btn-outline" style={{ marginTop: '1rem' }}>
-                Shop accessories
+              <p>Explore new arrivals from the live catalogue meanwhile.</p>
+              <Link to="/products?sort=latest" className="btn btn-outline" style={{ marginTop: '1rem' }}>
+                Shop new arrivals
               </Link>
             </div>
           )}

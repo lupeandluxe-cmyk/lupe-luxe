@@ -77,38 +77,6 @@ router.get('/latest', async (req, res) => {
   }
 });
 
-function inferAudiences(product) {
-  const haystack = `${product.category || ''} ${product.name || ''} ${(product.tags || []).join(' ')}`.toLowerCase();
-  const found = new Set();
-  if (/\baccessories\b|\bcap\b|\bhat\b|\btote\b|\bbags?\b|\bkeychain\b|\bcharm\b/.test(haystack)) found.add('accessories');
-  if (/\bchain\b|\bbracelet\b|\brings?\b|\bearrings?\b|\bpendant\b|\bcharm\b|\bkeychain\b|\bjewels?\b|\bjewellery\b/.test(haystack)) found.add('jewels');
-  if (/\btee\b|\btees\b|\bhoodie\b|\bjacket\b|\bsweater\b|\bkimono\b|\bvest\b|\bcargo\b|\bpants\b|\bdenim\b|\bthrift\b|\bvintage\b|\blimited\b|\bbottoms?\b|\bouterwear\b|\bcustom\b|\bshirts?\b|\bjeans\b|\bjersey\b|\bjoggers?\b|\bdress\b/.test(haystack)) found.add('unisex');
-  if (found.size === 0) found.add('unisex');
-  return [...found];
-}
-
-// TEMPORARY one-time backfill. Removed after use.
-router.post('/migrate-audiences', async (req, res) => {
-  try {
-    if (req.body?.secret !== 'lupe-audience-backfill-2026') {
-      return res.status(403).json({ message: 'Forbidden' });
-    }
-    const query = req.body?.recompute
-      ? {}
-      : { $or: [{ audiences: { $exists: false } }, { audiences: { $size: 0 } }] };
-    const products = await Product.find(query);
-    let updated = 0;
-    for (const product of products) {
-      product.audiences = inferAudiences(product);
-      await product.save();
-      updated += 1;
-    }
-    res.json({ message: 'Audiences backfilled', updated, total: products.length });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
-
 router.get('/all', protect, admin, async (req, res) => {
   try {
     const products = await Product.find({}).sort({ createdAt: -1 });
