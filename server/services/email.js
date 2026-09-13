@@ -17,7 +17,7 @@ async function getTransporter() {
     service: 'gmail',
     auth: { user: emailUser, pass: emailPass },
   });
-  return transporter;
+  return { transporter, emailUser };
 }
 
 async function sendOrderEmail(order) {
@@ -78,8 +78,8 @@ async function sendOrderEmail(order) {
       </div>
     `;
 
-    await t.sendMail({
-      from: emailUser,
+    await t.transporter.sendMail({
+      from: t.emailUser,
       to: 'lupeandluxe@gmail.com',
       subject: `☠ New Order #${order._id.slice(-10).toUpperCase()} — ₹${order.totalPrice.toFixed(0)}`,
       html,
