@@ -80,9 +80,9 @@ router.get('/latest', async (req, res) => {
 function inferAudiences(product) {
   const haystack = `${product.category || ''} ${product.name || ''} ${(product.tags || []).join(' ')}`.toLowerCase();
   const found = new Set();
-  if (/accessor|cap|hat|tote|bag|keychain|charm/.test(haystack)) found.add('accessories');
-  if (/chain|bracelet|ring|earring|pendant|charm|keychain|jewel/.test(haystack)) found.add('jewels');
-  if (/tee|hoodie|jacket|sweater|kimono|vest|cargo|pants|denim|drop|thrift|vintage|limited|bottom|outerwear|custom|dress|shirt/.test(haystack)) found.add('unisex');
+  if (/\baccessories\b|\bcap\b|\bhat\b|\btote\b|\bbags?\b|\bkeychain\b|\bcharm\b/.test(haystack)) found.add('accessories');
+  if (/\bchain\b|\bbracelet\b|\brings?\b|\bearrings?\b|\bpendant\b|\bcharm\b|\bkeychain\b|\bjewels?\b|\bjewellery\b/.test(haystack)) found.add('jewels');
+  if (/\btee\b|\btees\b|\bhoodie\b|\bjacket\b|\bsweater\b|\bkimono\b|\bvest\b|\bcargo\b|\bpants\b|\bdenim\b|\bthrift\b|\bvintage\b|\blimited\b|\bbottoms?\b|\bouterwear\b|\bcustom\b|\bshirts?\b|\bjeans\b|\bjersey\b|\bjoggers?\b|\bdress\b/.test(haystack)) found.add('unisex');
   if (found.size === 0) found.add('unisex');
   return [...found];
 }
@@ -93,7 +93,10 @@ router.post('/migrate-audiences', async (req, res) => {
     if (req.body?.secret !== 'lupe-audience-backfill-2026') {
       return res.status(403).json({ message: 'Forbidden' });
     }
-    const products = await Product.find({ $or: [{ audiences: { $exists: false } }, { audiences: { $size: 0 } }] });
+    const query = req.body?.recompute
+      ? {}
+      : { $or: [{ audiences: { $exists: false } }, { audiences: { $size: 0 } }] };
+    const products = await Product.find(query);
     let updated = 0;
     for (const product of products) {
       product.audiences = inferAudiences(product);
