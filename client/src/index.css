@@ -59,6 +59,7 @@ html {
   scroll-behavior: smooth;
   scrollbar-width: thin;
   scrollbar-color: var(--gold) var(--cream);
+  overflow-x: clip;
 }
 
 ::-webkit-scrollbar {
@@ -1287,6 +1288,7 @@ select {
 }
 
 .circle-image {
+  display: block;
   width: 74px;
   height: 74px;
   padding: 3px;
@@ -1617,6 +1619,7 @@ select {
 
 .collection-media,
 .category-media {
+  display: block;
   overflow: hidden;
   aspect-ratio: 4 / 3;
   background: var(--cream);
@@ -1637,6 +1640,7 @@ select {
 
 .collection-body,
 .category-body {
+  display: block;
   padding: 1rem 1.05rem 1.15rem;
 }
 
@@ -4363,6 +4367,10 @@ select {
     font-size: clamp(2.1rem, 10vw, 2.8rem);
   }
 
+  .hero-media {
+    display: none;
+  }
+
   .products-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0.65rem;
@@ -4376,19 +4384,6 @@ select {
 
   .promo-inner {
     padding: 1.6rem 1.2rem;
-  }
-
-  .hero-media-badge {
-    position: static;
-    margin-top: 0.7rem;
-  }
-
-  .hero-image-card {
-    padding-bottom: 0.9rem;
-  }
-
-  .hero-image-card img {
-    height: 320px;
   }
 
   .product-card-info {
@@ -4413,19 +4408,31 @@ select {
   }
 
   .category-circles {
-    margin-right: -1.05rem;
-    margin-left: -1.05rem;
-    padding-right: 1.05rem;
-    padding-left: 1.05rem;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.6rem;
+    margin: 1.6rem 0 0;
+    padding: 0;
+    overflow: visible;
   }
 
   .circle-link {
-    min-width: 78px;
+    min-width: 0;
   }
 
   .circle-image {
-    width: 66px;
-    height: 66px;
+    width: 100%;
+    max-width: 78px;
+    height: auto;
+    aspect-ratio: 1 / 1;
+    margin: 0 auto;
+  }
+
+  .circle-name {
+    font-size: 0.62rem;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+    text-align: center;
   }
 
   .newsletter-form {
@@ -4485,6 +4492,18 @@ select {
 
   .chat-admin-layout,
   .chat-layout-admin {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-table-wrap {
+    overflow-x: auto;
+  }
+
+  .admin-table {
+    min-width: 620px;
+  }
+
+  .chat-input-admin {
     grid-template-columns: 1fr;
   }
 
