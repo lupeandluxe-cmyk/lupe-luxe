@@ -44,7 +44,7 @@ export default function Profile() {
   return (
     <div className="profile-page">
       <div className="container">
-        <h1 className="page-title">⚓ My Profile</h1>
+        <h1 className="page-title">My Profile</h1>
         <div className="profile-layout">
           <div className="profile-card">
             <h2>Account Details</h2>
@@ -77,8 +77,8 @@ export default function Profile() {
             <h2>My Orders</h2>
             {ordersLoading ? <Loader /> : orders.length === 0 ? (
               <div className="empty-state">
-                <span className="empty-icon">🏴‍☠️</span>
-                <p>No orders yet. Time to find treasure!</p>
+                <span className="empty-icon">✦</span>
+                <p>No orders yet. Your recent purchases will appear here.</p>
               </div>
             ) : (
               <div className="orders-list">

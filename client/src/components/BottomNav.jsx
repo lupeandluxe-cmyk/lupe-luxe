@@ -37,8 +37,8 @@ const tabs = [
 
 export default function BottomNav() {
   const { user } = useAuth();
-  const { cart } = useCart();
-  const cartCount = cart?.reduce((s, i) => s + i.quantity, 0) || 0;
+  const { items } = useCart();
+  const cartCount = items?.reduce((s, i) => s + (i.qty || 0), 0) || 0;
 
   const getBadge = (tab) => {
     if (tab.badge === 'cartCount' && cartCount > 0) return cartCount > 99 ? '99+' : cartCount;

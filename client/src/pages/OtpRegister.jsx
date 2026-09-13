@@ -2,16 +2,19 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Message from '../components/Message';
+import TurnstileField, { isTurnstileConfigured } from '../components/TurnstileField';
 
 export default function OtpRegister() {
   const [step, setStep] = useState('details');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [captchaToken, setCaptchaToken] = useState('');
   const [otp, setOtp] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [otpSent, setOtpSent] = useState(false);
   const [countdown, setCountdown] = useState(0);
+  const [captchaReset, setCaptchaReset] = useState(0);
   const { requestOtp, verifyOtp } = useAuth();
   const navigate = useNavigate();
 
@@ -29,11 +32,14 @@ export default function OtpRegister() {
     e.preventDefault();
     setError('');
     if (!name.trim()) return setError('Please enter your name');
+    if (isTurnstileConfigured() && !captchaToken) return setError('Please complete the security check.');
     setLoading(true);
     try {
-      await requestOtp(email);
+      await requestOtp(email, captchaToken || undefined);
       setOtpSent(true);
       setStep('otp');
+      setCaptchaToken('');
+      setCaptchaReset((value) => value + 1);
       startCountdown();
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to send OTP');
@@ -45,10 +51,16 @@ export default function OtpRegister() {
   const handleResend = async () => {
     if (countdown > 0) return;
     setError('');
+    if (isTurnstileConfigured() && !captchaToken) {
+      setError('Please complete the security check before resending the code.');
+      return;
+    }
     setLoading(true);
     try {
-      await requestOtp(email);
+      await requestOtp(email, captchaToken || undefined);
       setOtpSent(true);
+      setCaptchaToken('');
+      setCaptchaReset((value) => value + 1);
       startCountdown();
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to resend OTP');
@@ -112,6 +124,7 @@ export default function OtpRegister() {
               <button type="submit" className="btn btn-primary btn-block btn-lg" disabled={loading}>
                 {loading ? 'Sending...' : 'Send Verification Code →'}
               </button>
+              <TurnstileField onVerify={setCaptchaToken} resetSignal={captchaReset} />
             </form>
           ) : (
             <form onSubmit={handleVerify}>

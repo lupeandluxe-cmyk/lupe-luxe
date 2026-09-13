@@ -2,10 +2,12 @@ import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Message from '../components/Message';
+import TurnstileField, { isTurnstileConfigured } from '../components/TurnstileField';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [captchaToken, setCaptchaToken] = useState('');
   const [error, setError] = useState('');
   const { login, googleLogin } = useAuth();
   const navigate = useNavigate();
@@ -14,8 +16,13 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+    if (isTurnstileConfigured() && !captchaToken) {
+      setError('Please complete the security check.');
+      return;
+    }
     try {
-      await login(email, password);
+      await login(email, password, captchaToken || undefined);
       navigate(searchParams.get('redirect') || '/');
     } catch (err) {
       setError(err.response?.data?.message || 'Invalid credentials');
@@ -62,8 +69,9 @@ export default function Login() {
               <label>Password</label>
               <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" required />
             </div>
-            <button type="submit" className="btn btn-primary btn-block btn-lg">Set Sail →</button>
+            <button type="submit" className="btn btn-primary btn-block btn-lg">Sign In →</button>
           </form>
+          <TurnstileField onVerify={setCaptchaToken} />
           <div className="auth-divider"><span>or</span></div>
           <div ref={googleBtnRef} className="google-btn-wrapper" />
           <p style={{ textAlign: 'center', marginTop: '12px' }}>

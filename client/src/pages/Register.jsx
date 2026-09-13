@@ -2,12 +2,14 @@ import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Message from '../components/Message';
+import TurnstileField, { isTurnstileConfigured } from '../components/TurnstileField';
 
 export default function Register() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
+  const [captchaToken, setCaptchaToken] = useState('');
   const [error, setError] = useState('');
   const { register, googleLogin } = useAuth();
   const navigate = useNavigate();
@@ -16,8 +18,9 @@ export default function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (password !== confirm) return setError('Passwords do not match');
+    if (isTurnstileConfigured() && !captchaToken) return setError('Please complete the security check.');
     try {
-      await register(name, email, password);
+      await register(name, email, password, captchaToken || undefined);
       navigate('/');
     } catch (err) {
       setError(err.response?.data?.message || 'Registration failed');
@@ -74,6 +77,7 @@ export default function Register() {
             </div>
             <button type="submit" className="btn btn-primary btn-block btn-lg">Join Now →</button>
           </form>
+          <TurnstileField onVerify={setCaptchaToken} />
           <div className="auth-divider"><span>or</span></div>
           <Link to="/otp-register" className="btn btn-outline btn-block btn-lg" style={{ textAlign: 'center' }}>
             Register with OTP →

@@ -3,6 +3,7 @@ const express = require('express');
 const User = require('../models/User');
 const Otp = require('../models/Otp');
 const { protect, admin, generateTokenPair, refreshToken, checkLoginAttempts, recordLoginAttempt } = require('../middleware/auth');
+const { verifyTurnstile } = require('../middleware/turnstile');
 const { sendOtpEmail } = require('../services/email');
 const logger = require('../services/logger');
 
@@ -22,7 +23,7 @@ function validatePassword(password) {
   return null;
 }
 
-router.post('/register', async (req, res) => {
+router.post('/register', verifyTurnstile, async (req, res) => {
   try {
     const { name, email, password } = req.body;
     if (!name || !email || !password) {
@@ -54,7 +55,7 @@ router.post('/register', async (req, res) => {
   }
 });
 
-router.post('/login', async (req, res) => {
+router.post('/login', verifyTurnstile, async (req, res) => {
   try {
     const { email, password } = req.body;
     if (!email || !password) {
@@ -86,7 +87,7 @@ router.post('/login', async (req, res) => {
   }
 });
 
-router.post('/send-otp', async (req, res) => {
+router.post('/send-otp', verifyTurnstile, async (req, res) => {
   try {
     const { email } = req.body;
     if (!email || !EMAIL_REGEX.test(email)) {

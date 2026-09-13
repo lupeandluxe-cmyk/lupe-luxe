@@ -2,10 +2,13 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Message from '../components/Message';
+import TurnstileField, { isTurnstileConfigured } from '../components/TurnstileField';
 
 export default function OtpLogin() {
   const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
+  const [captchaToken, setCaptchaToken] = useState('');
+  const [captchaReset, setCaptchaReset] = useState(0);
   const [step, setStep] = useState('email');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -16,11 +19,17 @@ export default function OtpLogin() {
   const handleSendOtp = async (e) => {
     e.preventDefault();
     setError('');
+    if (isTurnstileConfigured() && !captchaToken) {
+      setError('Please complete the security check.');
+      return;
+    }
     setLoading(true);
     try {
-      await requestOtp(email);
+      await requestOtp(email, captchaToken || undefined);
       setOtpSent(true);
       setStep('otp');
+      setCaptchaToken('');
+      setCaptchaReset((value) => value + 1);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to send OTP');
     } finally {
@@ -67,6 +76,7 @@ export default function OtpLogin() {
               <button type="submit" className="btn btn-primary btn-block btn-lg" disabled={loading}>
                 {loading ? 'Sending...' : 'Send OTP →'}
               </button>
+              <TurnstileField onVerify={setCaptchaToken} resetSignal={captchaReset} />
             </form>
           ) : (
             <form onSubmit={handleVerify}>

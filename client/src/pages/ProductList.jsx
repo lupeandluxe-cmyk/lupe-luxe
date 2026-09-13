@@ -127,7 +127,7 @@ export default function ProductList() {
             </div>
           ) : products.length === 0 ? (
             <div className="empty-state">
-              <span className="empty-icon">🏴‍☠️</span>
+              <span className="empty-icon">✦</span>
               <h3>No products found</h3>
               <p>Try a different search or category.</p>
               <Link to="/products" className="btn btn-outline">Clear Filters</Link>

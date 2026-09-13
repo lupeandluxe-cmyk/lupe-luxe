@@ -1,12 +1,12 @@
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
+import { WishlistProvider } from './context/WishlistContext';
 import { useEffect } from 'react';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ChatBot from './components/ChatBot';
 import BottomNav from './components/BottomNav';
-import IntroOverlay from './components/IntroOverlay';
 import AdminLayout from './components/AdminLayout';
 import useStandalone from './hooks/useStandalone';
 import Home from './pages/Home';
@@ -20,6 +20,8 @@ import OtpLogin from './pages/OtpLogin';
 import OtpRegister from './pages/OtpRegister';
 import Register from './pages/Register';
 import Profile from './pages/Profile';
+import Wishlist from './pages/Wishlist';
+import Page from './pages/Page';
 import AdminDashboard from './pages/admin/Dashboard';
 import AdminProducts from './pages/admin/Products';
 import EditProduct from './pages/admin/EditProduct';
@@ -50,8 +52,17 @@ function AdminRoute({ children }) {
 const AdminPage = ({ Component }) => <AdminLayout><Component /></AdminLayout>;
 
 function ScrollToTop() {
-  const { pathname } = useLocation();
-  useEffect(() => { window.scrollTo(0, 0); }, [pathname]);
+  const { pathname, hash } = useLocation();
+  useEffect(() => {
+    if (hash) {
+      const target = document.querySelector(hash);
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        return;
+      }
+    }
+    window.scrollTo(0, 0);
+  }, [pathname, hash]);
   return null;
 }
 
@@ -79,16 +90,17 @@ function AppRoutes() {
 
   return (
     <div className={`app ${isApp ? 'app-mode' : 'web-mode'}`}>
-      <IntroOverlay />
+      <a className="skip-link" href="#main">Skip to content</a>
       <ScrollToTop />
       <LazyImageObserver />
       {!isApp && <Navbar />}
-      <main className="main-content page-transition">
+      <main id="main" className="main-content page-transition">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/products" element={<ProductList />} />
           <Route path="/products/:id" element={<ProductDetail />} />
           <Route path="/cart" element={<Cart />} />
+          <Route path="/wishlist" element={<Wishlist />} />
           <Route path="/login" element={<Login />} />
           <Route path="/otp-login" element={<OtpLogin />} />
           <Route path="/otp-register" element={<OtpRegister />} />
@@ -96,7 +108,7 @@ function AppRoutes() {
           <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
           <Route path="/checkout" element={<PrivateRoute><Checkout /></PrivateRoute>} />
           <Route path="/order/:id" element={<PrivateRoute><OrderConfirm /></PrivateRoute>} />
-          <Route path="/page/:slug" element={<div>Page</div>} />
+          <Route path="/page/:slug" element={<Page />} />
           <Route path="/admin" element={<AdminRoute><AdminPage Component={AdminDashboard} /></AdminRoute>} />
           <Route path="/admin/products" element={<AdminRoute><AdminPage Component={AdminProducts} /></AdminRoute>} />
           <Route path="/admin/products/new" element={<AdminRoute><AdminPage Component={EditProduct} /></AdminRoute>} />
@@ -125,7 +137,9 @@ export default function App() {
   return (
     <AuthProvider>
       <CartProvider>
-        <AppRoutes />
+        <WishlistProvider>
+          <AppRoutes />
+        </WishlistProvider>
       </CartProvider>
     </AuthProvider>
   );

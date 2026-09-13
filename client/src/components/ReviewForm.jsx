@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/axios';
 import Message from './Message';
+import TurnstileField, { isTurnstileConfigured } from './TurnstileField';
 
 export default function ReviewForm({ onSuccess }) {
   const { user } = useAuth();
@@ -11,6 +12,7 @@ export default function ReviewForm({ onSuccess }) {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState('');
 
   if (!user) {
     return (
@@ -25,9 +27,15 @@ export default function ReviewForm({ onSuccess }) {
     setError('');
     setSuccess('');
     if (!text.trim()) return setError('Please write your review');
+    if (isTurnstileConfigured() && !captchaToken) return setError('Please complete the security check.');
     setSubmitting(true);
     try {
-      await api.post('/reviews', { rating, title: title.trim(), text: text.trim() });
+      await api.post('/reviews', {
+        rating,
+        title: title.trim(),
+        text: text.trim(),
+        ...(captchaToken ? { turnstileToken: captchaToken } : {}),
+      });
       setSuccess('Review submitted! Thank you! ⚓');
       setTitle('');
       setText('');
@@ -77,6 +85,7 @@ export default function ReviewForm({ onSuccess }) {
       <button type="submit" className="btn btn-primary" disabled={submitting}>
         {submitting ? 'Submitting...' : 'Submit Review'}
       </button>
+      <TurnstileField onVerify={setCaptchaToken} />
     </form>
   );
 }

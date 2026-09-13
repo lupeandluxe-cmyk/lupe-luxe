@@ -1,9 +1,9 @@
 export default function Message({ variant = 'info', children }) {
   const icons = {
-    success: '✦',
-    danger: '☠',
-    warning: '⚡',
-    info: '➜',
+    success: '✓',
+    danger: '!',
+    warning: '!',
+    info: 'i',
   };
   return (
     <div className={`message message-${variant}`}>

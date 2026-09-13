@@ -14,15 +14,24 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
-  const login = async (email, password) => {
-    const { data } = await api.post('/auth/login', { email, password });
+  const login = async (email, password, captchaToken) => {
+    const { data } = await api.post('/auth/login', {
+      email,
+      password,
+      ...(captchaToken ? { turnstileToken: captchaToken } : {}),
+    });
     localStorage.setItem('ll_user', JSON.stringify(data));
     setUser(data);
     return data;
   };
 
-  const register = async (name, email, password) => {
-    const { data } = await api.post('/auth/register', { name, email, password });
+  const register = async (name, email, password, captchaToken) => {
+    const { data } = await api.post('/auth/register', {
+      name,
+      email,
+      password,
+      ...(captchaToken ? { turnstileToken: captchaToken } : {}),
+    });
     localStorage.setItem('ll_user', JSON.stringify(data));
     setUser(data);
     return data;
@@ -40,8 +49,11 @@ export const AuthProvider = ({ children }) => {
     return data;
   };
 
-  const requestOtp = async (email) => {
-    await api.post('/auth/send-otp', { email });
+  const requestOtp = async (email, captchaToken) => {
+    await api.post('/auth/send-otp', {
+      email,
+      ...(captchaToken ? { turnstileToken: captchaToken } : {}),
+    });
   };
 
   const verifyOtp = async (email, otp, name) => {

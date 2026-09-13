@@ -1,4 +1,4 @@
-export default function Loader({ text = 'Setting sail...' }) {
+export default function Loader({ text = 'Loading...' }) {
   return (
     <div className="loader-container">
       <div className="loader">

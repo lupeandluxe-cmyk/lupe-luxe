@@ -1,6 +1,7 @@
 const express = require('express');
 const Review = require('../models/Review');
 const { protect } = require('../middleware/auth');
+const { verifyTurnstile } = require('../middleware/turnstile');
 const logger = require('../services/logger');
 
 const router = express.Router();
@@ -25,7 +26,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-router.post('/', protect, async (req, res) => {
+router.post('/', protect, verifyTurnstile, async (req, res) => {
   try {
     const { rating, title, text } = req.body;
     if (!rating || !text) {
