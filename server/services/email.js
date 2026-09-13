@@ -108,7 +108,7 @@ async function sendOtpEmail(toEmail, otp) {
       auth: { user: emailUser, pass: emailPass },
     });
 
-    const info = await t.sendMail({
+    await t.sendMail({
       from: emailUser,
       to: toEmail,
       subject: 'Your OTP for Lupe & Luxe',
@@ -132,7 +132,6 @@ async function sendOtpEmail(toEmail, otp) {
       `,
     });
     console.log('📧 OTP email sent to', toEmail);
-    return { to: toEmail, messageId: info.messageId, accepted: info.accepted, response: info.response };
   } catch (err) {
     console.error('📧 OTP email failed:', err.message);
     throw err;

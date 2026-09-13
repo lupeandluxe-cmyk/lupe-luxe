@@ -110,12 +110,12 @@ router.post('/send-otp', verifyTurnstile, async (req, res) => {
       lastResendAt: new Date(),
     });
     try {
-      const debug = await sendOtpEmail(cleanEmail, otp);
+      await sendOtpEmail(cleanEmail, otp);
       logger.otp(cleanEmail, 'sent', req.ip);
-      res.json({ message: 'OTP sent to your email', _debug: debug });
+      res.json({ message: 'OTP sent to your email' });
     } catch (err) {
       logger.otp(cleanEmail, 'send_failed', req.ip);
-      res.status(500).json({ message: 'Failed to send OTP. Try again.', _debugError: err.message });
+      res.status(500).json({ message: 'Failed to send OTP. Try again.' });
     }
   } catch (err) {
     logger.error('Send OTP error', { message: err.message });
