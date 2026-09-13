@@ -5,6 +5,16 @@ import ProductCard from '../components/ProductCard';
 import Loader from '../components/Loader';
 import Message from '../components/Message';
 
+const AUDIENCE_TITLES = {
+  boys: 'Boys',
+  girls: 'Girls',
+  women: 'Women',
+  men: 'Men',
+  unisex: 'Unisex',
+  jewels: 'Jewels',
+  accessories: 'Accessories',
+};
+
 export default function ProductList() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [products, setProducts] = useState([]);
@@ -14,6 +24,7 @@ export default function ProductList() {
 
   const keyword = searchParams.get('keyword') || '';
   const category = searchParams.get('category') || '';
+  const audience = searchParams.get('audience') || '';
   const page = Number(searchParams.get('page')) || 1;
   const [pages, setPages] = useState(1);
   const [total, setTotal] = useState(0);
@@ -27,6 +38,7 @@ export default function ProductList() {
         const params = { page };
         if (keyword) params.keyword = keyword;
         if (category) params.category = category;
+        if (audience) params.audience = audience;
         const { data } = await api.get('/products', { params });
         setProducts(data.products);
         setPages(data.pages);
@@ -38,7 +50,7 @@ export default function ProductList() {
       }
     };
     fetchProducts();
-  }, [keyword, category, page]);
+  }, [keyword, category, audience, page]);
 
   useEffect(() => {
     api.get('/products/categories').then(({ data }) => setCategories(data));
@@ -56,7 +68,7 @@ export default function ProductList() {
 
   const handleSearch = (e) => {
     e.preventDefault();
-    updateParams({ keyword: searchInput });
+    updateParams({ keyword: searchInput, audience: '' });
   };
 
   if (loading && products.length === 0) return <Loader />;
@@ -68,7 +80,13 @@ export default function ProductList() {
           <div className="shop-header-content">
             <div>
               <h1 className="shop-title">
-                {category ? category : keyword ? `"${keyword}"` : 'All Products'}
+                {audience && AUDIENCE_TITLES[audience]
+                  ? AUDIENCE_TITLES[audience]
+                  : category
+                    ? category
+                    : keyword
+                      ? `"${keyword}"`
+                      : 'All Products'}
               </h1>
               <p className="shop-count">{total} {total === 1 ? 'product' : 'products'}</p>
             </div>
@@ -95,13 +113,13 @@ export default function ProductList() {
             <h3 className="sidebar-title">Categories</h3>
             <ul className="sidebar-list">
               <li>
-                <button className={`sidebar-btn ${!category ? 'active' : ''}`} onClick={() => { updateParams({ category: '' }); setSidebarOpen(false); }}>
+                <button className={`sidebar-btn ${!category && !audience ? 'active' : ''}`} onClick={() => { updateParams({ category: '', audience: '' }); setSidebarOpen(false); }}>
                   All Products
                 </button>
               </li>
               {categories.map((cat) => (
                 <li key={cat}>
-                  <button className={`sidebar-btn ${category === cat ? 'active' : ''}`} onClick={() => { updateParams({ category: cat }); setSidebarOpen(false); }}>
+                  <button className={`sidebar-btn ${category === cat ? 'active' : ''}`} onClick={() => { updateParams({ category: cat, audience: '' }); setSidebarOpen(false); }}>
                     {cat}
                   </button>
                 </li>

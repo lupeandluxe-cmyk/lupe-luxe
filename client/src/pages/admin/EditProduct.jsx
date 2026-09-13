@@ -10,7 +10,7 @@ export default function EditProduct() {
   const [form, setForm] = useState({
     name: '', description: '', price: '', salePrice: '', category: '',
     countInStock: '', sku: '', featured: false, bestSeller: false, visible: true,
-    tags: '', size: '', images: [],
+    audiences: [], tags: '', size: '', images: [],
   });
   const [loading, setLoading] = useState(!isNew);
   const [uploading, setUploading] = useState(false);
@@ -25,6 +25,7 @@ export default function EditProduct() {
           salePrice: p.salePrice || '', category: p.category,
           countInStock: p.countInStock, sku: p.sku || '', featured: p.featured,
           bestSeller: p.bestSeller, visible: p.visible !== false,
+          audiences: p.audiences || [],
           tags: p.tags?.join(', ') || '', size: p.size?.join(', ') || '',
           images: p.images || [],
         });
@@ -55,6 +56,15 @@ export default function EditProduct() {
 
   const removeImage = (idx) => {
     setForm({ ...form, images: form.images.filter((_, i) => i !== idx) });
+  };
+
+  const toggleAudience = (value) => {
+    setForm((prev) => ({
+      ...prev,
+      audiences: prev.audiences.includes(value)
+        ? prev.audiences.filter((a) => a !== value)
+        : [...prev.audiences, value],
+    }));
   };
 
   const handleSubmit = async (e) => {
@@ -90,6 +100,21 @@ export default function EditProduct() {
           <div className="form-group"><label>SKU</label><input name="sku" value={form.sku} onChange={handleChange} /></div>
           <div className="form-group"><label>Tags (comma separated)</label><input name="tags" value={form.tags} onChange={handleChange} /></div>
           <div className="form-group"><label>Sizes (comma separated)</label><input name="size" value={form.size} onChange={handleChange} /></div>
+        </div>
+        <div className="form-group">
+          <label>Audiences (shop filters)</label>
+          <div className="form-row" style={{ gridTemplateColumns: 'repeat(3, minmax(0, 1fr))' }}>
+            {['boys', 'girls', 'women', 'men', 'unisex', 'jewels', 'accessories'].map((a) => (
+              <label key={a} style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', fontSize: '0.85rem', fontWeight: 600, textTransform: 'capitalize', letterSpacing: 0 }}>
+                <input
+                  type="checkbox"
+                  checked={form.audiences.includes(a)}
+                  onChange={() => toggleAudience(a)}
+                />
+                {a}
+              </label>
+            ))}
+          </div>
         </div>
         <div className="form-group"><label>Description</label><textarea name="description" rows="4" value={form.description} onChange={handleChange} required /></div>
         <div className="form-row">

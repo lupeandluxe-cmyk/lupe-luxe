@@ -4,12 +4,12 @@ import api from '../api/axios';
 
 const SHOP_LINKS = [
   { label: 'New Arrivals', to: '/products?sort=latest' },
-  { label: 'Boys', to: '/products?keyword=Tee' },
-  { label: 'Girls', to: '/products?keyword=Sweater' },
-  { label: 'Women', to: '/products?category=Sweaters' },
-  { label: 'Men', to: '/products?category=Outerwear' },
-  { label: 'Jewels', to: '/products?keyword=Keychain' },
-  { label: 'Accessories', to: '/products?category=Accessories' },
+  { label: 'Boys', to: '/products?audience=boys' },
+  { label: 'Girls', to: '/products?audience=girls' },
+  { label: 'Women', to: '/products?audience=women' },
+  { label: 'Men', to: '/products?audience=men' },
+  { label: 'Jewels', to: '/products?audience=jewels' },
+  { label: 'Accessories', to: '/products?audience=accessories' },
   { label: 'Sale', to: '/#sale' },
 ];
 

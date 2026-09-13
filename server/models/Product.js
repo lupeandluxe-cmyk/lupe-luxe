@@ -8,6 +8,10 @@ const productSchema = new mongoose.Schema({
   salePrice: { type: Number },
   images: [{ type: String }],
   category: { type: String, required: true },
+  audiences: [{
+    type: String,
+    enum: ['boys', 'girls', 'women', 'men', 'unisex', 'jewels', 'accessories'],
+  }],
   tags: [{ type: String }],
   size: [{ type: String }],
   countInStock: { type: Number, required: true, default: 0 },
@@ -20,4 +24,5 @@ const productSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 // slug is already defined as unique: true above
+productSchema.index({ audiences: 1 });
 module.exports = mongoose.model('Product', productSchema);

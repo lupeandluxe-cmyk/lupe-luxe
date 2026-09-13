@@ -7,9 +7,9 @@ import api from '../api/axios';
 
 const NAV_LINKS = [
   { to: '/products?sort=latest', label: 'New In', match: (search) => search.includes('sort=latest') },
-  { to: '/products?category=Sweaters', label: 'Women', match: (search) => search.includes('category=Sweaters') },
-  { to: '/products?category=Outerwear', label: 'Men', match: (search) => search.includes('category=Outerwear') },
-  { to: '/products?keyword=Keychain', label: 'Jewels', match: (search) => search.includes('keyword=Keychain') },
+  { to: '/products?audience=women', label: 'Women', match: (search) => search.includes('audience=women') },
+  { to: '/products?audience=men', label: 'Men', match: (search) => search.includes('audience=men') },
+  { to: '/products?audience=jewels', label: 'Jewels', match: (search) => search.includes('audience=jewels') },
   { to: '/#sale', label: 'Sale', sale: true, match: (_, hash) => hash === '#sale' },
 ];
 
@@ -197,9 +197,9 @@ export default function Navbar() {
         </div>
         <div className="mobile-menu-body">
           <Link to="/products?sort=latest" className="mobile-link" onClick={() => setMenuOpen(false)}>New In</Link>
-          <Link to="/products?category=Sweaters" className="mobile-link" onClick={() => setMenuOpen(false)}>Women</Link>
-          <Link to="/products?category=Outerwear" className="mobile-link" onClick={() => setMenuOpen(false)}>Men</Link>
-          <Link to="/products?keyword=Keychain" className="mobile-link" onClick={() => setMenuOpen(false)}>Jewels</Link>
+          <Link to="/products?audience=women" className="mobile-link" onClick={() => setMenuOpen(false)}>Women</Link>
+          <Link to="/products?audience=men" className="mobile-link" onClick={() => setMenuOpen(false)}>Men</Link>
+          <Link to="/products?audience=jewels" className="mobile-link" onClick={() => setMenuOpen(false)}>Jewels</Link>
           <Link to="/#sale" className="mobile-link" onClick={() => setMenuOpen(false)}>Sale</Link>
           <Link to="/wishlist" className="mobile-link" onClick={() => setMenuOpen(false)}>Wishlist {wishlistCount > 0 && `(${wishlistCount})`}</Link>
           <Link to="/cart" className="mobile-link" onClick={() => setMenuOpen(false)}>Cart {totalItems > 0 && `(${totalItems})`}</Link>

@@ -4,6 +4,18 @@ const { protect, admin } = require('../middleware/auth');
 
 const router = express.Router();
 
+// Canonical audience taxonomy. Gendered audiences also include `unisex`
+// products, since unisex pieces fit everyone.
+const AUDIENCE_GROUPS = {
+  boys: ['boys', 'unisex'],
+  girls: ['girls', 'unisex'],
+  women: ['women', 'unisex'],
+  men: ['men', 'unisex'],
+  unisex: ['unisex'],
+  jewels: ['jewels'],
+  accessories: ['accessories'],
+};
+
 router.get('/', async (req, res) => {
   try {
     const pageSize = 12;
@@ -12,9 +24,13 @@ router.get('/', async (req, res) => {
       ? { name: { $regex: req.query.keyword, $options: 'i' } }
       : {};
     const category = req.query.category ? { category: req.query.category } : {};
+    const audienceKey = String(req.query.audience || req.query.audiences || '').toLowerCase();
+    const audience = AUDIENCE_GROUPS[audienceKey]
+      ? { audiences: { $in: AUDIENCE_GROUPS[audienceKey] } }
+      : {};
     const visible = { visible: true };
-    const count = await Product.countDocuments({ ...keyword, ...category, ...visible });
-    const products = await Product.find({ ...keyword, ...category, ...visible })
+    const count = await Product.countDocuments({ ...keyword, ...category, ...audience, ...visible });
+    const products = await Product.find({ ...keyword, ...category, ...audience, ...visible })
       .sort({ createdAt: -1 })
       .limit(pageSize)
       .skip(pageSize * (page - 1));
@@ -61,6 +77,35 @@ router.get('/latest', async (req, res) => {
   }
 });
 
+function inferAudiences(product) {
+  const haystack = `${product.category || ''} ${product.name || ''} ${(product.tags || []).join(' ')}`.toLowerCase();
+  const found = new Set();
+  if (/accessor|cap|hat|tote|bag|keychain|charm/.test(haystack)) found.add('accessories');
+  if (/chain|bracelet|ring|earring|pendant|charm|keychain|jewel/.test(haystack)) found.add('jewels');
+  if (/tee|hoodie|jacket|sweater|kimono|vest|cargo|pants|denim|drop|thrift|vintage|limited|bottom|outerwear|custom|dress|shirt/.test(haystack)) found.add('unisex');
+  if (found.size === 0) found.add('unisex');
+  return [...found];
+}
+
+// TEMPORARY one-time backfill. Removed after use.
+router.post('/migrate-audiences', protect, admin, async (req, res) => {
+  try {
+    if (req.body?.secret !== 'lupe-audience-backfill-2026') {
+      return res.status(403).json({ message: 'Forbidden' });
+    }
+    const products = await Product.find({ $or: [{ audiences: { $exists: false } }, { audiences: { $size: 0 } }] });
+    let updated = 0;
+    for (const product of products) {
+      product.audiences = inferAudiences(product);
+      await product.save();
+      updated += 1;
+    }
+    res.json({ message: 'Audiences backfilled', updated, total: products.length });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 router.get('/all', protect, admin, async (req, res) => {
   try {
     const products = await Product.find({}).sort({ createdAt: -1 });
@@ -83,7 +128,7 @@ router.get('/:id', async (req, res) => {
 
 router.post('/', protect, admin, async (req, res) => {
   try {
-    const { name, description, price, salePrice, images, category, tags, size, countInStock, sku, featured, bestSeller, visible } = req.body;
+    const { name, description, price, salePrice, images, category, audiences, tags, size, countInStock, sku, featured, bestSeller, visible } = req.body;
     if (!name || !description || price == null || !category || countInStock == null) {
       return res.status(400).json({ message: 'name, description, price, category, and countInStock are required' });
     }
@@ -97,7 +142,7 @@ router.post('/', protect, admin, async (req, res) => {
     const existing = await Product.findOne({ slug });
     if (existing) slug = slug + '-' + Date.now();
     const product = await Product.create({
-      name, slug, description, price, salePrice, images, category, tags, size,
+      name, slug, description, price, salePrice, images, category, audiences, tags, size,
       countInStock, sku, featured: featured || false, bestSeller: bestSeller || false,
       visible: visible !== false,
     });
@@ -112,7 +157,7 @@ router.put('/:id', protect, admin, async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
     if (product) {
-      const allowed = ['name', 'description', 'price', 'salePrice', 'images', 'category', 'tags', 'size', 'countInStock', 'sku', 'featured', 'bestSeller', 'visible'];
+      const allowed = ['name', 'description', 'price', 'salePrice', 'images', 'category', 'audiences', 'tags', 'size', 'countInStock', 'sku', 'featured', 'bestSeller', 'visible'];
       allowed.forEach(f => { if (req.body[f] !== undefined) product[f] = req.body[f]; });
       if (req.body.name) {
         let newSlug = req.body.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');

@@ -28,26 +28,21 @@ const IMG = {
 };
 
 const CIRCLES = [
-  { label: 'Boys', to: '/products?keyword=Tee', image: IMG.boys, alt: 'Boys tees' },
-  { label: 'Girls', to: '/products?keyword=Sweater', image: IMG.girls, alt: 'Girls knitwear' },
-  { label: 'Jewels', to: '/products?keyword=Keychain', image: IMG.jewels, alt: 'Jewels and charms' },
-  { label: 'Accessories', to: '/products?category=Accessories', image: IMG.accessories, alt: 'Accessories' },
+  { label: 'Boys', to: '/products?audience=boys', image: IMG.boys, alt: 'Boys edit' },
+  { label: 'Girls', to: '/products?audience=girls', image: IMG.girls, alt: 'Girls edit' },
+  { label: 'Jewels', to: '/products?audience=jewels', image: IMG.jewels, alt: 'Jewels and charms' },
+  { label: 'Accessories', to: '/products?audience=accessories', image: IMG.accessories, alt: 'Accessories' },
 ];
 
 const COLLECTIONS = [
-  { title: 'Women', text: 'Soft knits, relaxed fits and everyday staples.', to: '/products?category=Sweaters', image: IMG.women, alt: 'Women collection' },
-  { title: 'Men', text: 'Outerwear, hoodies and statement layers.', to: '/products?category=Outerwear', image: IMG.men, alt: 'Men collection' },
-  { title: 'Jewels', text: 'Charms and finishing touches with a luxe edge.', to: '/products?keyword=Keychain', image: IMG.jewels, alt: 'Jewels collection' },
-  { title: 'Accessories', text: 'Caps, totes, hats and carry-everywhere pieces.', to: '/products?category=Accessories', image: IMG.tote, alt: 'Accessories collection' },
+  { title: 'Women', text: 'Soft knits, relaxed fits and everyday staples.', to: '/products?audience=women', image: IMG.women, alt: 'Women collection' },
+  { title: 'Men', text: 'Outerwear, hoodies and statement layers.', to: '/products?audience=men', image: IMG.men, alt: 'Men collection' },
+  { title: 'Jewels', text: 'Charms and finishing touches with a luxe edge.', to: '/products?audience=jewels', image: IMG.jewels, alt: 'Jewels collection' },
+  { title: 'Accessories', text: 'Caps, totes, hats and carry-everywhere pieces.', to: '/products?audience=accessories', image: IMG.tote, alt: 'Accessories collection' },
 ];
 
 function hasSale(product) {
   return product.salePrice && product.salePrice < product.price;
-}
-
-function isJewelLike(product) {
-  const haystack = `${product.category || ''} ${product.name || ''} ${(product.tags || []).join(' ')}`.toLowerCase();
-  return /(jewel|chain|bracelet|ring|earring|pendant|charm|keychain)/.test(haystack);
 }
 
 function uniqueProducts(lists) {
@@ -91,7 +86,7 @@ function ShopHero({ eyebrow, titleLines, text, ctaText, ctaLink, image, imageAlt
             <Link to={ctaLink} className="explore-link">
               {ctaText}
             </Link>
-            <Link to="/products?category=Accessories" className="hero-secondary-link">
+            <Link to="/products?audience=accessories" className="hero-secondary-link">
               Shop accessories
             </Link>
           </div>
@@ -118,6 +113,8 @@ export default function Home() {
   const [featured, setFeatured] = useState([]);
   const [latest, setLatest] = useState([]);
   const [bestSellers, setBestSellers] = useState([]);
+  const [jewelProducts, setJewelProducts] = useState([]);
+  const [accessoryProducts, setAccessoryProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [site, setSite] = useState({});
   const [loading, setLoading] = useState(true);
@@ -137,18 +134,22 @@ export default function Home() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [secRes, featRes, latRes, bestRes, catRes] = await Promise.all([
+        const [secRes, featRes, latRes, bestRes, catRes, jewelRes, accRes] = await Promise.all([
           api.get('/homepage'),
           api.get('/products/featured'),
           api.get('/products/latest'),
           api.get('/products/best-sellers'),
           api.get('/products/categories'),
+          api.get('/products', { params: { audience: 'jewels', page: 1 } }),
+          api.get('/products', { params: { audience: 'accessories', page: 1 } }),
         ]);
         setSections(secRes.data);
         setFeatured(featRes.data);
         setLatest(latRes.data);
         setBestSellers(bestRes.data);
         setCategories(catRes.data);
+        setJewelProducts(jewelRes.data.products || []);
+        setAccessoryProducts(accRes.data.products || []);
       } catch {
         /* silent */
       } finally {
@@ -174,8 +175,8 @@ export default function Home() {
 
   const catalog = uniqueProducts([featured, latest, bestSellers]);
   const saleItems = catalog.filter(hasSale).slice(0, 4);
-  const jewelItems = catalog.filter(isJewelLike).slice(0, 4);
-  const accessoryItems = catalog.filter((p) => p.category === 'Accessories').slice(0, 4);
+  const jewelItems = jewelProducts.slice(0, 4);
+  const accessoryItems = accessoryProducts.slice(0, 4);
   const instagramUrl = site.instagramUrl || site.instagram || '';
   const contactEmail = site.contactEmail || '';
 
@@ -416,7 +417,7 @@ export default function Home() {
                 ))}
               </div>
               <div className="section-actions section-action">
-                <Link to="/products?keyword=Keychain" className="btn btn-outline">
+                <Link to="/products?audience=jewels" className="btn btn-outline">
                   Shop all jewels →
                 </Link>
               </div>
@@ -426,7 +427,7 @@ export default function Home() {
               <span className="empty-icon">✦</span>
               <h3>The jewel edit is being curated</h3>
               <p>Explore accessories from the live catalogue meanwhile.</p>
-              <Link to="/products?category=Accessories" className="btn btn-outline" style={{ marginTop: '1rem' }}>
+              <Link to="/products?audience=accessories" className="btn btn-outline" style={{ marginTop: '1rem' }}>
                 Shop accessories
               </Link>
             </div>
