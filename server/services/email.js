@@ -47,6 +47,8 @@ async function sendOrderEmail(order) {
           <h2 style="margin:0 0 10px;font-size:1.1rem;">Order #${order._id.slice(-10).toUpperCase()}</h2>
           <table style="width:100%;border-collapse:collapse;">
             <tr><td style="padding:4px 0;color:#666;">Date</td><td style="text-align:right;">${new Date(order.createdAt).toLocaleString()}</td></tr>
+            <tr><td style="padding:4px 0;color:#666;">Customer</td><td style="text-align:right;">${order.user?.name || 'Guest'}</td></tr>
+            <tr><td style="padding:4px 0;color:#666;">Customer Email</td><td style="text-align:right;">${order.user?.email || '—'}</td></tr>
             <tr><td style="padding:4px 0;color:#666;">Payment</td><td style="text-align:right;">${order.paymentMethod.toUpperCase()}</td></tr>
             <tr><td style="padding:4px 0;color:#666;">Payment Status</td><td style="text-align:right;">${paymentStatus}</td></tr>
             <tr><td style="padding:4px 0;color:#666;">Total</td><td style="text-align:right;font-size:1.2rem;font-weight:700;">₹${order.totalPrice.toFixed(0)}</td></tr>

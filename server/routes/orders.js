@@ -71,7 +71,9 @@ router.post('/', protect, async (req, res) => {
       io.to('admin').emit('new_order', { orderId: order._id, totalPrice: order.totalPrice, customer: req.user?.name });
     }
 
-    sendOrderEmail(order).catch(err => logger.error('Order email failed', { message: err.message, orderId: order._id }));
+    order.populate('user', 'name email')
+      .then(() => sendOrderEmail(order))
+      .catch(err => logger.error('Order email failed', { message: err.message, orderId: order._id }));
     logger.payment(order._id, 'created', { method: paymentMethod, amount: totalPrice, userId: req.user._id });
 
     res.status(201).json(order);
